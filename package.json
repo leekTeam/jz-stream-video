@@ -61,6 +61,7 @@
     "@dcloudio/uni-stacktracey": "3.0.0-alpha-3061020221121002",
     "@dcloudio/vite-plugin-uni": "3.0.0-alpha-3061020221121002",
     "eslint": "^8.30.0",
+    "mockjs": "^1.1.0",
     "typescript": "^4.8.4",
     "vite": "^3.2.4",
     "vite-plugin-eslint": "^1.8.1"

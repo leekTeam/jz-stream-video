@@ -9,7 +9,7 @@ const title = ref('Hello')
     <view class="text-area">
       <text class="title">
         {{ title }}123123大苏打撒旦
-      </text>
+      </text>l
     </view>
   </view>
 </template>
