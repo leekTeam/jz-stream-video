@@ -11,7 +11,12 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
-    "types": ["@dcloudio/types"]
+    "types": ["@dcloudio/types"],
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+    },
   },
   "exclude": [
     ".hbuilderx",
@@ -19,6 +24,7 @@
     ".vscode",
     "dist",
     "node_modules",
-    "unpackage"
+    "unpackage",
+    "uni_modules"
   ]
 }

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useAppStore } from '@/store'
 const title = ref('Hello')
+
+const appStore = useAppStore()
 </script>
 
 <template>
@@ -9,7 +12,8 @@ const title = ref('Hello')
     <view class="text-area">
       <text class="title">
         {{ title }}123123大苏打撒旦
-      </text>l
+      </text>
+      {{ appStore.count }}
     </view>
   </view>
 </template>
