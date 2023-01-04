@@ -1,5 +1,5 @@
 module.exports = {
-	root: true,
+  root: true,
   extends: [
     '@antfu',
   ],
@@ -9,4 +9,5 @@ module.exports = {
   rules: {
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
+  ignorePatterns: ['!*.d.ts'],
 }
