@@ -1,55 +1,61 @@
 {
-	"pages": [
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "uni-app"
-			}
-		},{
-			"path": "pages/user/index",
-			"style": {
-				"navigationBarTitleText": "uni-app"
-			}
-		}
-	],
-	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
-	},
-	"tabBar":{
-		"color":"#333333",
-		"selectedColor":"#FC5C82",
-		"backgroundColor":"#FFFFFF",
-		"borderStyle":"black",
-		"fontSize":"14px",
-		"list":[
-			{
-				"pagePath":"pages/index/index",
-				"text":"娱乐",
-				"iconPath":"static/tabbar/fun.png",
-				"selectedIconPath":"static/tabbar/funed.png"
-			},
-			{
-				"pagePath":"pages/user/index",
-				"text":"我的",
-				"iconPath":"static/tabbar/user.png",
-				"selectedIconPath":"static/tabbar/usered.png"
-			}
-		]
-	},
-	"condition" : {
-		"current": 0,
-		"list": [
-			{
-				"name": "",
-				"path": "", 
-				"query": "" 
-			}
-		]
-	},
-	"easycom": {
-		"autoscan": true
-	}
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "娱乐"
+      }
+    },
+    {
+      "path": "pages/user/index",
+      "style": {
+        "navigationBarTitleText": "jz-stream-video"
+      }
+    },
+    {
+      "path": "pages/storage/index",
+      "style": {
+        "navigationBarTitleText": "缓存设置"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "#FFFFFF",
+    "navigationBarTitleText": "jz-stream-video",
+    "navigationBarBackgroundColor": "#E74C3C"
+  },
+  "tabBar": {
+    "color": "#333333",
+    "selectedColor": "#E74C3C",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "fontSize": "14px",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "娱乐",
+        "iconPath": "static/tabbar/fun.png",
+        "selectedIconPath": "static/tabbar/funed.png"
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/user.png",
+        "selectedIconPath": "static/tabbar/usered.png"
+      }
+    ]
+  },
+  "condition": {
+    "current": 0,
+    "list": [
+      {
+        "name": "",
+        "path": "",
+        "query": ""
+      }
+    ]
+  },
+  "easycom": {
+    "autoscan": true
+  }
 }

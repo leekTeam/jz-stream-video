@@ -1,3 +1,5 @@
+import { BASE_URL_KEY } from '@/constant/storage'
+
 const mockModules = import.meta.glob('../mock/**/*.ts', { eager: true })
 
 const mockPathMap = Object.entries(mockModules).reduce((obj, [path, module]) => {
@@ -17,7 +19,7 @@ function mockRequest(options: UniApp.RequestOptions, callback: (...args: any) =>
 }
 
 function buildUrl(url: string) {
-  const baseUrl = uni.getStorageSync('base_url')
+  const baseUrl = uni.getStorageSync(BASE_URL_KEY)
   return `${baseUrl}${url}`
 }
 
