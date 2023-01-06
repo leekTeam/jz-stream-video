@@ -8,7 +8,7 @@ export const useTheme = () => {
   const updateTheme = () => {
     themeStore.updatePageTheme()
   }
-
+  // 订阅主题改变
   onInit(() => {
     uni.$on(THEME_CHANGE, updateTheme)
   })
