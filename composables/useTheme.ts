@@ -1,17 +1,23 @@
-import { onReady, onShow } from '@dcloudio/uni-app'
-import { nextTick } from 'vue'
+import { onInit, onReady, onUnload } from '@dcloudio/uni-app'
 import { useThemeStore } from '@/store'
+import { THEME_CHANGE } from '@/constant/event'
 
 export const useTheme = () => {
   const themeStore = useThemeStore()
 
-  onShow(() => {
-    nextTick(() => {
-      themeStore.updatePageTheme()
-    })
+  const updateTheme = () => {
+    themeStore.updatePageTheme()
+  }
+
+  onInit(() => {
+    uni.$on(THEME_CHANGE, updateTheme)
   })
 
   onReady(() => {
-    themeStore.updatePageTheme()
+    updateTheme()
+  })
+
+  onUnload(() => {
+    uni.$off(THEME_CHANGE, updateTheme)
   })
 }
