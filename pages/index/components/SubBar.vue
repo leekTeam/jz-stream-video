@@ -45,27 +45,20 @@ const style = {
 </script>
 
 <template>
-  <u-tabs
-    v-model="current"
-    class="tab-box"
-    :active-color="themeStore.primaryColor"
-    :name="name"
-    :list="list"
-    :show-bar="false"
-    :active-item-style="style"
-    @change="changeTab"
-  />
+  <u-tabs v-model="current" class="tab-box" :active-color="themeStore.primaryColor" :name="name" :list="list"
+    :show-bar="false" :active-item-style="style" @change="changeTab" />
 </template>
 
 <style lang="scss" scoped>
-	.tab-box ::v-deep {
-		.u-tab-item {
-			background-color: #f4f4f5;
-			border-radius: 43rpx;
-			margin-left: 20rpx;
-			&:not(:last-child) {
-				margin-right: 20rpx;
-			}
-		}
-	}
+.tab-box ::v-deep {
+  .u-tab-item {
+    background-color: #f4f4f5;
+    border-radius: 43rpx;
+    margin-left: 20rpx;
+
+    &:not(:last-child) {
+      margin-right: 20rpx;
+    }
+  }
+}
 </style>

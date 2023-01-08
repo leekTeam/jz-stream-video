@@ -27,15 +27,8 @@ const changeTab = (index: number) => {
 </script>
 
 <template>
-  <u-tabs
-    v-model="current"
-    :active-color="themeStore.primaryColor"
-    :name="name"
-    :list="list"
-    :show-bar="false"
-    :is-scroll="false"
-    @change="changeTab"
-  />
+  <u-tabs v-model="current" :active-color="themeStore.primaryColor" :name="name" :list="list" :show-bar="false"
+    :is-scroll="false" @change="changeTab" />
 </template>
 
 <style lang="ts" scoped>

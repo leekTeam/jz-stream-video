@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import MediaItem from './MediaItem'
+import MediaItem from './MediaItem.vue'
 const props = defineProps({
   tabs: {
     type: Array,
@@ -43,35 +43,18 @@ const hanldeClick = (mediaItem) => {
 </script>
 
 <template>
-  <swiper
-    class="swiper-box"
-    :current="swiperCurrent"
-    @change="changeSwiper"
-  >
-    <swiper-item
-      v-for="(item, index) in tabs"
-      :key="index"
-      class="swiper-item"
-    >
-      <scroll-view
-        scroll-y
-        style="height: 100%;width: 100%;"
-        @scrolltolower="onreachBottom"
-      >
-        <MediaItem
-          v-for="mediaItem in list"
-          :key="mediaItem.cid"
-          :item="mediaItem"
-          @click="hanldeClick(mediaItem)"
-        />
-        <u-loadmore :status="status" icon-type="flower" :load-text="loadText" />
+  <swiper class="swiper-box" :current="swiperCurrent" @change="changeSwiper">
+    <swiper-item v-for="(item, index) in tabs" :key="index" class="swiper-item">
+      <scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="onreachBottom">
+        <MediaItem v-for="mediaItem in list" :key="mediaItem.cid" :item="mediaItem" @click="hanldeClick(mediaItem)" />
+        <u-loadmore icon-type="flower" :status="status" :load-text="loadText" />
       </scroll-view>
     </swiper-item>
   </swiper>
 </template>
 
 <style lang="scss" scoped>
-	.swiper-box {
-		height: calc( 100vh - 44px - 80px - 80px);
-	}
+.swiper-box {
+  height: calc(100vh - 44px - 80px - 80px);
+}
 </style>

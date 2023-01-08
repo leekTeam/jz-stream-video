@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import NavBar from './components/NavBar'
-import Media from './components/media/index'
+import { ref } from 'vue'
+import NavBar from './components/NavBar.vue'
+import Media from './components/media/index.vue'
 import { useThemeStore } from '@/store'
 import { useTheme } from '@/composables'
 import { MEDIA_LIST } from '@/constant/media'
@@ -13,12 +13,6 @@ useTheme()
 const currentValue = ref(MEDIA_LIST[0].value)
 const changeTab = (index: number) => {
   currentValue.value = MEDIA_LIST[index].value
-}
-
-const list = ref([])
-const currentSubValue = ref('')
-const changeSubTab = (index: number) => {
-  currentSubValue.value = list.value[index].cid
 }
 </script>
 

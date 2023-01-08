@@ -55,14 +55,9 @@ onMounted(() => {
 
 <template>
   <SubBar v-model="current" :list="tabList" @change="changeTab" />
-  <MediaList
-    :status="status"
-    :tabs="tabList"
-    :list="list"
-    @onreachBottom="onreachBottom"
-    @change="changeSwiper"
-  />
+  <MediaList :status="status" :tabs="tabList" :list="list" @onreachBottom="onreachBottom" @change="changeSwiper" />
 </template>
 
 <style>
+
 </style>
