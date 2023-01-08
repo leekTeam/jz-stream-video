@@ -13,21 +13,20 @@ export enum MEDIA_NAME {
 }
 
 export const MEDIA_LIST = [
-	{
-		label: MEDIA_NAME.movie,
-		value: MEDIA_TYPE.MOVIE
-	},
-	{
-		label: MEDIA_NAME.ebook,
-		value: MEDIA_TYPE.EBOOK
-	},
-	{
-		label: MEDIA_NAME.sound,
-		value: MEDIA_TYPE.SOUND
-	},
-	{
-		label: MEDIA_NAME.music,
-		value: MEDIA_TYPE.MUSIC
-	},
+  {
+    label: MEDIA_NAME.movie,
+    value: MEDIA_TYPE.MOVIE,
+  },
+  {
+    label: MEDIA_NAME.ebook,
+    value: MEDIA_TYPE.EBOOK,
+  },
+  {
+    label: MEDIA_NAME.sound,
+    value: MEDIA_TYPE.SOUND,
+  },
+  {
+    label: MEDIA_NAME.music,
+    value: MEDIA_TYPE.MUSIC,
+  },
 ]
-

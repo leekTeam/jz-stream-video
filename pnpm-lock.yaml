@@ -20,6 +20,7 @@ specifiers:
   '@dcloudio/uni-stacktracey': 3.0.0-3061520221228001
   '@dcloudio/vite-plugin-uni': 3.0.0-3061520221228001
   eslint: ^8.30.0
+  eventemitter2: ^6.4.9
   mockjs: ^1.1.0
   pinia: ^2.0.28
   sass: ^1.57.1
@@ -45,6 +46,7 @@ dependencies:
   '@dcloudio/uni-mp-toutiao': 3.0.0-3061520221228001_vue@3.2.45
   '@dcloudio/uni-mp-weixin': 3.0.0-3061520221228001_vue@3.2.45
   '@dcloudio/uni-quickapp-webview': 3.0.0-3061520221228001_vue@3.2.45
+  eventemitter2: 6.4.9
   pinia: 2.0.28_prq2uz4lho2pwp6irk4cfkrxwu
   vue: 3.2.45
   vue-i18n: 9.2.2_vue@3.2.45
@@ -2618,6 +2620,10 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
     dev: true
+
+  /eventemitter2/6.4.9:
+    resolution: {integrity: sha512-JEPTiaOt9f04oa6NOkc4aH+nVp5I3wEjpHbIPqfgCdD5v5bUzy7xQqwcVO2aDQgOWhI28da57HksMrzK9HlRxg==}
+    dev: false
 
   /execa/5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
