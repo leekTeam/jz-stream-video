@@ -2,34 +2,50 @@
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { resMediaGet } from '@/api/movie'
+import { useThemeStore } from '@/store'
+import { useTheme } from '@/composables'
 
-const mediaDetailInfo = ref({})
+const themeStore = useThemeStore()
+useTheme()
+
+const mediaDetailInfo = ref({
+  playurl: '',
+  name: '',
+})
 const active = ref(1)
 const getMediaData = (rid: string) => {
   resMediaGet({ rid }).then((res) => {
-    console.log('res', res)
-    const { dataObject } = res
+    const { dataObject } = res as any
     mediaDetailInfo.value = dataObject[0]
-    active.value = dataObject[0].number
+    active.value = dataObject[0].number;
   })
 }
 
-const detailInfo = ref({})
+const handleClick = (currentValue: number) => {
+  active.value = currentValue
+}
+
+const detailInfo = ref({
+  label: '',
+  country: '',
+  years: '',
+  score: '',
+  tolnum: 1,
+  summary: '',
+})
 const currentScore = ref(0)
-onLoad((options) => {
-  console.log('options', options)
-  const { title, rid, ...args } = options
-  currentScore.value = options.score / 2
-  uni.setNavigationBarTitle({
-    title,
-  })
+onLoad((options = {}) => {
+  const item = JSON.parse(decodeURIComponent(options.item))
+  const { name: title, rid, ...args } = item
+  currentScore.value = item.score / 2
+  uni.setNavigationBarTitle({ title })
   detailInfo.value = args
   getMediaData(rid)
 })
 </script>
 
 <template>
-  <view class="media-detail-box">
+  <view class="media-detail-box" :style="themeStore.themeStyles">
     <video class="video-box" :src="mediaDetailInfo.playurl" />
     <view class="detail-box">
       <view class="title-box">
@@ -44,20 +60,35 @@ onLoad((options) => {
         <text>{{ detailInfo.country }}</text>
         <text>{{ detailInfo.years }}</text>
       </view>
-      <view class="score-box">
-        <u-rate class="rate" :current="currentScore" active-color="#fe9a00" disabled size="20" />
+      <view class="score-box mb_20">
+        <u-rate
+          class="rate"
+          :current="currentScore"
+          active-color="#fe9a00"
+          disabled
+          size="20"
+        />
         <text>{{ detailInfo.score }}</text>
       </view>
-      <view class="mb_20">
+      <view class="mb_20 title">
         选集
       </view>
-      <view class="anthology-btn-box">
-        <u-button v-for="item in 5" :key="item" :class="{ active: item === active }" size="default">
+      <view class="anthology-btn-box mb_20">
+        <u-button
+          v-for="item in detailInfo.tolnum"
+          :key="item"
+          :class="{ active: item === active }"
+          size="default"
+          @click="handleClick(item)"
+        >
           {{ item }}
         </u-button>
       </view>
-      <view class="">
+      <view class="mb_20 title">
         介绍
+      </view>
+      <view class="summary-box">
+        {{ detailInfo.summary }}
       </view>
     </view>
   </view>
@@ -103,7 +134,6 @@ onLoad((options) => {
   .rate {
     ::v-deep .u-icon:first-child {
       padding: 0 3px 0 0 !important;
-
     }
   }
 
@@ -122,10 +152,18 @@ onLoad((options) => {
 }
 
 .active {
-  color: red;
+  color: $u-type-primary;
 }
 
 .mb_20 {
   margin-bottom: 20rpx;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.summary-box {
+  color: $uni-text-color-placeholder;
 }
 </style>

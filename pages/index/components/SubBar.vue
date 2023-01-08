@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useTheme } from '@/composables'
 import { useThemeStore } from '@/store'
 
-const props = defineProps({
+defineProps({
   list: {
     type: Array,
     default: () => [],
@@ -24,15 +24,7 @@ const themeStore = useThemeStore()
 
 useTheme()
 
-const current = computed({
-  get() {
-    return props.value
-  },
-  set(value) {
-    emits('update:value', value)
-  },
-})
-
+const current = ref(0)
 const changeTab = (index: number) => {
   emits('change', index)
 }
