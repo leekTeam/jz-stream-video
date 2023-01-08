@@ -4,7 +4,6 @@ import type { ObjAddPrefix } from '@/types/utils'
 import type { Theme, ThemeType } from '@/config/theme'
 import { themeConfig } from '@/config/theme'
 import { TIEME_KEY } from '@/constant/storage'
-import { THEME_CHANGE } from '@/constant/event'
 
 export const useThemeStore = defineStore('themeStore', () => {
   const themeType = ref<ThemeType>('red')
@@ -25,6 +24,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     nextTick(() => {
       uni.setNavigationBarColor({
         backgroundColor: primaryColor.value,
+        frontColor: '#ffffff',
       })
       uni.setTabBarStyle({
         selectedColor: primaryColor.value,
@@ -37,8 +37,6 @@ export const useThemeStore = defineStore('themeStore', () => {
       themeType.value = val
       uni.setStorageSync(TIEME_KEY, themeType.value)
       updatePageTheme()
-      // 派发主题改变事件
-      uni.$emit(THEME_CHANGE)
     }
   }
 

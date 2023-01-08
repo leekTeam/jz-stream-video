@@ -17,6 +17,30 @@
       "style": {
         "navigationBarTitleText": "缓存设置"
       }
+    },
+    {
+      "path": "pages/api/setting",
+      "style": {
+        "navigationBarTitleText": "API设置"
+      }
+    },
+    {
+      "path": "pages/download/index",
+      "style": {
+        "navigationBarTitleText": "下载中心",
+        "app-plus": {
+          "titleNView": {
+            "buttons": [
+              {
+                "float": "right",
+                "text": "全部暂停",
+                "fontSize": "16",
+                "width": "auto"
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   "globalStyle": {
