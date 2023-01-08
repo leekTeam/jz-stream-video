@@ -1,115 +1,34 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useAppStore, useThemeStore } from '@/store'
-import { classTopLayerGet } from '@/api/sound'
-import { themeOptions } from '@/config/theme'
+import NavBar from './components/NavBar'
+import Media from './components/media/index'
+import { useThemeStore } from '@/store'
 import { useTheme } from '@/composables'
+import { MEDIA_LIST } from '@/constant/media'
 
-const title = ref('Hello')
-const appStore = useAppStore()
 const themeStore = useThemeStore()
 
 useTheme()
 
-const list = [
-  {
-    cate_name: '待收货',
-  },
-  {
-    cate_name: '待付款',
-  },
-  {
-    cate_name: '待评价',
-    cate_count: 5,
-  },
-]
-const current = ref(0)
+const currentValue = ref(MEDIA_LIST[0].value)
+const changeTab = (index: number) => {
+  currentValue.value = MEDIA_LIST[index].value
+}
 
-onMounted(() => {
-  classTopLayerGet().then((res) => {
-    console.log(res)
-  })
-})
+const list = ref([])
+const currentSubValue = ref('')
+const changeSubTab = (index: number) => {
+  currentSubValue.value = list.value[index].cid
+}
 </script>
 
 <template>
   <view class="content" :style="themeStore.themeStyles">
-    <u-tabs
-      v-model="current"
-      :active-color="themeStore.primaryColor"
-      name="cate_name"
-      count="cate_count"
-      :list="list"
-      :is-scroll="false"
-    />
-    <image class="logo" src="/static/logo.png" />
-    <view class="text-area">
-      <text class="title">
-        {{ title }}123123大苏打撒旦
-      </text>
-      {{ appStore.count }}
-    </view>
-    <view class="theme-box">
-      <view
-        v-for="item in themeOptions"
-        :key="item.value"
-        :style="
-          {
-            'background-color': item.color,
-          }
-        "
-        class="theme-box-item"
-        @click="themeStore.updateTheme(item.value)"
-      >
-        {{ item.label }}
-      </view>
-    </view>
+    <NavBar :list="MEDIA_LIST" @change="changeTab" />
+    <Media />
   </view>
 </template>
 
 <style lang="scss">
-.u-tabs {
-  width: 100%;
-}
 
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo {
-  height: 200rpx;
-  width: 200rpx;
-  margin-top: 200rpx;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50rpx;
-}
-
-.text-area {
-  display: flex;
-  justify-content: center;
-}
-
-.title {
-  font-size: 36rpx;
-  color: #8f8f94;
-}
-
-.theme-box {
-  display: flex;
-  align-items: center;
-
-  &-item {
-    width: 150rpx;
-    height: 150rpx;
-    color: #FFFFFF;
-    margin: 0 10rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
 </style>

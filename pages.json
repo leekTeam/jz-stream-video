@@ -17,6 +17,9 @@
       "style": {
         "navigationBarTitleText": "缓存设置"
       }
+    }, 
+		{
+      "path": "pages/mediaDetail/index"
     },
     {
       "path": "pages/api/setting",

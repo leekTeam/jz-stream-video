@@ -99,8 +99,8 @@ export default [
     url: 'clinet/dis/movie/resGet',
     timeout: 100,
     method: 'post',
-    response: ({ body }: any) => {
-      const { page = 1, size = 10 } = body
+    response: (data: any) => {
+      const { page = 1, size = 10 } = data
       const dataObject = [
         {
           id: 28,
@@ -401,8 +401,8 @@ export default [
     url: 'clinet/dis/movie/resMediaGet',
     timeout: 100,
     method: 'post',
-    response: ({ body }: any) => {
-      const { rid } = body
+    response: (data: any) => {
+      const { rid } = data
       console.log(rid)
       return resultSuccess({
         dataObject: [
