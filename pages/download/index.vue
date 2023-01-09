@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onLoad, onNavigationBarButtonTap, onReady } from '@dcloudio/uni-app'
+import { onLoad, onNavigationBarButtonTap } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { useTheme } from '@/composables'
 import { useThemeStore } from '@/store'
@@ -11,72 +11,58 @@ useTheme()
 
 const themeStore = useThemeStore()
 
-const downloadTasks = ref([
-  {
-    name: '123',
-    taskId: 1,
-    totalSize: 1000,
-    currentSize: 10,
-    statueText: '正在下载',
-    isPause: false,
-  },
-  {
-    name: '123',
-    taskId: 2,
-    totalSize: 1000,
-    currentSize: 10,
-    statueText: '正在下载',
-    isPause: true,
-  },
-])
+const downloadTasks = ref<DownloadTask[]>([])
 
 const getDownloadTasks = () => {
-  plus.downloader.enumerate((res) => {
-    console.log(res)
-  })
-}
-
-const getTask = (id: number) => {
-  return 1 as unknown as PlusDownloaderDownload
+  downloadTasks.value = DownloadTask.getDownloadList()
 }
 
 onLoad(() => {
   getDownloadTasks()
 })
 
-const onPause = (id: number) => {
-  const task = getTask(id)
+const onPause = (task: DownloadTask) => {
   task.pause()
 }
 
 onNavigationBarButtonTap((options) => {
   if (options.index === 0 && downloadTasks.value.length) {
     downloadTasks.value.forEach((item) => {
-      onPause(item.taskId)
+      item.pause()
     })
   }
 })
 
-const onDeleteTask = (id: number) => {
-  const task = getTask(id)
-  task.abort()
-  downloadTasks.value.splice(downloadTasks.value.findIndex(item => item.taskId === id), 1)
+const onDeleteTask = (task: DownloadTask, index: number) => {
+  task.destory()
+  downloadTasks.value.splice(
+    index,
+    1,
+  )
 }
 
+const task = ref<DownloadTask>()
+
 const testDownloadTest = () => {
-  const url = 'https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ed8c2069849744f299b6c551600ac310~tplv-k3u1fbpfcp-zoom-crop-mark:3024:3024:3024:1702.awebp?'
-  const cover = 'https://img2.baidu.com/it/u=1395980100,2999837177&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=675'
+  const url = 'https://down.360safe.com/se/360se13.1.6380.0.exe'
+  const cover = 'https://down.360safe.com/se/360se13.1.6380.0.exe'
   const taskId = '123'
-  const task = new DownloadTask('test', taskId, url, cover)
-  task.on(DOWNLOAD_STATUS.SUCCESS, () => {
+  task.value = new DownloadTask('test', taskId, url, cover)
+  task.value.start()
+  task.value.on(DOWNLOAD_STATUS.SUCCESS, () => {
     console.log('DOWNLOAD_STATUS.SUCCESS')
   })
-  task.on(DOWNLOAD_STATUS.PROGRESS, () => {
+  task.value.on(DOWNLOAD_STATUS.PROGRESS, () => {
     console.log('DOWNLOAD_STATUS.PROGRESS')
   })
-  task.on(DOWNLOAD_STATUS.ERROE, () => {
+  task.value.on(DOWNLOAD_STATUS.ERROE, () => {
     console.log('DOWNLOAD_STATUS.ERROE')
   })
+  getDownloadTasks()
+}
+
+const onTestPause = () => {
+  task.value!.pause()
 }
 
 const cleartestDownloadTest = () => {
@@ -86,26 +72,47 @@ const cleartestDownloadTest = () => {
 
 <template>
   <view :style="themeStore.themeStyles" class="page-container">
-    <view @click="testDownloadTest">
+    <u-button @click="testDownloadTest">
       download-test
-    </view>
-    <view @click="cleartestDownloadTest">
+    </u-button>
+    <u-button @click="onTestPause">
+      download-puase
+    </u-button>
+    <u-button @click="cleartestDownloadTest">
       download-clear
-    </view>
-    <view v-for="item in downloadTasks" :key="item.taskId" class="download-task">
+    </u-button>
+    <view
+      v-for="(item, index) in downloadTasks"
+      :key="item.rid"
+      class="download-task"
+    >
       <view class="download-task-container">
         <view class="download-task-name">
           {{ item.name }}
         </view>
-        <u-line-progress :height="20" :active-color="themeStore.primaryColor" :percent="70" striped striped-active />
+        <u-line-progress
+          :height="20"
+          :active-color="themeStore.primaryColor"
+          :percent="70"
+          striped
+          striped-active
+        />
         <view class="download-task-info">
           <view>{{ bytesUnitFormat(item.currentSize) }}</view>
           <view>{{ item.statueText }}</view>
           <view>{{ bytesUnitFormat(item.totalSize) }}</view>
         </view>
       </view>
-      <u-icon :name="item.isPause ? 'pause' : 'play-right'" :size="48" @click="onPause(item.taskId)" />
-      <u-icon name="close-circle-fill" :size="48" @click="onDeleteTask(item.taskId)" />
+      <u-icon
+        :name="item.status === DOWNLOAD_STATUS.PAUSE ? 'pause' : 'play-right'"
+        :size="48"
+        @click="onPause(item)"
+      />
+      <u-icon
+        name="close-circle-fill"
+        :size="48"
+        @click="onDeleteTask(item, index)"
+      />
     </view>
   </view>
 </template>
@@ -139,7 +146,7 @@ const cleartestDownloadTest = () => {
       align-items: center;
       justify-content: space-between;
     }
-    .u-icon  {
+    .u-icon {
       color: $u-type-primary;
       margin-left: 24rpx;
     }

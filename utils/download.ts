@@ -1,70 +1,25 @@
 import EventEmitter2 from 'eventemitter2'
+import { keyBy } from 'lodash-es'
 import { DOWNLOAD_STATUS } from '@/constant/download'
-const downloadTaskMap: Map<string, PlusDownloaderDownload> = new Map()
-
-// 创建下载任务
-export function createDownload(url: string) {
-  const task = plus.downloader.createDownload(
-    url,
-    {},
-    (d, status) => {
-      // 下载完成
-      if (status === 200)
-        downloadTaskMap.delete(d.id!)
-    },
-  )
-  task.start()
-  downloadTaskMap.set(task.id!, task)
-}
-
-export const getTask = (id: string) => {
-  return downloadTaskMap.get(id)
-}
-
-export const getTasks = () => {
-  return [...downloadTaskMap.values()]
-}
-
-export class Download extends EventEmitter2 {
-  public url: string
-  public totalSize = 0
-  public currentSize = 0
-  public task: PlusDownloaderDownload
-  public status: DOWNLOAD_STATUS = DOWNLOAD_STATUS.PROGRESS
-
-  constructor(url: string) {
-    super()
-    this.url = url
-    this.task = plus.downloader.createDownload(url)
-  }
-
-  public start() {
-    this.task.addEventListener('statechanged', (download, status) => {
-      switch (download.state) {
-        case 3:
-          this.currentSize = download.downloadedSize || 0
-          this.emit(DOWNLOAD_STATUS.PROGRESS, this.currentSize)
-          break
-
-        case 4:
-          if (status === 200) {
-            this.status = DOWNLOAD_STATUS.SUCCESS
-            this.emit(DOWNLOAD_STATUS.SUCCESS)
-          }
-          else {
-            this.status = DOWNLOAD_STATUS.ERROE
-            this.emit(DOWNLOAD_STATUS.ERROE)
-          }
-          break
-      }
-    })
-    this.task.start()
-  }
+import { DOWNLOAD_KEY } from '@/constant/storage'
+interface DownloadStorage {
+  rid: string
+  name: string
+  url: string
+  cover: string
+  coverSize: number
+  urlSize: number
+  coverStatus: DOWNLOAD_STATUS
+  status: DOWNLOAD_STATUS
+  coverFilename: string
+  urlFilename: string
+  coverDownloadId: string
+  urlDownloadId: string
 }
 
 export class DownloadTask extends EventEmitter2 {
-  public static tasks: Map<string, DownloadTask> = new Map()
-  public taskId: string
+  private static taskMap: Map<string, DownloadTask> = new Map()
+  public rid: string
   public coverTask?: PlusDownloaderDownload
   public urlTask?: PlusDownloaderDownload
   public name: string
@@ -72,27 +27,93 @@ export class DownloadTask extends EventEmitter2 {
   public currentSize = 0
   public coverStatus: DOWNLOAD_STATUS = DOWNLOAD_STATUS.PROGRESS
   public status: DOWNLOAD_STATUS = DOWNLOAD_STATUS.PROGRESS
+  public url: string
+  public cover: string
 
-  constructor(name: string, taskId: string, url: string, cover?: string) {
+  constructor(name: string, rid: string, url: string, cover: string, urlDownTask?: PlusDownloaderDownload, coverDownloadTask?: PlusDownloaderDownload) {
     super()
     this.name = name
-    this.taskId = taskId
-    DownloadTask.tasks.set(this.taskId, this)
-    this.createDownload(url, cover)
-    this.startDownloadCover()
+    this.rid = rid
+    this.cover = cover
+    this.url = url
+    this.createDownload(urlDownTask, coverDownloadTask)
+    DownloadTask.taskMap.set(this.rid, this)
   }
 
-  private createDownload(url: string, cover?: string) {
-    if (cover) {
-      this.coverTask = plus.downloader.createDownload(cover)
+  private updateDownloadInfo(info: Omit<Partial<DownloadStorage>, 'rid' | 'coverStatus' | 'status'> = {}) {
+    const downloadList: DownloadStorage[] = uni.getStorageSync(DOWNLOAD_KEY) || []
+    const downloadInfo = downloadList.find(item => item.rid = this.rid)
+
+    if (downloadInfo) {
+      Object.assign(downloadInfo, {
+        rid: this.rid,
+        coverStatus: this.coverStatus,
+        status: this.status,
+        url: this.url,
+        cover: this.cover,
+        name: this.name,
+      }, info)
+    }
+    else {
+      downloadList.push({
+        rid: this.rid,
+        coverStatus: this.coverStatus,
+        status: this.status,
+        url: this.url,
+        cover: this.cover,
+        name: this.name,
+        ...info,
+      } as DownloadStorage)
+    }
+
+    uni.setStorageSync(DOWNLOAD_KEY, downloadList)
+  }
+
+  public static recoverDownloadTask() {
+    return new Promise<PlusDownloaderDownload[]>((resolve) => {
+      plus.downloader.enumerate((res) => {
+        // new DownloadTask()
+        const downloadingList: DownloadStorage[] = (uni.getStorageSync(DOWNLOAD_KEY) || []).filter((item: DownloadStorage) => {
+          return item.status !== DOWNLOAD_STATUS.SUCCESS
+        })
+        const downloadingMap = keyBy(res, 'id')
+
+        downloadingList.forEach((item) => {
+          if (item.status !== DOWNLOAD_STATUS.SUCCESS) {
+            const coverDownloadTask = downloadingMap[item.coverDownloadId]
+            const urlDownloadTask = downloadingMap[item.urlDownloadId]
+            /* eslint-disable no-new */
+            new DownloadTask(item.name, item.rid, item.url, item.cover, coverDownloadTask, urlDownloadTask)
+          }
+        })
+
+        resolve(res)
+      })
+    })
+  }
+
+  public static getDownloadList() {
+    return [...DownloadTask.taskMap.values()]
+  }
+
+  private createDownload(urlDownTask?: PlusDownloaderDownload, coverDownloadTask?: PlusDownloaderDownload) {
+    if (this.cover) {
+      this.coverTask = coverDownloadTask || plus.downloader.createDownload(this.cover)
       this.totalSize = this.coverTask.totalSize || 0
     }
     else {
       this.coverStatus = DOWNLOAD_STATUS.SUCCESS
     }
 
-    this.urlTask = plus.downloader.createDownload(url)
+    this.urlTask = urlDownTask || plus.downloader.createDownload(this.url)
     this.totalSize += this.urlTask.totalSize || 0
+
+    this.updateDownloadInfo({
+      coverSize: this.coverTask?.totalSize || 0,
+      urlSize: this.urlTask.totalSize || 0,
+      coverDownloadId: this.coverTask?.id,
+      urlDownloadId: this.urlTask.id,
+    })
   }
 
   private onProgress() {
@@ -101,11 +122,13 @@ export class DownloadTask extends EventEmitter2 {
 
   private onSuccess() {
     this.status = DOWNLOAD_STATUS.SUCCESS
+    this.updateDownloadInfo()
     this.emit(DOWNLOAD_STATUS.SUCCESS)
   }
 
   private onError() {
     this.status = DOWNLOAD_STATUS.ERROE
+    this.updateDownloadInfo()
     this.emit(DOWNLOAD_STATUS.ERROE)
   }
 
@@ -119,12 +142,15 @@ export class DownloadTask extends EventEmitter2 {
             break
 
           case 4:
-            if (status === 200)
+            if (status === 200) {
               this.onSuccess()
-            // 保存下载信息storage
-            else
+              this.updateDownloadInfo({
+                urlFilename: download.filename,
+              })
+            }
+            else {
               this.onError()
-
+            }
             break
         }
       })
@@ -132,9 +158,9 @@ export class DownloadTask extends EventEmitter2 {
     }
   }
 
-  private startDownloadCover() {
-    if (this.coverTask) {
-      this.coverTask.addEventListener('statechanged', (download, status) => {
+  public start() {
+    if (this.coverStatus === DOWNLOAD_STATUS.PROGRESS) {
+      this.coverTask!.addEventListener('statechanged', (download, status) => {
         switch (download.state) {
           case 3:
             this.currentSize = download.downloadedSize || 0
@@ -142,19 +168,47 @@ export class DownloadTask extends EventEmitter2 {
             break
 
           case 4:
-            if (status === 200)
+            if (status === 200) {
+              this.updateDownloadInfo({
+                coverFilename: download.filename,
+              })
+              this.coverStatus = DOWNLOAD_STATUS.SUCCESS
               this.startDownloadUrl()
-            // 保存封面信息到storage
-            else
+            }
+            else {
+              this.coverStatus = DOWNLOAD_STATUS.ERROE
               this.onError()
+            }
 
             break
         }
       })
-      this.coverTask.start()
+      this.coverTask!.start()
     }
     else {
       this.startDownloadUrl()
     }
+  }
+
+  public pause() {
+    if (this.coverStatus === DOWNLOAD_STATUS.PROGRESS)
+      this.coverTask!.pause()
+
+    else
+      this.urlTask?.pause()
+  }
+
+  public destory() {
+    DownloadTask.taskMap.delete(this.rid)
+
+    if (this.urlTask)
+      this.urlTask.abort()
+
+    if (this.coverTask)
+      this.coverTask.abort()
+
+    const downloadList: DownloadStorage[] = uni.getStorageSync(DOWNLOAD_KEY) || []
+    downloadList.splice(downloadList.findIndex(item => item.rid === this.rid), 1)
+    uni.setStorageSync(DOWNLOAD_KEY, downloadList)
   }
 }
