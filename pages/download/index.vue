@@ -4,8 +4,11 @@ import { ref } from 'vue'
 import { useTheme } from '@/composables'
 import { useThemeStore } from '@/store'
 import { bytesUnitFormat } from '@/utils'
+import { DownloadTask } from '@/utils/download'
+import { DOWNLOAD_STATUS } from '@/constant/download'
 
 useTheme()
+
 const themeStore = useThemeStore()
 
 const downloadTasks = ref([
@@ -28,9 +31,9 @@ const downloadTasks = ref([
 ])
 
 const getDownloadTasks = () => {
-  // plus.downloader.enumerate((res) => {
-  //   console.log(res)
-  // })
+  plus.downloader.enumerate((res) => {
+    console.log(res)
+  })
 }
 
 const getTask = (id: number) => {
@@ -59,10 +62,36 @@ const onDeleteTask = (id: number) => {
   task.abort()
   downloadTasks.value.splice(downloadTasks.value.findIndex(item => item.taskId === id), 1)
 }
+
+const testDownloadTest = () => {
+  const url = 'https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ed8c2069849744f299b6c551600ac310~tplv-k3u1fbpfcp-zoom-crop-mark:3024:3024:3024:1702.awebp?'
+  const cover = 'https://img2.baidu.com/it/u=1395980100,2999837177&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=675'
+  const taskId = '123'
+  const task = new DownloadTask('test', taskId, url, cover)
+  task.on(DOWNLOAD_STATUS.SUCCESS, () => {
+    console.log('DOWNLOAD_STATUS.SUCCESS')
+  })
+  task.on(DOWNLOAD_STATUS.PROGRESS, () => {
+    console.log('DOWNLOAD_STATUS.PROGRESS')
+  })
+  task.on(DOWNLOAD_STATUS.ERROE, () => {
+    console.log('DOWNLOAD_STATUS.ERROE')
+  })
+}
+
+const cleartestDownloadTest = () => {
+  plus.downloader.clear()
+}
 </script>
 
 <template>
   <view :style="themeStore.themeStyles" class="page-container">
+    <view @click="testDownloadTest">
+      download-test
+    </view>
+    <view @click="cleartestDownloadTest">
+      download-clear
+    </view>
     <view v-for="item in downloadTasks" :key="item.taskId" class="download-task">
       <view class="download-task-container">
         <view class="download-task-name">
