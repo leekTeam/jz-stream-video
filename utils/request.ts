@@ -23,8 +23,13 @@ function buildUrl(url: string) {
   return `${baseUrl}${url}`
 }
 
+interface SuccessResult {
+  errorCode: number
+  errorInfo: string
+}
+
 function request<T>(options: UniApp.RequestOptions) {
-  return new Promise<T>((resolve, reject) => {
+  return new Promise<T & SuccessResult>((resolve, reject) => {
     const { url, ...args } = options
     if (import.meta.env.DEV) {
       mockRequest(options, resolve)
@@ -34,12 +39,12 @@ function request<T>(options: UniApp.RequestOptions) {
         url: buildUrl(url),
         ...args,
         success: (res) => {
-          if ((res.data as any).errorCode === 0) {
-            resolve(res.data as T)
+          if ((res.data as SuccessResult).errorCode === 0) {
+            resolve(res.data as T & SuccessResult)
           }
           else {
             uni.showToast({
-              title: (res.data as any).errorInfo || '接口请求失败',
+              title: (res.data as SuccessResult).errorInfo || '接口请求失败',
               icon: 'error',
             })
             reject(res.data)

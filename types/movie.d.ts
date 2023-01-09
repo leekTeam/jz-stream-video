@@ -23,7 +23,7 @@ declare global {
     // 标签
     label: string
     // 年代
-    years: string
+    years: number
     // 国家
     country: string
     // 语言
@@ -52,6 +52,19 @@ declare global {
     cid: string
     // 预留
     reserve: string
+  }
+
+  interface TMovieTopClass {
+    id: number
+    cid: string
+    level: number
+    name: string
+    poster: string
+    precid: number
+    resnum: number
+    restype: number
+    shownum: number
+    tips: string
   }
 }
 

@@ -17,7 +17,7 @@ const getMediaData = (rid: string) => {
   resMediaGet({ rid }).then((res) => {
     const { dataObject } = res as any
     mediaDetailInfo.value = dataObject[0]
-    active.value = dataObject[0].number;
+    active.value = dataObject[0].number
   })
 }
 
@@ -132,7 +132,7 @@ onLoad((options = {}) => {
 
 .score-box {
   .rate {
-    ::v-deep .u-icon:first-child {
+    :deep(.u-icon:first-child) {
       padding: 0 3px 0 0 !important;
     }
   }
@@ -144,7 +144,7 @@ onLoad((options = {}) => {
 }
 
 .anthology-btn-box {
-  ::v-deep .u-btn {
+  :deep(.u-btn) {
     display: inline-block;
     margin-right: 20rpx;
     background-color: $uni-bg-color-grey;

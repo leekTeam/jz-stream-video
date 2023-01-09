@@ -131,9 +131,7 @@ const cleartestDownloadTest = () => {
     }
 
     &-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      @include ellipsis;
     }
 
     &-info {

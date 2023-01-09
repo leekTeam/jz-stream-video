@@ -3,7 +3,13 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "娱乐"
+        "navigationBarTitleText": "娱乐",
+        "app-plus": {
+          "bounce": "none"
+        },
+        "mp-alipay": {
+          "allowsBounceVertical": "NO"
+        }
       }
     },
     {
@@ -17,9 +23,9 @@
       "style": {
         "navigationBarTitleText": "缓存设置"
       }
-    }, 
-		{
-      "path": "pages/mediaDetail/index"
+    },
+    {
+      "path": "pages/media/detail"
     },
     {
       "path": "pages/api/setting",
