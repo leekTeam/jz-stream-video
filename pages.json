@@ -25,7 +25,7 @@
       }
     },
     {
-      "path": "pages/media/detail"
+      "path": "pages/movie/detail"
     },
     {
       "path": "pages/api/setting",
@@ -49,6 +49,12 @@
             ]
           }
         }
+      }
+    },
+    {
+      "path": "pages/download/detail",
+      "style": {
+        "navigationBarTitleText": "离线中心"
       }
     }
   ],

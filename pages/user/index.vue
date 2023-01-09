@@ -14,6 +14,12 @@ const openThemePopup = () => {
   themePopupRef.value.openPopup()
 }
 
+const goDownloadDetail = () => {
+  uni.navigateTo({
+    url: '/pages/download/detail',
+  })
+}
+
 const goDownload = () => {
   uni.navigateTo({
     url: '/pages/download/index',
@@ -36,7 +42,7 @@ const goApiSetting = () => {
 <template>
   <view :style="themeStore.themeStyles">
     <u-cell-group>
-      <u-cell-item icon="file-text" title="离线中心" />
+      <u-cell-item icon="file-text" title="离线中心" @click="goDownloadDetail" />
       <u-cell-item icon="download" title="下载中心" @click="goDownload" />
       <u-cell-item icon="bookmark" title="皮肤" @click="openThemePopup" />
       <u-cell-item icon="setting" title="缓存设置" @click="goStoragePage" />

@@ -7,9 +7,9 @@ const themeStore = useThemeStore()
   <view class="progress-box">
     <u-line-progress
       v-bind="$attrs"
-      :activeColor="themeStore.primaryColor"
+      :active-color="themeStore.primaryColor"
       height="12"
-      :showText="false"
+      :show-text="false"
     />
     <u-icon
       class="progress-box-clock-icon"

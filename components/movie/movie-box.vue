@@ -1,5 +1,9 @@
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
+  rid: {
+    type: String,
+    required: true,
+  },
   poster: {
     type: String,
     required: true,
@@ -20,11 +24,43 @@ defineProps({
     type: Number,
     required: true,
   },
+  country: {
+    type: String,
+    default: '',
+  },
+  tolnum: {
+    type: Number,
+    required: true,
+  },
+  score: {
+    type: Number,
+    required: true,
+  },
 })
+
+const goDetail = () => {
+  const { name, rid, label, country, years, tolnum, summary, score }
+    = props
+  const params = {
+    name,
+    rid,
+    label,
+    country,
+    years,
+    tolnum,
+    summary,
+    score,
+  }
+  uni.navigateTo({
+    url: `/pages/movie/detail?item=${encodeURIComponent(
+      JSON.stringify(params),
+    )}`,
+  })
+}
 </script>
 
 <template>
-  <view class="movie-box">
+  <view class="movie-box" @click="goDetail">
     <u-image
       width="240rpx"
       height="100%"

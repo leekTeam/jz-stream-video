@@ -42,7 +42,7 @@ defineProps({
         name="checkmark-circle-fill"
         size="40"
       />
-      <Progress 
+      <Progress
         v-if="percentage > 0 && percentage < 100"
         class="ebook-box-cover-progress"
         :percentage="percentage"

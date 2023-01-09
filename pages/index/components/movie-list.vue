@@ -19,25 +19,6 @@ const changeTab = (index: number) => {
   scrollRef.value.resetUpScroll()
 }
 
-const hanldeClick = (mediaItem: any) => {
-  const { name, rid, label, country, years, tolnum, summary, score }
-    = mediaItem
-  const params = {
-    name,
-    rid,
-    label,
-    country,
-    years,
-    tolnum,
-    summary,
-    score,
-  }
-  uni.navigateTo({
-    url: `/pages/media/detail?item=${encodeURIComponent(
-      JSON.stringify(params),
-    )}`,
-  })
-}
 onMounted(() => {
   classTopLayerGet().then((res) => {
     const { dataObject } = res
@@ -71,14 +52,17 @@ const upCallback = (mescroll: any) => {
     </template>
     <view class="movie-list">
       <MovieBox
-        v-for="mediaItem in list"
-        :key="mediaItem.rid"
-        :poster="mediaItem.poster"
-        :name="mediaItem.name"
-        :summary="mediaItem.summary"
-        :label="mediaItem.label"
-        :years="mediaItem.years"
-        @click="hanldeClick(mediaItem)"
+        v-for="item in list"
+        :key="item.rid"
+        :rid="item.rid"
+        :poster="item.poster"
+        :name="item.name"
+        :summary="item.summary"
+        :label="item.label"
+        :years="item.years"
+        :country="item.country"
+        :tolnum="item.tolnum"
+        :score="item.score"
       />
     </view>
   </ScrollList>
