@@ -14,7 +14,7 @@ useTheme()
 
 const currentValue = ref(0)
 const changeTab = (index: number) => {
-  currentValue.value = index;
+  currentValue.value = index
 }
 
 const swiperCurrent = ref(0)
@@ -29,7 +29,7 @@ const changeSwiper = (event: Event) => {
     <swiper class="page-swiper" :current="swiperCurrent" @change="changeSwiper">
       <swiper-item v-for="(item, index) in MEDIA_LIST" :key="index">
         <!-- <MovieList :is-active="index === swiperCurrent" /> -->
-        <EbookList :is-active="index === swiperCurrent"/>
+        <EbookList :is-active="index === swiperCurrent" />
       </swiper-item>
     </swiper>
   </view>

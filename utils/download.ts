@@ -8,7 +8,7 @@ interface DownloadStorage {
   url: string
   cover: string
   coverSize: number
-  urlSize: number
+  totalSize: number
   coverStatus: DOWNLOAD_STATUS
   status: DOWNLOAD_STATUS
   coverFilename: string
@@ -23,10 +23,11 @@ export class DownloadTask extends EventEmitter2 {
   public coverTask?: PlusDownloaderDownload
   public urlTask?: PlusDownloaderDownload
   public name: string
+  public coverSize = 0
   public totalSize = 0
   public currentSize = 0
-  public coverStatus: DOWNLOAD_STATUS = DOWNLOAD_STATUS.PROGRESS
-  public status: DOWNLOAD_STATUS = DOWNLOAD_STATUS.PROGRESS
+  public coverStatus: DOWNLOAD_STATUS = DOWNLOAD_STATUS.WAIT
+  public status: DOWNLOAD_STATUS = DOWNLOAD_STATUS.WAIT
   public url: string
   public cover: string
 
@@ -62,17 +63,17 @@ export class DownloadTask extends EventEmitter2 {
         url: this.url,
         cover: this.cover,
         name: this.name,
+        coverSize: this.coverSize,
+        totalSize: this.totalSize,
         ...info,
       } as DownloadStorage)
     }
-
     uni.setStorageSync(DOWNLOAD_KEY, downloadList)
   }
 
   public static recoverDownloadTask() {
     return new Promise<PlusDownloaderDownload[]>((resolve) => {
       plus.downloader.enumerate((res) => {
-        // new DownloadTask()
         const downloadingList: DownloadStorage[] = (uni.getStorageSync(DOWNLOAD_KEY) || []).filter((item: DownloadStorage) => {
           return item.status !== DOWNLOAD_STATUS.SUCCESS
         })
@@ -97,39 +98,35 @@ export class DownloadTask extends EventEmitter2 {
   }
 
   private createDownload(urlDownTask?: PlusDownloaderDownload, coverDownloadTask?: PlusDownloaderDownload) {
-    if (this.cover) {
+    if (this.cover)
       this.coverTask = coverDownloadTask || plus.downloader.createDownload(this.cover)
-      this.totalSize = this.coverTask.totalSize || 0
-    }
-    else {
+
+    else
       this.coverStatus = DOWNLOAD_STATUS.SUCCESS
-    }
 
     this.urlTask = urlDownTask || plus.downloader.createDownload(this.url)
-    this.totalSize += this.urlTask.totalSize || 0
 
     this.updateDownloadInfo({
-      coverSize: this.coverTask?.totalSize || 0,
-      urlSize: this.urlTask.totalSize || 0,
       coverDownloadId: this.coverTask?.id,
       urlDownloadId: this.urlTask.id,
     })
   }
 
   private onProgress() {
-    this.emit(DOWNLOAD_STATUS.PROGRESS, this.currentSize)
+    this.updateDownloadInfo()
+    this.emit(DOWNLOAD_STATUS.PROGRESS, this, this.currentSize)
   }
 
   private onSuccess() {
     this.status = DOWNLOAD_STATUS.SUCCESS
     this.updateDownloadInfo()
-    this.emit(DOWNLOAD_STATUS.SUCCESS)
+    this.emit(DOWNLOAD_STATUS.SUCCESS, this)
   }
 
   private onError() {
     this.status = DOWNLOAD_STATUS.ERROE
     this.updateDownloadInfo()
-    this.emit(DOWNLOAD_STATUS.ERROE)
+    this.emit(DOWNLOAD_STATUS.ERROE, this)
   }
 
   private startDownloadUrl() {
@@ -137,8 +134,10 @@ export class DownloadTask extends EventEmitter2 {
       this.urlTask.addEventListener('statechanged', (download, status) => {
         switch (download.state) {
           case 3:
+            this.totalSize = this.coverSize + (download.totalSize || 0)
             this.currentSize = (this.coverTask?.downloadedSize || 0) + (download.downloadedSize || 0)
             this.onProgress()
+
             break
 
           case 4:
@@ -153,16 +152,19 @@ export class DownloadTask extends EventEmitter2 {
             }
             break
         }
+        this.updateDownloadInfo()
       })
       this.urlTask.start()
     }
   }
 
   public start() {
-    if (this.coverStatus === DOWNLOAD_STATUS.PROGRESS) {
+    this.status = DOWNLOAD_STATUS.PROGRESS
+    if (this.coverStatus === DOWNLOAD_STATUS.WAIT) {
       this.coverTask!.addEventListener('statechanged', (download, status) => {
         switch (download.state) {
           case 3:
+            this.coverSize = download.totalSize || 0
             this.currentSize = download.downloadedSize || 0
             this.onProgress()
             break
@@ -184,6 +186,7 @@ export class DownloadTask extends EventEmitter2 {
         }
       })
       this.coverTask!.start()
+      this.coverStatus = DOWNLOAD_STATUS.PROGRESS
     }
     else {
       this.startDownloadUrl()
@@ -191,11 +194,25 @@ export class DownloadTask extends EventEmitter2 {
   }
 
   public pause() {
-    if (this.coverStatus === DOWNLOAD_STATUS.PROGRESS)
+    if (this.coverStatus === DOWNLOAD_STATUS.PROGRESS) {
+      this.coverStatus = DOWNLOAD_STATUS.WAIT
       this.coverTask!.pause()
-
-    else
+    }
+    else {
       this.urlTask?.pause()
+    }
+    this.status = DOWNLOAD_STATUS.WAIT
+  }
+
+  public resume() {
+    if (this.coverStatus === DOWNLOAD_STATUS.WAIT) {
+      this.coverStatus = DOWNLOAD_STATUS.PROGRESS
+      this.coverTask!.resume()
+    }
+    else {
+      this.urlTask?.resume()
+    }
+    this.status = DOWNLOAD_STATUS.PROGRESS
   }
 
   public destory() {
@@ -210,5 +227,9 @@ export class DownloadTask extends EventEmitter2 {
     const downloadList: DownloadStorage[] = uni.getStorageSync(DOWNLOAD_KEY) || []
     downloadList.splice(downloadList.findIndex(item => item.rid === this.rid), 1)
     uni.setStorageSync(DOWNLOAD_KEY, downloadList)
+  }
+
+  public static getTask(rid: string) {
+    return DownloadTask.taskMap.get(rid)
   }
 }
