@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
+import { DownloadTask } from '@/utils/download'
 onLaunch(() => {
   console.log('App Launch')
+  DownloadTask.recoverDownloadTask()
+  // TODO 开始下载任务
 })
 onShow(() => {
   console.log('App Show')

@@ -19,8 +19,10 @@ specifiers:
   '@dcloudio/uni-quickapp-webview': 3.0.0-3061520221228001
   '@dcloudio/uni-stacktracey': 3.0.0-3061520221228001
   '@dcloudio/vite-plugin-uni': 3.0.0-3061520221228001
+  '@types/lodash-es': ^4.17.6
   eslint: ^8.30.0
   eventemitter2: ^6.4.9
+  lodash-es: ^4.17.21
   mockjs: ^1.1.0
   pinia: ^2.0.28
   sass: ^1.57.1
@@ -47,6 +49,7 @@ dependencies:
   '@dcloudio/uni-mp-weixin': 3.0.0-3061520221228001_vue@3.2.45
   '@dcloudio/uni-quickapp-webview': 3.0.0-3061520221228001_vue@3.2.45
   eventemitter2: 6.4.9
+  lodash-es: 4.17.21
   pinia: 2.0.28_prq2uz4lho2pwp6irk4cfkrxwu
   vue: 3.2.45
   vue-i18n: 9.2.2_vue@3.2.45
@@ -58,6 +61,7 @@ devDependencies:
   '@dcloudio/uni-cli-shared': 3.0.0-3061520221228001_vue@3.2.45
   '@dcloudio/uni-stacktracey': 3.0.0-3061520221228001
   '@dcloudio/vite-plugin-uni': 3.0.0-3061520221228001_vite@3.2.5+vue@3.2.45
+  '@types/lodash-es': 4.17.6
   eslint: 8.30.0
   mockjs: 1.1.0
   sass: 1.57.1
@@ -1166,6 +1170,16 @@ packages:
 
   /@types/json5/0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+    dev: true
+
+  /@types/lodash-es/4.17.6:
+    resolution: {integrity: sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash/4.14.191:
+    resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
     dev: true
 
   /@types/mdast/3.0.10:
@@ -3338,6 +3352,10 @@ packages:
     dependencies:
       p-locate: 5.0.0
     dev: true
+
+  /lodash-es/4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: false
 
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineExpose, ref } from 'vue'
+import { ref } from 'vue'
 import { useThemeStore } from '@/store'
 import type { ThemeType } from '@/config/theme'
 import { themeOptions } from '@/config/theme'
