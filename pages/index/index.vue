@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from './components/nav-bar.vue'
 import MovieList from './components/movie-list.vue'
+import EbookList from './components/ebook-list.vue'
 import ScrollList from './components/scroll-list.vue'
 import { useThemeStore } from '@/store'
 import { useTheme } from '@/composables'
@@ -11,9 +12,9 @@ const themeStore = useThemeStore()
 
 useTheme()
 
-const currentValue = ref(MEDIA_LIST[0].value)
+const currentValue = ref(0)
 const changeTab = (index: number) => {
-  currentValue.value = MEDIA_LIST[index].value
+  currentValue.value = index;
 }
 
 const swiperCurrent = ref(0)
@@ -24,10 +25,11 @@ const changeSwiper = (event: Event) => {
 
 <template>
   <view :style="themeStore.themeStyles" class="page-container">
-    <NavBar :list="MEDIA_LIST" @change="changeTab" />
+    <NavBar v-model="currentValue" :list="MEDIA_LIST" @change="changeTab" />
     <swiper class="page-swiper" :current="swiperCurrent" @change="changeSwiper">
       <swiper-item v-for="(item, index) in MEDIA_LIST" :key="index">
-        <MovieList :is-active="index === swiperCurrent" />
+        <!-- <MovieList :is-active="index === swiperCurrent" /> -->
+        <EbookList :is-active="index === swiperCurrent"/>
       </swiper-item>
     </swiper>
   </view>
