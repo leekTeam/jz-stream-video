@@ -24,16 +24,16 @@ const changeSwiper = (event: any) => {
   <view :style="themeStore.themeStyles" class="page-container">
     <MediaTabs v-model="currentIndex" :list="MEDIA_LIST" />
     <swiper class="page-swiper" :current="currentIndex" @change="changeSwiper">
-      <swiper-item class="page-swiper-item">
+      <swiper-item>
         <MovieList :is-active="0 === currentIndex" />
       </swiper-item>
-      <swiper-item class="page-swiper-item">
+      <swiper-item>
         <EbookList :is-active="1 === currentIndex" />
       </swiper-item>
-      <swiper-item class="page-swiper-item">
+      <swiper-item>
         <SoundList :is-active="2 === currentIndex" />
       </swiper-item>
-      <swiper-item class="page-swiper-item">
+      <swiper-item>
         <MusicList :is-active="3 === currentIndex" />
       </swiper-item>
     </swiper>
@@ -52,13 +52,6 @@ const changeSwiper = (event: any) => {
 
   .page-swiper {
     flex: 1;
-  }
-
-  .page-swiper-item {
-    display: flex;
-    flex-direction: column;
-    padding: 0 24rpx 24rpx;
-    box-sizing: border-box;
   }
 }
 </style>

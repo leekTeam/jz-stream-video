@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { useMescroll, useMescrollMoreItem } from '@/composables'
 
 const props = defineProps({
@@ -63,7 +64,12 @@ defineExpose({
 
 <style lang="scss" scoped>
 .scroll-list {
-  flex: 1;
+  // #ifdef APP-PLUS
+  height: calc(100% - 52rpx);
+  // #endif
+  // #ifndef APP-PLUS
+  height: 100%;
+  // #endif
   display: flex;
   flex-direction: column;
   overflow: hidden;

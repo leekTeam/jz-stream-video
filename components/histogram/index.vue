@@ -6,10 +6,10 @@ defineProps({
 
 <template>
   <view class="histogram-box">
-    <view class="histogram-box-one" :class="{'pause': pause}"></view>
-    <view class="histogram-box-two" :class="{'pause': pause}"></view>
-    <view class="histogram-box-three" :class="{'pause': pause}"></view>
-    <view class="histogram-box-one" :class="{'pause': pause}"></view>
+    <view class="histogram-box-one" :class="{ pause }" />
+    <view class="histogram-box-two" :class="{ pause }" />
+    <view class="histogram-box-three" :class="{ pause }" />
+    <view class="histogram-box-one" :class="{ pause }" />
   </view>
 </template>
 
@@ -40,7 +40,7 @@ defineProps({
 }
 
 .pause {
-  animation-play-state: paused; 
+  animation-play-state: paused;
 }
 
 @keyframes move {
