@@ -34,28 +34,32 @@ onLoad((options = {}) => {
   uni.setNavigationBarTitle({ title })
   detailInfo.value = args
   getMediaData(rid)
- 
 })
 
 const scrollHeight = ref('')
 const getScrollHeight = () => {
   uni.getSystemInfo({
-    success: resu => {
+    success: (resu) => {
       const query = uni.createSelectorQuery()
-      query.select('.anthology-btn-box').boundingClientRect().exec(res => {
-        scrollHeight.value = resu.windowHeight - res[0].top - 10 + 'px';
+      query.select('.anthology-btn-box').boundingClientRect().exec((res) => {
+        scrollHeight.value = `${resu.windowHeight - res[0].top - 10}px`
       })
-    }
+    },
   })
 }
 onMounted(() => {
-  getScrollHeight();
+  getScrollHeight()
 })
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view class="sound-detail-box" :style="themeStore.themeStyles">
-    <video 
+    <video
       class="audio-box"
       :src="mediaDetailInfo.playurl"
       :poster="detailInfo.poster"
@@ -67,9 +71,9 @@ onMounted(() => {
       </view>
       <view class="anthology-btn-box" :style="{ height: scrollHeight }">
         <view
-          class="anthology-btn-box-item"
           v-for="item in detailInfo.tolnum"
           :key="item"
+          class="anthology-btn-box-item"
           :class="{ active: item === active }"
           size="default"
           @click="handleClick(item)"
@@ -124,5 +128,4 @@ onMounted(() => {
 .active {
   color: $u-type-primary;
 }
-
 </style>

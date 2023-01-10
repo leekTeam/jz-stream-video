@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import Histogram from '../histogram/index.vue'
+import { useMusicStore } from '@/store'
+
 defineProps({
+  rid: {
+    type: String,
+    required: true,
+  },
   number: {
     type: Number,
     default: 0,
@@ -17,23 +23,23 @@ defineProps({
     type: Number,
     default: 0,
   },
-  isActive: {
-    type: Boolean,
-    default: false,
-  },
-  pause: {
-    type: Boolean,
-    default: false,
-  }
 })
+
+const { playMusic, activeMusicInfo } = useMusicStore()
 </script>
 
 <template>
-  <view class="music-box">
-    <view class="music-box-number" :class="{'active': isActive}">{{ number }}</view>
+  <view class="music-box" @click="playMusic(rid)">
+    <view class="music-box-number" :class="{ active: activeMusicInfo.rid === rid }">
+      {{ number }}
+    </view>
     <view class="music-box-content">
-      <view class="music-box-content-title" :class="{'active': isActive}">{{ name }}</view>
-      <view class="music-box-content-singer">{{ mainauthor }}</view>
+      <view class="music-box-content-title" :class="{ active: activeMusicInfo.rid === rid }">
+        {{ name }}
+      </view>
+      <view class="music-box-content-singer">
+        {{ mainauthor }}
+      </view>
       <view class="music-box-content-score">
         <u-rate
           class="music-box-content-score-rate"
@@ -44,13 +50,12 @@ defineProps({
         />
         <view>{{ score }}</view>
       </view>
-
     </view>
     <view class="music-box-icon">
-      <Histogram 
+      <Histogram
+        v-if="activeMusicInfo.rid === rid"
         class="music-box-icon-histogram"
-        v-if="isActive"
-        :pause="pause"
+        :paused="activeMusicInfo.paused"
       />
       <u-icon name="download" size="40" />
     </view>
@@ -62,6 +67,7 @@ defineProps({
   display: flex;
   align-items: center;
   padding: 20rpx;
+  box-sizing: border-box;
   &:first-child {
     border-bottom: 1px solid $uni-border-color;
   }

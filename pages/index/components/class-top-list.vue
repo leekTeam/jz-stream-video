@@ -43,7 +43,6 @@ const updateModelValue = (cid: string) => {
 .class-top-list {
   flex-shrink: 0;
   width: 100%;
-  padding: 0 24rpx;
   .class-top-list-wrap {
     display: flex;
     align-items: center;
@@ -51,7 +50,7 @@ const updateModelValue = (cid: string) => {
   .u-tag {
     flex-shrink: 0;
 
-    &.u-tag {
+    & + .u-tag {
       margin-left: 24rpx;
     }
   }

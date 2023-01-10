@@ -3,7 +3,7 @@ import { nextTick, ref, watch } from 'vue'
 import ClassTopList from './class-top-list.vue'
 import ScrollList from './scroll-list.vue'
 import MusicBox from '@/components/music/music-box.vue'
-import { classTopLayerGet, resGet, resMediaGet } from '@/api/music'
+import { classTopLayerGet, resGet } from '@/api/music'
 
 const props = defineProps({
   isActive: Boolean,
@@ -41,7 +41,7 @@ const upCallback = (mescroll: any) => {
     const { dataObject } = res
     const { content, last } = dataObject
     mescroll.endSuccess(content.length, !last)
-    
+
     if (mescroll.num === 1)
       list.value = content
     else list.value = [...list.value, ...content]
@@ -50,74 +50,38 @@ const upCallback = (mescroll: any) => {
       mescroll.endErr()
     })
 }
-
-const active = ref('');
-const pause = ref(true)
-const innerAudioContext = uni.createInnerAudioContext();
-const playMusic = (url: string) => {
-  innerAudioContext.autoplay = true;
-  innerAudioContext.src = url;
-  innerAudioContext.onError((res) => {
-    const { errMsg } = res;
-    uni.showToast({
-      title: errMsg || '音乐资源错误',
-      icon: 'error',
-    })
-  });
-}
-const getMusicData = (rid: string) => {
-  resMediaGet({ rid }).then((res) => {
-    const { dataObject } = res;
-    const playurl = dataObject[0].playurl
-    playMusic(playurl);
-  })
-}
-const hanldeClick = (musicItem: any) => {
-  const { rid } = musicItem;
-
-  if(active.value !== rid){
-    pause.value = true;
-    getMusicData(rid);
-  }
-  if(pause.value){
-    innerAudioContext.play();
-  }else{
-    innerAudioContext.pause();
-  }
-
-  pause.value = !pause.value
-  active.value = rid
-}
-
-
 </script>
 
 <template>
-  <ScrollList ref="scrollRef" :is-active="isActive && !!currentSubValue" :up-callback="upCallback">
+  <ScrollList ref="scrollRef" :class="{ 'has-list': !!list.length }" :is-active="isActive && !!currentSubValue" :up-callback="upCallback">
     <template #header>
       <ClassTopList v-model="currentSubValue" :options="tabList" @change="changeTab" />
     </template>
-    <view class="music-list" v-if="list.length">
+    <view v-if="list.length" class="music-list">
       <MusicBox
         v-for="(musicItem, index) in list"
         :key="musicItem.rid"
+        :rid="musicItem.rid"
         :name="musicItem.name"
         :number="index + 1"
         :mainauthor="musicItem.mainauthor"
         :score="musicItem.score / 2"
-        :isActive="active === musicItem.rid"
-        :pause="pause"
-        @click="hanldeClick(musicItem)"
       />
     </view>
   </ScrollList>
 </template>
 
 <style lang="scss" scoped>
-.music-list {
-  margin: 24rpx;
-  box-sizing: border-box;
-  border: 1px solid $uni-border-color;
-  border-radius: 12rpx;
+.has-list {
+  :deep(.mescroll-wrap) {
+    padding: 24rpx 0;
+    box-sizing: border-box;
+  }
+  :deep(.mescroll-uni-content){
+    padding: 24rpx;
+    box-sizing: border-box;
+    border: 1px solid $uni-border-color;
+    border-radius: 12rpx;
+  }
 }
 </style>

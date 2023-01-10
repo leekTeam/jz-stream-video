@@ -80,7 +80,6 @@ defineProps({
     text {
       @include text-multi-ellipsis(2);
     }
-
   }
 }
 </style>

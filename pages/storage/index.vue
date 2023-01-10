@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { useTheme } from '@/composables'
 import { bytesUnitFormat } from '@/utils'
 import { LIMIT_CLEAR_KEYS } from '@/constant/storage'
 import { useThemeStore } from '@/store'
 
-useTheme()
 // TODO
 const themeStore = useThemeStore()
 const storageTotal = ref('')
@@ -35,6 +33,11 @@ const clearAllState = () => {
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view :style="themeStore.themeStyles">
     <u-cell-group>
       <u-cell-item title="清除缓存" :value="storageTotal" @click="clearStorage" />

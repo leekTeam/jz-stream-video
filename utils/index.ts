@@ -1,4 +1,4 @@
-import { TEST_BASE_URL } from '@/config/app'
+import { BASE_URL_KEY } from '@/constant/storage'
 
 export const bytesUnitFormat = (bytes: number) => {
   if (!bytes)
@@ -16,7 +16,7 @@ export const bytesUnitFormat = (bytes: number) => {
 // 为了调试使用后续可以移除
 export const replaceUrlHost = (url: string) => {
   if (import.meta.env.DEV)
-    return url.replace(/^http:\/\/.*?\//, TEST_BASE_URL)
+    return url.replace(/^http:\/\/.*?\//, uni.getStorageSync(BASE_URL_KEY))
 
   return url
 }

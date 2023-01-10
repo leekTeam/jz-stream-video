@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useThemeStore } from '@/store'
-import { useTheme } from '@/composables'
 import ThemePopup from '@/components/theme-popup/index.vue'
-
-useTheme()
 
 const themeStore = useThemeStore()
 
@@ -40,6 +37,11 @@ const goApiSetting = () => {
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view :style="themeStore.themeStyles">
     <u-cell-group>
       <u-cell-item icon="file-text" title="离线中心" @click="goDownloadDetail" />

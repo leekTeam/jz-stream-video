@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import NavBar from './components/nav-bar.vue'
 import MovieList from './components/movie-list.vue'
 import EbookList from './components/ebook-list.vue'
 import SoundList from './components/sound-list.vue'
 import MusicList from './components/music-list.vue'
+import MediaTabs from '@/components/media-tabs/index.vue'
 import { useThemeStore } from '@/store'
-import { useTheme } from '@/composables'
 import { MEDIA_LIST } from '@/constant/media'
 const themeStore = useThemeStore()
-
-useTheme()
 
 const currentIndex = ref(0)
 const changeSwiper = (event: any) => {
@@ -19,8 +16,13 @@ const changeSwiper = (event: any) => {
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view :style="themeStore.themeStyles" class="page-container">
-    <NavBar v-model="currentIndex" :list="MEDIA_LIST" />
+    <MediaTabs v-model="currentIndex" :list="MEDIA_LIST" />
     <swiper class="page-swiper" :current="currentIndex" @change="changeSwiper">
       <swiper-item>
         <MovieList :is-active="0 === currentIndex" />
@@ -38,7 +40,7 @@ const changeSwiper = (event: any) => {
   </view>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .page-container {
   flex: 1;
   display: flex;
