@@ -66,6 +66,18 @@ declare global {
     shownum: number
     tips: string
   }
+
+  interface TMusciMediaGet {
+    id: number
+    rid: string
+    mediatype: number
+    status: number
+    name: number
+    details: string
+    downloadurl: string
+    duration: number
+    playurl: string
+  }
 }
 
 export {}

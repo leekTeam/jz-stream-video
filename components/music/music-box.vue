@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Histogram from '../histogram/index.vue'
 defineProps({
   number: {
     type: Number,
@@ -17,6 +18,10 @@ defineProps({
     default: 0,
   },
   isActive: {
+    type: Boolean,
+    default: false,
+  },
+  pause: {
     type: Boolean,
     default: false,
   },
@@ -47,15 +52,12 @@ defineProps({
       </view>
     </view>
     <view class="music-box-icon">
-      <u-icon
-        class="music-box-icon-download"
-        name="checkmark-circle-fill"
-        size="40"
+      <Histogram
+        v-if="isActive"
+        class="music-box-icon-histogram"
+        :pause="pause"
       />
-      <u-icon
-        name="download"
-        size="40"
-      />
+      <u-icon name="download" size="40" />
     </view>
   </view>
 </template>
@@ -97,7 +99,8 @@ defineProps({
   }
 
   &-icon {
-    &-download {
+    display: flex;
+    &-histogram {
       margin-right: 10rpx;
     }
   }
