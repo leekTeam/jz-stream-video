@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 export function classTopLayerGet() {
-  return request<{ dataObject: TMusicTopClass[] }>({
+  return request<TMusicTopClass[]>({
     url: 'clinet/dis/music/classTopLayerGet',
     method: 'POST',
   })

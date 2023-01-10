@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import ClassTopList from './class-top-list.vue'
 import ScrollList from './scroll-list.vue'
 import MovieBox from '@/components/movie/movie-box.vue'
 import { classTopLayerGet, resGet } from '@/api/movie'
 
-defineProps({
+const props = defineProps({
   isActive: Boolean,
 })
 
@@ -18,12 +18,18 @@ const changeTab = () => {
   scrollRef.value.triggerDownScroll()
 }
 
-onMounted(() => {
-  classTopLayerGet().then((res) => {
-    const { dataObject } = res
-    tabList.value = dataObject
-    currentSubValue.value = dataObject[0].cid
-  })
+watch(() => props.isActive, (val) => {
+  if (val && !tabList.value.length) {
+    nextTick(() => {
+      classTopLayerGet().then((res) => {
+        const { dataObject } = res
+        tabList.value = dataObject
+        currentSubValue.value = dataObject[0].cid
+      })
+    })
+  }
+}, {
+  immediate: true,
 })
 
 const upCallback = (mescroll: any) => {
@@ -32,11 +38,12 @@ const upCallback = (mescroll: any) => {
     page: mescroll.num,
     size: mescroll.size,
   }).then((res) => {
-    const { dataObject, totalElements } = res
-    mescroll.endBySize(dataObject.length, totalElements)
+    const { dataObject } = res
+    const { content, last } = dataObject
+    mescroll.endSuccess(content.length, !last)
     if (mescroll.num === 1)
-      list.value = dataObject
-    else list.value = [...list.value, ...dataObject]
+      list.value = content
+    else list.value = [...list.value, ...content]
   })
     .catch(() => {
       mescroll.endErr()
