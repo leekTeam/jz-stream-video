@@ -4,6 +4,7 @@ import NavBar from './components/nav-bar.vue'
 import MovieList from './components/movie-list.vue'
 import EbookList from './components/ebook-list.vue'
 import SoundList from './components/sound-list.vue'
+import MusicList from './components/music-list.vue'
 import { useThemeStore } from '@/store'
 import { useTheme } from '@/composables'
 import { MEDIA_LIST } from '@/constant/media'
@@ -31,7 +32,7 @@ const changeSwiper = (event: any) => {
         <SoundList :is-active="2 === currentIndex" />
       </swiper-item>
       <swiper-item>
-        <EbookList :is-active="3 === currentIndex" />
+        <MusicList :is-active="3 === currentIndex" />
       </swiper-item>
     </swiper>
   </view>

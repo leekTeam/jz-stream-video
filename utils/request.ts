@@ -17,22 +17,23 @@ function buildRequestOptions(options: UniApp.RequestOptions) {
   }
 }
 
-interface SuccessResult {
+interface SuccessResult<T> {
+  dataObject: T
   errorCode: number
   errorInfo: string
 }
 
 function request<T>(options: Omit<UniApp.RequestOptions, 'success' | 'fail'>) {
-  return new Promise<T & SuccessResult>((resolve, reject) => {
+  return new Promise<SuccessResult<T>>((resolve, reject) => {
     uni.request({
       ...buildRequestOptions(options),
       success: (res) => {
-        if ((res.data as SuccessResult).errorCode === 0) {
-          resolve(res.data as T & SuccessResult)
+        if ((res.data as SuccessResult<T>).errorCode === 0) {
+          resolve(res.data as T & SuccessResult<T>)
         }
         else {
           uni.showToast({
-            title: (res.data as SuccessResult).errorInfo || '接口请求失败',
+            title: (res.data as SuccessResult<T>).errorInfo || '接口请求失败',
             icon: 'error',
           })
           reject(res.data)

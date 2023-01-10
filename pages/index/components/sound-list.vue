@@ -42,6 +42,21 @@ const upCallback = (mescroll: any) => {
       mescroll.endErr()
     })
 }
+
+const hanldeClick = (soundItem: any) => {
+  const { name, rid, poster, tolnum } = soundItem
+  const params = {
+    name,
+    rid,
+    poster,
+    tolnum,
+  }
+  uni.navigateTo({
+    url: `/pages/sound/detail?item=${encodeURIComponent(
+      JSON.stringify(params),
+    )}`,
+  })
+}
 </script>
 
 <template>
@@ -60,6 +75,7 @@ const upCallback = (mescroll: any) => {
         :label="soundItem.label"
         :years="soundItem.years"
         :tolnum="soundItem.tolnum"
+        @click="hanldeClick(soundItem)"
       />
     </view>
   </ScrollList>

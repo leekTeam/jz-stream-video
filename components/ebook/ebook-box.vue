@@ -9,10 +9,6 @@ defineProps({
     type: String,
     required: true,
   },
-  download: {
-    type: Boolean,
-    default: true,
-  },
   percentage: {
     type: Number,
     default: 0,
@@ -29,7 +25,7 @@ defineProps({
         :src="poster"
       />
       <u-icon
-        v-if="download"
+        v-if="percentage === 0"
         class="ebook-box-cover-down-icon"
         color="#ffffff"
         name="download"

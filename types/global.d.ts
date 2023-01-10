@@ -1,5 +1,6 @@
 declare global {
-  interface TPageResult {
+  interface TPageResult<T> {
+    content: T[]
     totalElements: number
     totalPage: number
     last: boolean
