@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
 import { useMescroll, useMescrollMoreItem } from '@/composables'
 
 const props = defineProps({

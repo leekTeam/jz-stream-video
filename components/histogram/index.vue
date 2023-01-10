@@ -1,15 +1,15 @@
 <script setup lang="ts">
 defineProps({
-  pause: Boolean,
+  paused: Boolean,
 })
 </script>
 
 <template>
   <view class="histogram-box">
-    <view class="histogram-box-one" :class="{ pause }" />
-    <view class="histogram-box-two" :class="{ pause }" />
-    <view class="histogram-box-three" :class="{ pause }" />
-    <view class="histogram-box-one" :class="{ pause }" />
+    <view class="histogram-box-one" :class="{ paused }" />
+    <view class="histogram-box-two" :class="{ paused }" />
+    <view class="histogram-box-three" :class="{ paused }" />
+    <view class="histogram-box-one" :class="{ paused }" />
   </view>
 </template>
 
@@ -39,7 +39,7 @@ defineProps({
   }
 }
 
-.pause {
+.paused {
   animation-play-state: paused;
 }
 

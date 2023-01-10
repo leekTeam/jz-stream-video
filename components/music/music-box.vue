@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import Histogram from '../histogram/index.vue'
+import { useMusicStore } from '@/store'
+
 defineProps({
+  rid: {
+    type: String,
+    required: true,
+  },
   number: {
     type: Number,
     default: 0,
@@ -17,24 +23,18 @@ defineProps({
     type: Number,
     default: 0,
   },
-  isActive: {
-    type: Boolean,
-    default: false,
-  },
-  pause: {
-    type: Boolean,
-    default: false,
-  },
 })
+
+const { playMusic, activeMusicInfo } = useMusicStore()
 </script>
 
 <template>
-  <view class="music-box">
-    <view class="music-box-number" :class="{ active: isActive }">
+  <view class="music-box" @click="playMusic(rid)">
+    <view class="music-box-number" :class="{ active: activeMusicInfo.rid === rid }">
       {{ number }}
     </view>
     <view class="music-box-content">
-      <view class="music-box-content-title" :class="{ active: isActive }">
+      <view class="music-box-content-title" :class="{ active: activeMusicInfo.rid === rid }">
         {{ name }}
       </view>
       <view class="music-box-content-singer">
@@ -53,9 +53,9 @@ defineProps({
     </view>
     <view class="music-box-icon">
       <Histogram
-        v-if="isActive"
+        v-if="activeMusicInfo.rid === rid"
         class="music-box-icon-histogram"
-        :pause="pause"
+        :paused="activeMusicInfo.paused"
       />
       <u-icon name="download" size="40" />
     </view>

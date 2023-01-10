@@ -3,7 +3,7 @@ import { nextTick, ref, watch } from 'vue'
 import ClassTopList from './class-top-list.vue'
 import ScrollList from './scroll-list.vue'
 import MusicBox from '@/components/music/music-box.vue'
-import { classTopLayerGet, resGet, resMediaGet } from '@/api/music'
+import { classTopLayerGet, resGet } from '@/api/music'
 
 const props = defineProps({
   isActive: Boolean,
@@ -50,44 +50,6 @@ const upCallback = (mescroll: any) => {
       mescroll.endErr()
     })
 }
-
-const active = ref('')
-const pause = ref(true)
-const innerAudioContext = uni.createInnerAudioContext()
-const playMusic = (url: string) => {
-  innerAudioContext.autoplay = true
-  innerAudioContext.src = url
-  innerAudioContext.onError((res) => {
-    const { errMsg } = res
-    uni.showToast({
-      title: errMsg || '音乐资源错误',
-      icon: 'error',
-    })
-  })
-}
-const getMusicData = (rid: string) => {
-  resMediaGet({ rid }).then((res) => {
-    const { dataObject } = res
-    const playurl = dataObject[0].playurl
-    playMusic(playurl)
-  })
-}
-const hanldeClick = (musicItem: any) => {
-  const { rid } = musicItem
-
-  if (active.value !== rid) {
-    pause.value = true
-    getMusicData(rid)
-  }
-  if (pause.value)
-    innerAudioContext.play()
-
-  else
-    innerAudioContext.pause()
-
-  pause.value = !pause.value
-  active.value = rid
-}
 </script>
 
 <template>
@@ -99,13 +61,11 @@ const hanldeClick = (musicItem: any) => {
       <MusicBox
         v-for="(musicItem, index) in list"
         :key="musicItem.rid"
+        :rid="musicItem.rid"
         :name="musicItem.name"
         :number="index + 1"
         :mainauthor="musicItem.mainauthor"
         :score="musicItem.score / 2"
-        :is-active="active === musicItem.rid"
-        :pause="pause"
-        @click="hanldeClick(musicItem)"
       />
     </view>
   </ScrollList>

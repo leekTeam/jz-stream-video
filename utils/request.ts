@@ -1,8 +1,7 @@
-import { TEST_BASE_URL } from '@/config/app'
 import { BASE_URL_KEY } from '@/constant/storage'
 
 function buildUrl(url: string) {
-  const baseUrl = uni.getStorageSync(BASE_URL_KEY) || TEST_BASE_URL
+  const baseUrl = uni.getStorageSync(BASE_URL_KEY)
   return `${baseUrl}${url}`
 }
 

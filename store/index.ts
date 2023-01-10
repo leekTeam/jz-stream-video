@@ -1,3 +1,3 @@
-export * from './modules/appStore'
+export * from './modules/musicStore'
 
 export * from './modules/themeStore'

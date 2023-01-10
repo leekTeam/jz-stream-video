@@ -13,6 +13,7 @@
     "vue-i18n": "^9.1.9"
   },
   "devDependencies": {
+    "@dcloudio/uni-app": "3.0.0-3061520221228001",
     "@antfu/eslint-config": "^0.34.0",
     "@dcloudio/types": "^3.0.17",
     "@types/lodash-es": "^4.17.6",
