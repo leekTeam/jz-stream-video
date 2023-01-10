@@ -1,49 +1,59 @@
 <script setup lang="ts">
-import { useThemeStore } from '@/store'
+import type { PropType } from 'vue'
 
-defineProps({
+const props = defineProps({
   options: {
-    type: Array,
+    type: Array as PropType<any[]>,
     default: () => [],
   },
-  name: {
+  modelValue: {
     type: String,
-    default: 'name',
+    default: '',
   },
 })
 
-const themeStore = useThemeStore()
-
-const style = {
-  backgroundColor: '#ffffff',
-  borderRadius: '43rpx',
-  border: '2rpx solid var(--color-primary)',
+const emit = defineEmits(['update:modelValue', 'change'])
+const updateModelValue = (cid: string) => {
+  if (props.modelValue !== cid) {
+    emit('update:modelValue', cid)
+    emit('change', cid)
+  }
 }
 </script>
 
 <template>
-  <u-tabs
-    v-bind="$attrs"
-    class="tab-box"
-    :active-color="themeStore.primaryColor"
-    :name="name"
-    :list="options"
-    :show-bar="false"
-    :active-item-style="style"
-  />
+  <view class="class-top-list">
+    <scroll-view scroll-x>
+      <view class="class-top-list-wrap">
+        <u-tag
+          v-for="item in options"
+          :key="item.cid"
+          :text="item.name"
+          shape="circle"
+          mode="plain"
+          :type="modelValue === item.cid ? 'primary' : 'info'"
+          @click="updateModelValue(item.cid)"
+        />
+      </view>
+    </scroll-view>
+  </view>
 </template>
 
 <style lang="scss" scoped>
-.tab-box {
+.class-top-list {
   flex-shrink: 0;
-}
-:deep(.u-tab-item) {
-  background-color: #f4f4f5;
-  border-radius: 43rpx;
-  margin-left: 20rpx;
+  width: 100%;
+  padding: 0 24rpx;
+  .class-top-list-wrap {
+    display: flex;
+    align-items: center;
+  }
+  .u-tag {
+    flex-shrink: 0;
 
-  &:not(:last-child) {
-    margin-right: 20rpx;
+    &.u-tag {
+      margin-left: 24rpx;
+    }
   }
 }
 </style>

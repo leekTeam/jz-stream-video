@@ -10,35 +10,19 @@ defineProps({
 })
 
 const scrollRef = ref()
-const tabList = ref<TMovieTopClass[]>([])
-const currentSubValue = ref(0)
+const tabList = ref<TSoundTopClass[]>([])
+const currentSubValue = ref('')
 const list = ref<TSound[]>([])
 
-const changeTab = (index: number) => {
-  currentSubValue.value = index
-  scrollRef.value.resetUpScroll()
+const changeTab = () => {
+  scrollRef.value.triggerDownScroll()
 }
 
-const hanldeClick = (mediaItem: any) => {
-  const { name, rid, poster, tolnum }
-    = mediaItem
-  const params = {
-    name,
-    rid,
-    poster,
-    tolnum,
-  }
-  uni.navigateTo({
-    url: `/pages/sound/detail?item=${encodeURIComponent(
-      JSON.stringify(params),
-    )}`,
-  })
-}
 onMounted(() => {
   classTopLayerGet().then((res) => {
     const { dataObject } = res
     tabList.value = dataObject
-    currentSubValue.value = 0
+    currentSubValue.value = dataObject[0].cid
   })
 })
 
@@ -69,12 +53,13 @@ const upCallback = (mescroll: any) => {
       <SoundBox
         v-for="soundItem in list"
         :key="soundItem.rid"
+        :rid="soundItem.rid"
         :poster="soundItem.poster"
         :name="soundItem.name"
         :summary="soundItem.summary"
         :label="soundItem.label"
         :years="soundItem.years"
-        @click="hanldeClick(soundItem)"
+        :tolnum="soundItem.tolnum"
       />
     </view>
   </ScrollList>

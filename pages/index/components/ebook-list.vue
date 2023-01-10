@@ -10,13 +10,12 @@ defineProps({
 })
 
 const scrollRef = ref()
-const tabList = ref<TMovieTopClass[]>([])
+const tabList = ref<TEbookTopClass[]>([])
 const currentSubValue = ref('')
-const list = ref<TMovie[]>([])
+const list = ref<TEbook[]>([])
 
-const changeTab = (index: number) => {
-  currentSubValue.value = tabList.value[index].cid
-  scrollRef.value.resetUpScroll()
+const changeTab = () => {
+  scrollRef.value.triggerDownScroll()
 }
 
 onMounted(() => {

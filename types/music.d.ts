@@ -3,7 +3,7 @@ declare global {
     // 自增ID
     id: number
     // 资源ID
-    rid: number
+    rid: string
     // 资源类型，见附录
     restype: number
     // 组织形式，0：单集，1：多集
@@ -52,6 +52,19 @@ declare global {
     cid: string
     // 预留
     reserve: string
+  }
+
+  interface TMusicTopClass {
+    id: number
+    cid: string
+    level: number
+    name: string
+    poster: string
+    precid: number
+    resnum: number
+    restype: number
+    shownum: number
+    tips: string
   }
 }
 

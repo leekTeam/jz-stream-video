@@ -1,5 +1,9 @@
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
+  rid: {
+    type: String,
+    required: true,
+  },
   poster: {
     type: String,
     required: true,
@@ -18,13 +22,33 @@ defineProps({
   },
   years: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
+  tolnum: {
+    type: Number,
+    required: true,
+  },
 })
+
+const hanldeClick = () => {
+  const { name, rid, poster, tolnum }
+    = props
+  const params = {
+    name,
+    rid,
+    poster,
+    tolnum,
+  }
+  uni.navigateTo({
+    url: `/pages/sound/detail?item=${encodeURIComponent(
+      JSON.stringify(params),
+    )}`,
+  })
+}
 </script>
 
 <template>
-  <view class="sound-box">
+  <view class="sound-box" @click="hanldeClick">
     <u-image
       width="240rpx"
       height="100%"

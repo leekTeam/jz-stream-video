@@ -14,9 +14,8 @@ const tabList = ref<TMovieTopClass[]>([])
 const currentSubValue = ref('')
 const list = ref<TMovie[]>([])
 
-const changeTab = (index: number) => {
-  currentSubValue.value = tabList.value[index].cid
-  scrollRef.value.resetUpScroll()
+const changeTab = () => {
+  scrollRef.value.triggerDownScroll()
 }
 
 onMounted(() => {

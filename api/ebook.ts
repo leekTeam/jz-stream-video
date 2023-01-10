@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 export function classTopLayerGet() {
-  return request({
+  return request<{ dataObject: TEbookTopClass[] }>({
     url: 'clinet/dis/ebook/classTopLayerGet',
     method: 'POST',
   })
@@ -16,7 +16,7 @@ export function classNextLayerGet(data: { cid: string }) {
 }
 
 export function resGet(data: { cid: string; page: number; size: number }) {
-  return request({
+  return request<TPageResult & { dataObject: TEbook[] }>({
     url: 'clinet/dis/ebook/resGet',
     method: 'POST',
     data,
