@@ -1,26 +1,20 @@
+import { TEST_BASE_URL } from '@/config/app'
 import { BASE_URL_KEY } from '@/constant/storage'
 
-const mockModules = import.meta.glob('../mock/**/*.ts', { eager: true })
-
-const mockPathMap = Object.entries(mockModules).reduce((obj, [path, module]) => {
-  if (!path.includes('_utils')) {
-    (module as any).default.forEach((item: any) => {
-      obj[item.url] = item
-    })
-  }
-  return obj
-}, {} as any)
-
-function mockRequest(options: UniApp.RequestOptions, callback: (...args: any) => void) {
-  const { response, timeout } = mockPathMap[options.url] || {}
-  setTimeout(() => {
-    callback(response(options.data))
-  }, timeout)
+function buildUrl(url: string) {
+  const baseUrl = uni.getStorageSync(BASE_URL_KEY) || TEST_BASE_URL
+  return `${baseUrl}${url}`
 }
 
-function buildUrl(url: string) {
-  const baseUrl = uni.getStorageSync(BASE_URL_KEY)
-  return `${baseUrl}${url}`
+function buildRequestOptions(options: UniApp.RequestOptions) {
+  const { url, method, data } = options
+  const urlVal = buildUrl(url)
+  return {
+    ...options,
+    url: urlVal,
+    method,
+    data: data ? JSON.stringify(data) : undefined,
+  }
 }
 
 interface SuccessResult {
@@ -28,37 +22,30 @@ interface SuccessResult {
   errorInfo: string
 }
 
-function request<T>(options: UniApp.RequestOptions) {
+function request<T>(options: Omit<UniApp.RequestOptions, 'success' | 'fail'>) {
   return new Promise<T & SuccessResult>((resolve, reject) => {
-    const { url, ...args } = options
-    if (import.meta.env.DEV) {
-      mockRequest(options, resolve)
-    }
-    else {
-      uni.request({
-        url: buildUrl(url),
-        ...args,
-        success: (res) => {
-          if ((res.data as SuccessResult).errorCode === 0) {
-            resolve(res.data as T & SuccessResult)
-          }
-          else {
-            uni.showToast({
-              title: (res.data as SuccessResult).errorInfo || '接口请求失败',
-              icon: 'error',
-            })
-            reject(res.data)
-          }
-        },
-        fail: (err) => {
+    uni.request({
+      ...buildRequestOptions(options),
+      success: (res) => {
+        if ((res.data as SuccessResult).errorCode === 0) {
+          resolve(res.data as T & SuccessResult)
+        }
+        else {
           uni.showToast({
-            title: err.errMsg || '接口请求失败',
+            title: (res.data as SuccessResult).errorInfo || '接口请求失败',
             icon: 'error',
           })
-          reject(err)
-        },
-      })
-    }
+          reject(res.data)
+        }
+      },
+      fail: (err) => {
+        uni.showToast({
+          title: err.errMsg || '接口请求失败',
+          icon: 'error',
+        })
+        reject(err)
+      },
+    })
   })
 }
 
