@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import ClassTopList from './class-top-list.vue'
 import ScrollList from './scroll-list.vue'
 import MusicBox from '@/components/music/music-box.vue'
-import { classTopLayerGet, resGet } from '@/api/music'
+import { classTopLayerGet, resGet, resMediaGet } from '@/api/music'
 
-defineProps({
+const props = defineProps({
   isActive: Boolean,
 })
 
@@ -18,12 +18,18 @@ const changeTab = () => {
   scrollRef.value.triggerDownScroll()
 }
 
-onMounted(() => {
-  classTopLayerGet().then((res) => {
-    const { dataObject } = res
-    tabList.value = dataObject
-    currentSubValue.value = dataObject[0].cid
-  })
+watch(() => props.isActive, (val) => {
+  if (val && !tabList.value.length) {
+    nextTick(() => {
+      classTopLayerGet().then((res) => {
+        const { dataObject } = res
+        tabList.value = dataObject
+        currentSubValue.value = dataObject[0].cid
+      })
+    })
+  }
+}, {
+  immediate: true,
 })
 
 const upCallback = (mescroll: any) => {
@@ -32,10 +38,9 @@ const upCallback = (mescroll: any) => {
     page: mescroll.num,
     size: mescroll.size,
   }).then((res) => {
-    const { dataObject, numberOfElements } = res
-    const { content } = dataObject as any
-    mescroll.endBySize(content.length, numberOfElements)
-    console.log("dataObject",dataObject);
+    const { dataObject } = res
+    const { content, last } = dataObject
+    mescroll.endSuccess(content.length, !last)
     
     if (mescroll.num === 1)
       list.value = content
@@ -46,10 +51,45 @@ const upCallback = (mescroll: any) => {
     })
 }
 
-const activeIndex = ref();
-const hanldeClick = (musicItem: any) => {
-
+const active = ref('');
+const pause = ref(true)
+const innerAudioContext = uni.createInnerAudioContext();
+const playMusic = (url: string) => {
+  innerAudioContext.autoplay = true;
+  innerAudioContext.src = url;
+  innerAudioContext.onError((res) => {
+    const { errMsg } = res;
+    uni.showToast({
+      title: errMsg || '音乐资源错误',
+      icon: 'error',
+    })
+  });
 }
+const getMusicData = (rid: string) => {
+  resMediaGet({ rid }).then((res) => {
+    const { dataObject } = res;
+    const playurl = dataObject[0].playurl
+    playMusic(playurl);
+  })
+}
+const hanldeClick = (musicItem: any) => {
+  const { rid } = musicItem;
+
+  if(active.value !== rid){
+    pause.value = true;
+    getMusicData(rid);
+  }
+  if(pause.value){
+    innerAudioContext.play();
+  }else{
+    innerAudioContext.pause();
+  }
+
+  pause.value = !pause.value
+  active.value = rid
+}
+
+
 </script>
 
 <template>
@@ -57,7 +97,7 @@ const hanldeClick = (musicItem: any) => {
     <template #header>
       <ClassTopList v-model="currentSubValue" :options="tabList" @change="changeTab" />
     </template>
-    <view class="music-list">
+    <view class="music-list" v-if="list.length">
       <MusicBox
         v-for="(musicItem, index) in list"
         :key="musicItem.rid"
@@ -65,7 +105,8 @@ const hanldeClick = (musicItem: any) => {
         :number="index + 1"
         :mainauthor="musicItem.mainauthor"
         :score="musicItem.score / 2"
-        :isActive="activeIndex === 2"
+        :isActive="active === musicItem.rid"
+        :pause="pause"
         @click="hanldeClick(musicItem)"
       />
     </view>
