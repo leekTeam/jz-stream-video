@@ -13,6 +13,9 @@
       }
     },
     {
+      "path": "pages/ebook/detail"
+    },
+    {
       "path": "pages/user/index",
       "style": {
         "navigationBarTitleText": "jz-stream-video"
@@ -27,6 +30,10 @@
     {
       "path": "pages/movie/detail"
     },
+    {
+      "path": "pages/sound/detail"
+    },
+
     {
       "path": "pages/api/setting",
       "style": {
