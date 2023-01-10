@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import NavBar from './components/nav-bar.vue'
 import MovieList from './components/movie-list.vue'
 import EbookList from './components/ebook-list.vue'
 import SoundList from './components/sound-list.vue'
 import MusicList from './components/music-list.vue'
+import MediaTabs from '@/components/media-tabs/index.vue'
 import { useThemeStore } from '@/store'
-import { useTheme } from '@/composables'
 import { MEDIA_LIST } from '@/constant/media'
 const themeStore = useThemeStore()
-
-useTheme()
 
 const currentIndex = ref(0)
 const changeSwiper = (event: any) => {
@@ -19,26 +16,31 @@ const changeSwiper = (event: any) => {
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view :style="themeStore.themeStyles" class="page-container">
-    <NavBar v-model="currentIndex" :list="MEDIA_LIST" />
+    <MediaTabs v-model="currentIndex" :list="MEDIA_LIST" />
     <swiper class="page-swiper" :current="currentIndex" @change="changeSwiper">
-      <swiper-item>
+      <swiper-item class="page-swiper-item">
         <MovieList :is-active="0 === currentIndex" />
       </swiper-item>
-      <swiper-item>
+      <swiper-item class="page-swiper-item">
         <EbookList :is-active="1 === currentIndex" />
       </swiper-item>
-      <swiper-item>
+      <swiper-item class="page-swiper-item">
         <SoundList :is-active="2 === currentIndex" />
       </swiper-item>
-      <swiper-item>
+      <swiper-item class="page-swiper-item">
         <MusicList :is-active="3 === currentIndex" />
       </swiper-item>
     </swiper>
   </view>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .page-container {
   flex: 1;
   display: flex;
@@ -50,6 +52,13 @@ const changeSwiper = (event: any) => {
 
   .page-swiper {
     flex: 1;
+  }
+
+  .page-swiper-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0 24rpx 24rpx;
+    box-sizing: border-box;
   }
 }
 </style>

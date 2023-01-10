@@ -52,7 +52,7 @@ const upCallback = (mescroll: any) => {
 </script>
 
 <template>
-  <ScrollList ref="scrollRef" :is-active="isActive && !!currentSubValue" :up-callback="upCallback">
+  <ScrollList ref="scrollRef" :class="{ 'has-list': !!list.length }" :is-active="isActive && !!currentSubValue" :up-callback="upCallback">
     <template #header>
       <ClassTopList v-model="currentSubValue" :options="tabList" @change="changeTab" />
     </template>
@@ -68,11 +68,16 @@ const upCallback = (mescroll: any) => {
 </template>
 
 <style lang="scss" scoped>
-.ebook-list {
-  margin: 24rpx;
-  padding: 10rpx;
-  box-sizing: border-box;
-  border: 1px solid $uni-border-color;
-  border-radius: 12rpx;
+.has-list {
+  :deep(.mescroll-wrap) {
+    padding: 24rpx 0;
+    box-sizing: border-box;
+  }
+  :deep(.mescroll-uni-content){
+    padding: 24rpx;
+    box-sizing: border-box;
+    border: 1px solid $uni-border-color;
+    border-radius: 12rpx;
+  }
 }
 </style>

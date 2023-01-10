@@ -19,16 +19,22 @@ defineProps({
   isActive: {
     type: Boolean,
     default: false,
-  }
+  },
 })
 </script>
 
 <template>
   <view class="music-box">
-    <view class="music-box-number" :class="{'active': isActive}">{{ number }}</view>
+    <view class="music-box-number" :class="{ active: isActive }">
+      {{ number }}
+    </view>
     <view class="music-box-content">
-      <view class="music-box-content-title" :class="{'active': isActive}">{{ name }}</view>
-      <view class="music-box-content-singer">{{ mainauthor }}</view>
+      <view class="music-box-content-title" :class="{ active: isActive }">
+        {{ name }}
+      </view>
+      <view class="music-box-content-singer">
+        {{ mainauthor }}
+      </view>
       <view class="music-box-content-score">
         <u-rate
           class="music-box-content-score-rate"
@@ -39,7 +45,6 @@ defineProps({
         />
         <view>{{ score }}</view>
       </view>
-
     </view>
     <view class="music-box-icon">
       <u-icon
@@ -60,6 +65,7 @@ defineProps({
   display: flex;
   align-items: center;
   padding: 20rpx;
+  box-sizing: border-box;
   &:first-child {
     border-bottom: 1px solid $uni-border-color;
   }

@@ -1,13 +1,10 @@
 <script lang="ts" setup>
 import { onLoad, onNavigationBarButtonTap, onUnload } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { useTheme } from '@/composables'
 import { useThemeStore } from '@/store'
 import { bytesUnitFormat } from '@/utils'
 import { DownloadTask } from '@/utils/download'
 import { DOWNLOAD_STATUS, DOWNLOAD_STATUS_TEXT } from '@/constant/download'
-
-useTheme()
 
 const themeStore = useThemeStore()
 
@@ -88,6 +85,11 @@ const onDeleteTask = (item: DownloadItem, index: number) => {
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view :style="themeStore.themeStyles" class="page-container">
     <view v-for="(item, index) in downloadTasks" :key="item.rid" class="download-task">
       <view class="download-task-container">

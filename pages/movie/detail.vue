@@ -3,10 +3,8 @@ import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { resMediaGet } from '@/api/movie'
 import { useThemeStore } from '@/store'
-import { useTheme } from '@/composables'
 
 const themeStore = useThemeStore()
-useTheme()
 
 const mediaDetailInfo = ref({
   playurl: '',
@@ -45,6 +43,11 @@ onLoad((options = {}) => {
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view class="media-detail-box" :style="themeStore.themeStyles">
     <video class="video-box" :src="mediaDetailInfo.playurl" />
     <view class="detail-box">

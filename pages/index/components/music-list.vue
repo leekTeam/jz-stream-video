@@ -32,11 +32,9 @@ const upCallback = (mescroll: any) => {
     page: mescroll.num,
     size: mescroll.size,
   }).then((res) => {
-    const { dataObject, numberOfElements } = res
-    const { content } = dataObject as any
-    mescroll.endBySize(content.length, numberOfElements)
-    console.log("dataObject",dataObject);
-    
+    const { dataObject } = res
+    const { content, last } = dataObject
+    mescroll.endSuccess(content.length, !last)
     if (mescroll.num === 1)
       list.value = content
     else list.value = [...list.value, ...content]
@@ -46,14 +44,14 @@ const upCallback = (mescroll: any) => {
     })
 }
 
-const activeIndex = ref();
+const activeIndex = ref()
 const hanldeClick = (musicItem: any) => {
 
 }
 </script>
 
 <template>
-  <ScrollList ref="scrollRef" :is-active="isActive && !!currentSubValue" :up-callback="upCallback">
+  <ScrollList ref="scrollRef" :class="{ 'has-list': !!list.length }" :is-active="isActive && !!currentSubValue" :up-callback="upCallback">
     <template #header>
       <ClassTopList v-model="currentSubValue" :options="tabList" @change="changeTab" />
     </template>
@@ -65,7 +63,7 @@ const hanldeClick = (musicItem: any) => {
         :number="index + 1"
         :mainauthor="musicItem.mainauthor"
         :score="musicItem.score / 2"
-        :isActive="activeIndex === 2"
+        :is-active="activeIndex === 2"
         @click="hanldeClick(musicItem)"
       />
     </view>
@@ -73,10 +71,16 @@ const hanldeClick = (musicItem: any) => {
 </template>
 
 <style lang="scss" scoped>
-.music-list {
-  margin: 24rpx;
-  box-sizing: border-box;
-  border: 1px solid $uni-border-color;
-  border-radius: 12rpx;
+.has-list {
+  :deep(.mescroll-wrap) {
+    padding: 24rpx 0;
+    box-sizing: border-box;
+  }
+  :deep(.mescroll-uni-content){
+    padding: 24rpx;
+    box-sizing: border-box;
+    border: 1px solid $uni-border-color;
+    border-radius: 12rpx;
+  }
 }
 </style>

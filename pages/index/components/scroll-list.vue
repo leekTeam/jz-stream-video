@@ -20,7 +20,6 @@ const upOption = {
   noMoreSize: 4,
   empty: {
     tip: '~ 空空如也 ~',
-    btnText: '去看看',
   },
 }
 
@@ -44,31 +43,36 @@ defineExpose({
 
 <template>
   <view class="scroll-list">
-    <view class="scroll-header">
-      <slot name="header" />
-    </view>
-    <mescroll-uni
-      ref="mescrollRef"
-      :down="downOption"
-      :up="upOption"
-      :fixed="false"
-      @init="mescrollInit"
-      @down="resetUpScroll"
-      @up="upCallback"
-    >
-      <slot />
-    </mescroll-uni>
+    <slot name="header" />
+    <div class="mescroll-wrap">
+      <mescroll-uni
+        ref="mescrollRef"
+        :down="downOption"
+        :up="upOption"
+        :fixed="false"
+        :bottombar="false"
+        @init="mescrollInit"
+        @down="resetUpScroll"
+        @up="upCallback"
+      >
+        <slot />
+      </mescroll-uni>
+    </div>
   </view>
 </template>
 
 <style lang="scss" scoped>
 .scroll-list {
-  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  overflow: hidden;
 }
-.mescroll-uni-warp {
+.mescroll-wrap {
   flex: 1;
   overflow: hidden;
 }

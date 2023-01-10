@@ -1,11 +1,8 @@
 <script lang="ts" setup>
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { useTheme } from '@/composables'
 import { BASE_URL_KEY } from '@/constant/storage'
 import { useThemeStore } from '@/store'
-
-useTheme()
 
 const themeStore = useThemeStore()
 
@@ -41,6 +38,11 @@ const onSubmit = () => {
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view :style="themeStore.themeStyles" class="page-container">
     <u-form ref="formRef" :model="formData" :label-width="120" :error-type="['toast']">
       <u-form-item label="API URL" prop="baseUrl">
