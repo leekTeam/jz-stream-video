@@ -251,7 +251,7 @@
 </script>
 <!-- #ifdef H5 || APP-VUE -->
 <script lang="renderjs" type="module" module="scrollPage">
-	import Vue from 'vue'
+	import { h, createApp } from 'vue'
 	import BScroll from '../../node_modules/@better-scroll/core'
 	import PullDown from '../../node_modules/@better-scroll/pull-down'
 	import PullUp from '../../node_modules/@better-scroll/pull-up'
@@ -293,8 +293,7 @@
 				});
 				// #endif
 			}
-			new Vue({
-				el: '#scrollContent',
+			const app = createApp({
 				render: (h) => {
 					return h('div', {
 						attrs: {
@@ -351,6 +350,7 @@
 					}))
 				}
 			})
+      app.mount('#scrollContent')
 			bs = new BScroll('.scroll-page', {
 				click: true,//开启点击事件
 				scrollY: true,
