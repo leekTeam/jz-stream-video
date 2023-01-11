@@ -35,21 +35,6 @@ onLoad((options = {}) => {
   detailInfo.value = args
   getMediaData(rid)
 })
-
-const scrollHeight = ref('')
-const getScrollHeight = () => {
-  uni.getSystemInfo({
-    success: (resu) => {
-      const query = uni.createSelectorQuery()
-      query.select('.anthology-btn-box').boundingClientRect().exec((res) => {
-        scrollHeight.value = `${resu.windowHeight - res[0].top - 10}px`
-      })
-    },
-  })
-}
-onMounted(() => {
-  getScrollHeight()
-})
 </script>
 
 <template>
@@ -69,7 +54,7 @@ onMounted(() => {
         <u-icon name="download" size="40" />
         <text>下载</text>
       </view>
-      <view class="anthology-btn-box" :style="{ height: scrollHeight }">
+      <view class="anthology-btn-box">
         <view
           v-for="item in detailInfo.tolnum"
           :key="item"
@@ -86,12 +71,22 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.sound-detail-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
 .audio-box {
   width: 100%;
 }
 
 .detail-box {
-  padding: 0 20rpx;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding: 0 20rpx 20rpx 20rpx;
 }
 
 .down-box {
@@ -108,6 +103,9 @@ onMounted(() => {
 }
 
 .anthology-btn-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   border: 1px solid $uni-border-color;
   border-radius: 20rpx 20rpx 0 0 ;
   overflow: auto;
