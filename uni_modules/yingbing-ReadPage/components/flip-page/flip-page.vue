@@ -329,6 +329,7 @@
 <!-- #ifdef H5 || APP-VUE -->
 <script lang="renderjs" type="module" module="flipPage">
 	let myFlipPageDom
+  // 以下是导入进来就注释了
 	// const animationRotate = `@keyframes animationRotate{
 	//     0% {
 	//       transform: rotateZ(0);
@@ -337,7 +338,7 @@
 	//       transform: rotateZ(360deg);
 	//     }
 	// }`
-	import Vue from 'vue'
+	import { h, createApp } from 'vue'
 	export default {
 		data() {
 			return {
@@ -380,12 +381,12 @@
 				});
 				// #endif
 			}
+      // 以下是导入进来就注释了
 			// const style = document.createElement('style')
 			// style.type = 'text/css'
 			// style.innerHTML = animationRotate
 			// document.head.appendChild(style)
-			new Vue({
-				el: '#flip-content',
+			const app = createApp({
 				render: (h) => {
 					return h('div', {
 						attrs: {
@@ -503,7 +504,9 @@
 					}))
 				}
 			})
+      app.mount('#flip-content')
 
+      // 以下是导入进来就注释了
 			// Vue.component('page-refresh', {
 			// 	props: {
 			// 		color: {
