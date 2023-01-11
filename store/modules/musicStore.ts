@@ -51,7 +51,7 @@ export const useMusicStore = defineStore('musicStore', () => {
   }
 
   const getMusicData = (rid: string) => {
-    uni.showLoading({})
+    uni.showLoading({ title: '加载中', mask: true })
     resMediaGet({ rid }).then((res) => {
       const { dataObject } = res
       const playurl = dataObject[0].playurl

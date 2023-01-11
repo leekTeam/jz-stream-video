@@ -67,16 +67,21 @@ declare global {
     tips: string
   }
 
-  interface TMusciMediaGet {
-    id: number
-    rid: string
-    mediatype: number
-    status: number
-    name: number
+  interface TMusicMedia {
+    attrint: number
+    attrstr: string
     details: string
     downloadurl: string
-    duration: number
+    duration: string
+    id: number
+    mediatype: number
+    mid: number
+    name: number
+    number: number
     playurl: string
+    rid: string
+    size: number
+    status: number
   }
 }
 

@@ -27,7 +27,7 @@ defineProps({
 
 <style lang="scss" scoped>
 .sound-list {
-  padding: 24rpx;
+  padding: 24rpx 0;
   box-sizing: border-box;
   .sound-box + .sound-box {
     margin-top: 24rpx;

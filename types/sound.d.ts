@@ -66,6 +66,23 @@ declare global {
     shownum: number
     tips: string
   }
+
+  interface TSoundMedia {
+    attrint: number
+    attrstr: string
+    details: string
+    downloadurl: string
+    duration: string
+    id: number
+    mediatype: number
+    mid: number
+    name: number
+    number: number
+    playurl: string
+    rid: string
+    size: number
+    status: number
+  }
 }
 
 export {}

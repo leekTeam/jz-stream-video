@@ -43,12 +43,12 @@ const { playMusic, activeMusicInfo } = useMusicStore()
       <view class="music-box-content-score">
         <u-rate
           class="music-box-content-score-rate"
-          :current="Number(score) / 2"
+          :current="(Number(score) / 2).toFixed(1)"
           active-color="#fe9a00"
           disabled
           size="20"
         />
-        <view>{{ Number(score) / 2 }}</view>
+        <view>{{ (Number(score) / 2).toFixed(1) }}</view>
       </view>
     </view>
     <view class="music-box-icon">

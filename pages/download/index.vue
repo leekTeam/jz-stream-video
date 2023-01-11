@@ -97,7 +97,8 @@ const onDeleteTask = (item: DownloadItem, index: number) => {
           {{ item.name }}
         </view>
         <u-line-progress
-          :height="20" :active-color="themeStore.primaryColor"
+          :height="20"
+          :active-color="themeStore.primaryColor"
           :percent="item.currentSize / item.totalSize * 100"
           striped
           striped-active
