@@ -46,6 +46,8 @@ const changeSwiper = (event: any) => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
+
   .u-tabs {
     flex-shrink: 0;
   }

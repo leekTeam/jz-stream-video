@@ -1,80 +1,46 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { useRequestList } from '../useRequestList'
 import ClassTopList from './class-top-list.vue'
 import ScrollList from './scroll-list.vue'
-import EbookBox from '@/components/ebook/ebook-box.vue'
+import EbookList from '@/components/ebook/ebook-list.vue'
 import { classTopLayerGet, resGet } from '@/api/ebook'
 
 const props = defineProps({
   isActive: Boolean,
 })
-
-const scrollRef = ref()
-const tabList = ref<TEbookTopClass[]>([])
-const currentSubValue = ref('')
-const list = ref<TEbook[]>([])
-
-const changeTab = () => {
-  scrollRef.value.triggerDownScroll()
-}
-
-watch(() => props.isActive, (val) => {
-  if (val && !tabList.value.length) {
-    nextTick(() => {
-      classTopLayerGet().then((res) => {
-        const { dataObject } = res
-        tabList.value = dataObject
-        currentSubValue.value = dataObject[0].cid
-      })
-    })
-  }
-}, {
-  immediate: true,
-})
-
-const upCallback = (mescroll: any) => {
-  resGet({
-    cid: currentSubValue.value,
-    page: mescroll.num,
-    size: mescroll.size,
-  }).then((res) => {
-    const { dataObject } = res
-    const { content, last } = dataObject
-    mescroll.endSuccess(content.length, !last)
-    if (mescroll.num === 1)
-      list.value = content
-    else list.value = [...list.value, ...content]
-  })
-    .catch(() => {
-      mescroll.endErr()
-    })
-}
+const {
+  scrollRef,
+  activeClassifyCid,
+  classifyList,
+  isActiveScroll,
+  listData,
+  upCallback,
+  onClassifyChange,
+} = useRequestList(props, classTopLayerGet, resGet)
 </script>
 
 <template>
-  <ScrollList ref="scrollRef" :class="{ 'has-list': !!list.length }" :is-active="isActive && !!currentSubValue" :up-callback="upCallback">
+  <ScrollList
+    ref="scrollRef"
+    :class="{ 'has-list': !!listData.length }"
+    :is-active="isActiveScroll"
+    :up-callback="upCallback"
+  >
     <template #header>
-      <ClassTopList v-model="currentSubValue" :options="tabList" @change="changeTab" />
-    </template>
-    <view class="ebook-list">
-      <EbookBox
-        v-for="ebookItem in list"
-        :key="ebookItem.rid"
-        :poster="ebookItem.poster"
-        :name="ebookItem.name"
+      <ClassTopList
+        v-model="activeClassifyCid"
+        :options="classifyList"
+        @change="onClassifyChange"
       />
-    </view>
+    </template>
+    <EbookList :data="listData" />
   </ScrollList>
 </template>
 
 <style lang="scss" scoped>
 .has-list {
   :deep(.mescroll-wrap) {
-    padding: 24rpx 0;
-    box-sizing: border-box;
-  }
-  :deep(.mescroll-uni-content){
-    padding: 24rpx;
+    margin: 24rpx 0;
     box-sizing: border-box;
     border: 1px solid $uni-border-color;
     border-radius: 12rpx;

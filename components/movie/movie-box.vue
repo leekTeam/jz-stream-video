@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { replaceUrlHost } from '@/utils'
 const props = defineProps({
   rid: {
     type: String,
@@ -33,7 +34,7 @@ const props = defineProps({
     required: true,
   },
   score: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
@@ -65,7 +66,7 @@ const goDetail = () => {
       width="240rpx"
       height="100%"
       class="movie-box-poster"
-      :src="poster"
+      :src="replaceUrlHost(poster)"
     />
     <view class="movie-box-content">
       <view class="movie-box-title">

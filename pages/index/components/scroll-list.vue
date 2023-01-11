@@ -17,10 +17,6 @@ const downOption = {
 }
 const upOption = {
   auto: false,
-  noMoreSize: 4,
-  empty: {
-    tip: '~ 空空如也 ~',
-  },
 }
 
 const { mescroll, mescrollRef } = useMescroll()
@@ -63,19 +59,12 @@ defineExpose({
 
 <style lang="scss" scoped>
 .scroll-list {
-  // #ifdef APP-PLUS
-  height: calc(100% - 52rpx);
-  // #endif
-  // #ifndef APP-PLUS
   height: 100%;
-  // #endif
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 0 24rpx;
   box-sizing: border-box;
-  display: flex;
-  overflow: hidden;
 }
 .mescroll-wrap {
   flex: 1;

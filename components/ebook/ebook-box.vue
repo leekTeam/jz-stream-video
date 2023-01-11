@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Progress from '../progress/index.vue'
+import { replaceUrlHost } from '@/utils'
 defineProps({
   poster: {
     type: String,
@@ -22,7 +23,7 @@ defineProps({
       <u-image
         width="100%"
         height="250rpx"
-        :src="poster"
+        :src="replaceUrlHost(poster)"
       />
       <u-icon
         v-if="percentage === 0"

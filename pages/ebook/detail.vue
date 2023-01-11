@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { useThemeStore } from '@/store'
 import { onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
+import { useThemeStore } from '@/store'
 const themeStore = useThemeStore()
 
-
-const pageType= ref('scroll');
-const	fontsize= ref(20);
-const	lineHeight= ref(15);
-const	color= ref('#333');
-const	slide= ref(40);
-const	bgColor= ref('#fcd281');
-const	enablePreload= ref(true);
-const	noChapter= ref(false);
-const	totalPage= ref(0);
-const	currentPage= ref(0);
-const	custom = ref([//自定义页面
+const pageType = ref('scroll')
+const fontsize = ref(20)
+const lineHeight = ref(15)
+const color = ref('#333')
+const slide = ref(40)
+const bgColor = ref('#fcd281')
+const enablePreload = ref(true)
+const noChapter = ref(false)
+const totalPage = ref(0)
+const currentPage = ref(0)
+const custom = ref([
+  // 自定义页面
   `<div style="width: 100%;height: 100%;text-align: center;">
     <p style="margin-top: 50px">这是一个自定义的页面可以用于:</p>
     <p>广告展示</p>
@@ -32,10 +32,10 @@ const	custom = ref([//自定义页面
     <p>避免滚动模式下定位异常</p>
     <p>自定义页面只能放入页面章节最后展示</p>
   </div>`,
-  `<div style="width: 100%;height: 100px;text-align: center;line-height: 100px;">这是一个自定义页面的第二页</div>`,
-  `<div style="width: 100%;height: 100px;text-align: center;line-height: 100px;">这是一个自定义页面的第三页</div>`
-]);
-const page = ref();
+  '<div style="width: 100%;height: 100px;text-align: center;line-height: 100px;">这是一个自定义页面的第二页</div>',
+  '<div style="width: 100%;height: 100px;text-align: center;line-height: 100px;">这是一个自定义页面的第三页</div>',
+])
+const page = ref()
 
 const clickTo = () => {
   console.log('点击')
@@ -43,108 +43,81 @@ const clickTo = () => {
 const currentChange = (e) => {
   currentPage.value = e.currentPage
   totalPage.value = e.totalPage
-  console.log(e);
+  console.log(e)
 }
 const setCatalog = (e) => {
-  console.log(e);
+  console.log(e)
 }
-//自定义页面内的点击事件
+// 自定义页面内的点击事件
 const clickme = (num, num2) => {
   uni.showToast({
     icon: 'none',
-    title: '你点击了我'
+    title: '你点击了我',
   })
 }
-//自定义页面内的点击事件
+// 自定义页面内的点击事件
 const clickher = (num, num2) => {
   uni.showToast({
     icon: 'none',
-    title: '你点击了她'
+    title: '你点击了她',
   })
 }
 const addFontsize = () => {
-  fontsize.value += 4;
+  fontsize.value += 4
 }
 const changePageType = () => {
-  pageType.value = pageType.value == 'real' ? 'scroll' : 'real';
+  pageType.value = pageType.value === 'real' ? 'scroll' : 'real'
 }
 const reduceFontSize = () => {
-  fontsize.value -= 4;
+  fontsize.value -= 4
 }
 const changeLineHeight = () => {
-  lineHeight.value += 4;
+  lineHeight.value += 4
 }
 const changeSkin = () => {
-  color.value = '#f5f5f5';
-  bgColor.value = '#999';
+  color.value = '#f5f5f5'
+  bgColor.value = '#999'
 }
 const changeChapter = () => {
-  if ( noChapter.value ) {
+  if (noChapter.value) {
     page.value.change({
-      start: 100
+      start: 100,
     })
-  } else {
+  }
+  else {
     setTimeout(() => {
-      let contents = [{
-        chapter: 3,
-        content: getContent(3),
-        title: '第三章',
-        isStart: false,
-        isEnd: false
-      },{
-        chapter: 4,
-        custom: custom.value,
-        title: '第四章',
-        isStart: false,
-        isEnd: false
-      },{
-        chapter: 5,
-        content: getContent(5),
-        title: '第五章',
-        isStart: false,
-        isEnd: false
-      }]
+      const contents = [
+        {
+          chapter: 3,
+          content: getContent(3),
+          title: '第三章',
+          isStart: false,
+          isEnd: false,
+        },
+        {
+          chapter: 4,
+          custom: custom.value,
+          title: '第四章',
+          isStart: false,
+          isEnd: false,
+        },
+        {
+          chapter: 5,
+          content: getContent(5),
+          title: '第五章',
+          isStart: false,
+          isEnd: false,
+        },
+      ]
       page.value.change({
-        contents: contents,
+        contents,
         start: 0,
-        currentChapter: 5
+        currentChapter: 5,
       })
     }, 2000)
   }
 }
-const loadmoreContent = (chapter, callback) =>{
-  setTimeout(() => {
-    callback('success', {
-      chapter: chapter,
-      content: chapter == 4 ? '' : getContent(chapter),
-      custom: chapter == 4 ? custom.value : [],
-      title: '第' + chapter + '章',
-      isStart: chapter == 1,
-      isEnd: chapter == 7
-    });
-  // callback('fail');
-  // callback('timeout');
-  }, 2000)
-}
-const preloadContent = (chapters, callback) => {
-  setTimeout(() => {
-    let contents = []
-    for ( let i in chapters ) {
-      contents.push({
-        chapter: chapters[i],
-        start: 0,
-        content: chapters[i] == 4 ? '' : getContent(chapters[i]),
-        custom: chapters[i] == 4 ? custom.value : [],
-        title: '第' + chapters[i] + '章',
-        isStart: chapters[i] == 1,
-        isEnd: chapters[i] == 7
-      })
-    }
-    callback('success', contents);
-    // callback('fail');
-    // callback('timeout');
-  }, 2000)
-}
+
 const getContent = (chapter = 1) => {
   return `第${chapter}章
         你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊
@@ -264,42 +237,86 @@ const getContent = (chapter = 1) => {
   `
 }
 
+const loadmoreContent = (chapter, callback) => {
+  setTimeout(() => {
+    callback('success', {
+      chapter,
+      content: chapter === 4 ? '' : getContent(chapter),
+      custom: chapter === 4 ? custom.value : [],
+      title: `第${chapter}章`,
+      isStart: chapter === 1,
+      isEnd: chapter === 7,
+    })
+    // callback('fail');
+    // callback('timeout');
+  }, 2000)
+}
+const preloadContent = (chapters, callback) => {
+  setTimeout(() => {
+    const contents = []
+    for (const i in chapters) {
+      contents.push({
+        chapter: chapters[i],
+        start: 0,
+        content: chapters[i] === 4 ? '' : getContent(chapters[i]),
+        custom: chapters[i] === 4 ? custom.value : [],
+        title: `第${chapters[i]}章`,
+        isStart: chapters[i] === 1,
+        isEnd: chapters[i] === 7,
+      })
+    }
+    callback('success', contents)
+    // callback('fail');
+    // callback('timeout');
+  }, 2000)
+}
+
 onReady(() => {
-  let contents = [{
-    chapter: 3,
-    content: getContent(3),
-    title: '第三章',
-    isStart: false,
-    isEnd: false,
-  },{
-    chapter: 4,
-    custom: custom.value,//自定义页面
-    title: '第四章',
-    isStart: false,
-    isEnd: false,
-  },{
-    chapter: 5,
-    content: getContent(5),
-    title: '第五章',
-    isStart: false,
-    isEnd: false,
-  }]
-  if ( noChapter ) {
+  const contents = [
+    {
+      chapter: 3,
+      content: getContent(3),
+      title: '第三章',
+      isStart: false,
+      isEnd: false,
+    },
+    {
+      chapter: 4,
+      custom: custom.value, // 自定义页面
+      title: '第四章',
+      isStart: false,
+      isEnd: false,
+    },
+    {
+      chapter: 5,
+      content: getContent(5),
+      title: '第五章',
+      isStart: false,
+      isEnd: false,
+    },
+  ]
+  if (noChapter.value) {
     page.value.init({
       content: getContent(2),
-      start: 0
-    })
-  } else {
-    page.value.init({
-      contents: contents,
       start: 0,
-      currentChapter: 4
+    })
+  }
+  else {
+    page.value.init({
+      contents,
+      start: 0,
+      currentChapter: 4,
     })
   }
 })
 </script>
 
 <template>
+  <page-meta>
+    <navigation-bar
+      :background-color="themeStore.primaryColor"
+    />
+  </page-meta>
   <view class="ebook-detail-box" :style="themeStore.themeStyles">
     <yingbing-ReadPage
       ref="page"
@@ -309,9 +326,9 @@ onReady(() => {
       :color="color"
       :bg-color="bgColor"
       :slide="slide"
-      :enablePreload="enablePreload"
-      :noChapter="noChapter"
-      enableClick
+      :enable-preload="enablePreload"
+      :no-chapter="noChapter"
+      enable-click
       @clickTo="clickTo"
       @loadmore="loadmoreContent"
       @preload="preloadContent"
@@ -319,9 +336,8 @@ onReady(() => {
       @setCatalog="setCatalog"
       @clickme="clickme"
       @clickher="clickher"
-    ></yingbing-ReadPage>
+    />
   </view>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

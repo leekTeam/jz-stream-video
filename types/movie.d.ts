@@ -41,7 +41,7 @@ declare global {
     // 是否付费
     paytype: number
     // 评分
-    score: number
+    score: string
     // 备注
     tips: string
     // 其他属性

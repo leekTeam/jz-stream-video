@@ -7,9 +7,9 @@ defineProps({
     type: String,
     required: true,
   },
-  number: {
+  index: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   name: {
     type: String,
@@ -20,8 +20,8 @@ defineProps({
     required: true,
   },
   score: {
-    type: Number,
-    default: 0,
+    type: String,
+    default: '0',
   },
 })
 
@@ -30,8 +30,8 @@ const { playMusic, activeMusicInfo } = useMusicStore()
 
 <template>
   <view class="music-box" @click="playMusic(rid)">
-    <view class="music-box-number" :class="{ active: activeMusicInfo.rid === rid }">
-      {{ number }}
+    <view class="music-box-index" :class="{ active: activeMusicInfo.rid === rid }">
+      {{ index }}
     </view>
     <view class="music-box-content">
       <view class="music-box-content-title" :class="{ active: activeMusicInfo.rid === rid }">
@@ -43,12 +43,12 @@ const { playMusic, activeMusicInfo } = useMusicStore()
       <view class="music-box-content-score">
         <u-rate
           class="music-box-content-score-rate"
-          :current="score"
+          :current="Number(score) / 2"
           active-color="#fe9a00"
           disabled
           size="20"
         />
-        <view>{{ score }}</view>
+        <view>{{ Number(score) / 2 }}</view>
       </view>
     </view>
     <view class="music-box-icon">
@@ -75,7 +75,7 @@ const { playMusic, activeMusicInfo } = useMusicStore()
     border-bottom: 1px solid $uni-border-color;
   }
 
-  &-number {
+  &-index {
     width: 50rpx;
     margin-right: 10rpx;
     text-align: center;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { replaceUrlHost } from '@/utils'
 const props = defineProps({
   rid: {
     type: String,
@@ -53,7 +54,7 @@ const hanldeClick = () => {
       width="240rpx"
       height="100%"
       class="sound-box-poster"
-      :src="poster"
+      :src="replaceUrlHost(poster)"
     />
     <view class="sound-box-content">
       <view class="sound-box-top">
