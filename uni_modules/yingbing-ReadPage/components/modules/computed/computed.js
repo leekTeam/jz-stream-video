@@ -215,6 +215,7 @@ export default {
 		filterPage (pageInfo) {
 			if ( pageInfo && pageInfo.dataId > -1 ) {
 				const nowChapters = this.pages.filter(item => item.chapter == pageInfo.chapter && (item.type == 'text' || item.type == 'custom' || item.type == 'slot'))
+				console.log(nowChapters);
 				let currentPage = nowChapters.findIndex(item => item.dataId == pageInfo.dataId)
 				if ( currentPage > -1 ) {
 					return (currentPage + 1) + ' / ' + nowChapters.length

@@ -320,7 +320,6 @@
 			},
 			//参数改变
 			propWatcher (newValue, oldValue) {
-				console.log(newValue.isStart != (oldValue ? oldValue.isStart : false))
 				if ( newValue.isStart != (oldValue ? oldValue.isStart : false) ) {
 					if ( newValue.isStart ) {
 						this.getPages();
