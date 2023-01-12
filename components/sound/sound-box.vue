@@ -32,16 +32,18 @@ const props = defineProps({
 })
 
 const hanldeClick = () => {
-  const { name, rid, poster, tolnum }
-    = props
+  const {
+    name,
+    rid,
+    poster,
+  } = props
   const params = {
     name,
     rid,
     poster,
-    tolnum,
   }
   uni.navigateTo({
-    url: `/pages/sound/detail?item=${encodeURIComponent(
+    url: `/pages/sound/detail?soundInfo=${encodeURIComponent(
       JSON.stringify(params),
     )}`,
   })
@@ -76,7 +78,7 @@ const hanldeClick = () => {
 <style lang="scss" scoped>
 .sound-box {
   height: 250rpx;
-  padding: 20rpx;
+  padding: 24rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -84,7 +86,7 @@ const hanldeClick = () => {
   border-radius: 12rpx;
 
   &-poster {
-    margin-right: 20rpx;
+    margin-right: 24rpx;
   }
 
   &-content {

@@ -24,7 +24,7 @@ export function resGet(data: { cid: string; page: number; size: number }) {
 }
 
 export function resMediaGet(data: { rid: string }) {
-  return request({
+  return request<TEbookMedia[]>({
     url: 'clinet/dis/ebook/resMediaGet',
     method: 'POST',
     data,

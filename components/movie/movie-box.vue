@@ -40,8 +40,18 @@ const props = defineProps({
 })
 
 const goDetail = () => {
-  const { name, rid, label, country, years, tolnum, summary, score }
-    = props
+  const {
+    name,
+    rid,
+    label,
+    country,
+    years,
+    tolnum,
+    summary,
+    score,
+    poster,
+  } = props
+
   const params = {
     name,
     rid,
@@ -51,9 +61,10 @@ const goDetail = () => {
     tolnum,
     summary,
     score,
+    poster,
   }
   uni.navigateTo({
-    url: `/pages/movie/detail?item=${encodeURIComponent(
+    url: `/pages/movie/detail?movieInfo=${encodeURIComponent(
       JSON.stringify(params),
     )}`,
   })
@@ -62,12 +73,7 @@ const goDetail = () => {
 
 <template>
   <view class="movie-box" @click="goDetail">
-    <u-image
-      width="240rpx"
-      height="100%"
-      class="movie-box-poster"
-      :src="replaceUrlHost(poster)"
-    />
+    <u-image width="240rpx" height="100%" class="movie-box-poster" :src="replaceUrlHost(poster)" />
     <view class="movie-box-content">
       <view class="movie-box-title">
         {{ name }}

@@ -17,16 +17,23 @@ export function useRequestList<
     scrollRef.value.triggerDownScroll()
   }
 
+  const getClassifyList = () => {
+    uni.showLoading({ title: '加载中', mask: true })
+    fetchClassifyApi().then((res) => {
+      const { dataObject } = res
+      classifyList.value = dataObject
+      activeClassifyCid.value = dataObject[0].cid
+    }).finally(() => {
+      uni.hideLoading()
+    })
+  }
+
   watch(
     () => props.isActive,
     (val) => {
       if (val && !classifyList.value.length) {
         nextTick(() => {
-          fetchClassifyApi().then((res) => {
-            const { dataObject } = res
-            classifyList.value = dataObject
-            activeClassifyCid.value = dataObject[0].cid
-          })
+          getClassifyList()
         })
       }
     },

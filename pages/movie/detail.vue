@@ -1,97 +1,115 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/movie'
 import { useThemeStore } from '@/store'
+import { replaceUrlHost } from '@/utils'
 
 const themeStore = useThemeStore()
 
-const mediaDetailInfo = ref({
-  playurl: '',
+const movieInfo = ref({
   name: '',
-})
-const active = ref(1)
-const getMediaData = (rid: string) => {
-  resMediaGet({ rid }).then((res) => {
-    const { dataObject } = res as any
-    mediaDetailInfo.value = dataObject[0]
-    active.value = dataObject[0].number
-  })
-}
-
-const handleClick = (currentValue: number) => {
-  active.value = currentValue
-}
-
-const detailInfo = ref({
+  rid: '',
   label: '',
   country: '',
   years: '',
   score: '',
   tolnum: 1,
   summary: '',
+  poster: '',
 })
-const currentScore = ref(0)
+
+const movieMediaList = shallowRef<TMovieMedia[]>([])
+const activeId = ref<TMovieMedia['id']>()
+
+const activeMediaInfo = computed(() => movieMediaList.value.find(item => item.id === activeId.value) || {} as TMovieMedia)
+
+const getMediaData = () => {
+  uni.showLoading({ title: '加载中', mask: true })
+  resMediaGet({ rid: movieInfo.value.rid }).then((res) => {
+    const { dataObject } = res
+    movieMediaList.value = dataObject.map((item) => {
+      return {
+        ...item,
+        playurl: replaceUrlHost(item.playurl),
+      }
+    })
+    activeId.value = dataObject[0].id
+  }).finally(() => {
+    uni.hideLoading()
+  })
+}
+
+const onActiveChange = (item: TMovieMedia) => {
+  activeId.value = item.id
+}
+
+const onNext = () => {
+  const index = movieMediaList.value.findIndex(item => item.id === activeId.value) + 1
+  if (movieMediaList.value[index])
+    onActiveChange(movieMediaList.value[index])
+}
+
 onLoad((options = {}) => {
-  const item = JSON.parse(decodeURIComponent(options.item))
-  const { name: title, rid, ...args } = item
-  currentScore.value = item.score / 2
-  uni.setNavigationBarTitle({ title })
-  detailInfo.value = args
-  getMediaData(rid)
+  movieInfo.value = JSON.parse(decodeURIComponent(options.movieInfo))
+  uni.setNavigationBarTitle({ title: movieInfo.value.name })
+  getMediaData()
 })
 </script>
 
 <template>
   <page-meta>
-    <navigation-bar
-      :background-color="themeStore.primaryColor"
-    />
+    <navigation-bar :background-color="themeStore.primaryColor" />
   </page-meta>
   <view class="media-detail-box" :style="themeStore.themeStyles">
-    <video class="video-box" :src="mediaDetailInfo.playurl" />
+    <video
+      class="video-box"
+      enable-play-gesture
+      :poster="replaceUrlHost(movieInfo.poster)"
+      :src="activeMediaInfo.playurl"
+      @ended="onNext"
+    />
     <view class="detail-box">
       <view class="title-box">
-        <text>{{ mediaDetailInfo.name }}</text>
+        <text>{{ activeMediaInfo.name }}</text>
         <view class="down-box">
           <u-icon name="download" size="40" />
           <text>下载</text>
         </view>
       </view>
       <view class="sub-title-box">
-        <text>{{ detailInfo.label }}</text>
-        <text>{{ detailInfo.country }}</text>
-        <text>{{ detailInfo.years }}</text>
+        <text>{{ movieInfo.label }}</text>
+        <text>{{ movieInfo.country }}</text>
+        <text>{{ movieInfo.years }}</text>
       </view>
-      <view class="score-box mb_20">
+      <view class="score-box">
         <u-rate
           class="rate"
-          :current="currentScore"
+          :current="(Number(movieInfo.score) / 2).toFixed(1)"
           active-color="#fe9a00"
           disabled
           size="20"
         />
-        <text>{{ detailInfo.score }}</text>
+        <text>{{ (Number(movieInfo.score) / 2).toFixed(1) }}</text>
       </view>
-      <view class="mb_20 title">
+      <view class="title">
         选集
       </view>
-      <view class="anthology-btn-box mb_20">
+      <view class="anthology-btn-box">
         <u-button
-          v-for="item in detailInfo.tolnum"
-          :key="item"
-          :class="{ active: item === active }"
-          size="default"
-          @click="handleClick(item)"
+          v-for="(item, index) in movieMediaList"
+          :key="item.id" size="default"
+          :type="item.id === activeId ? 'primary' : 'default'"
+          @click="onActiveChange(item)"
         >
-          {{ item }}
+          {{ index + 1 }}
         </u-button>
       </view>
-      <view class="mb_20 title">
+      <view class="title">
         介绍
       </view>
       <view class="summary-box">
-        {{ detailInfo.summary }}
+        {{ movieInfo.summary }}
       </view>
     </view>
   </view>
@@ -103,7 +121,8 @@ onLoad((options = {}) => {
 }
 
 .detail-box {
-  padding: 0 20rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
 }
 
 .title-box {
@@ -134,6 +153,8 @@ onLoad((options = {}) => {
 }
 
 .score-box {
+  margin-bottom: 20rpx;
+
   .rate {
     :deep(.u-icon:first-child) {
       padding: 0 3px 0 0 !important;
@@ -147,23 +168,24 @@ onLoad((options = {}) => {
 }
 
 .anthology-btn-box {
-  :deep(.u-btn) {
-    display: inline-block;
-    margin-right: 20rpx;
-    background-color: $uni-bg-color-grey;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+
+  .u-btn {
+    margin: 0;
+    margin-bottom: 24rpx;
+
+    &+.u-btn {
+      margin-left: 24rpx;
+    }
   }
-}
-
-.active {
-  color: $u-type-primary;
-}
-
-.mb_20 {
-  margin-bottom: 20rpx;
 }
 
 .title {
   font-weight: 700;
+  margin-bottom: 20rpx;
 }
 
 .summary-box {

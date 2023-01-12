@@ -12,9 +12,9 @@
         }
       }
     },
-    // {
-    //   "path": "pages/ebook/detail"
-    // },
+    {
+      "path": "pages/ebook/detail"
+    },
     {
       "path": "pages/user/index",
       "style": {

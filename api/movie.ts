@@ -24,7 +24,7 @@ export function resGet(data: { cid: string; page: number; size: number }) {
 }
 
 export function resMediaGet(data: { rid: string }) {
-  return request({
+  return request<TMovieMedia[]>({
     url: 'clinet/dis/movie/resMediaGet',
     method: 'POST',
     data,

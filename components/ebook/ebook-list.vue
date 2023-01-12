@@ -14,6 +14,7 @@ defineProps({
     <EbookBox
       v-for="ebookItem in data"
       :key="ebookItem.rid"
+      :rid="ebookItem.rid"
       :poster="ebookItem.poster"
       :name="ebookItem.name"
     />

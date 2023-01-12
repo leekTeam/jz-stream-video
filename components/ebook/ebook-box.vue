@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import Progress from '../progress/index.vue'
 import { replaceUrlHost } from '@/utils'
-defineProps({
+const props = defineProps({
+  rid: {
+    type: String,
+    required: true,
+  },
   poster: {
     type: String,
     required: true,
@@ -15,10 +19,29 @@ defineProps({
     default: 0,
   },
 })
+
+const goDetail = () => {
+  const {
+    name,
+    rid,
+    poster,
+  } = props
+
+  const params = {
+    name,
+    rid,
+    poster,
+  }
+  uni.navigateTo({
+    url: `/pages/ebook/detail?ebookInfo=${encodeURIComponent(
+      JSON.stringify(params),
+    )}`,
+  })
+}
 </script>
 
 <template>
-  <view class="ebook-box">
+  <view class="ebook-box" @click="goDetail">
     <view class="ebook-box-cover">
       <u-image
         width="100%"

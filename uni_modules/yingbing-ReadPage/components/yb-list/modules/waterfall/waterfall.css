@@ -1,0 +1,13 @@
+.yb-waterfall-wrapper {
+	/* #ifndef APP-NVUE */
+	overflow: visible;
+	transform: translate(0);
+	/* #endif */
+}
+.yb-waterfall-row {
+	/* #ifndef APP-NVUE */
+	overflow: visible;
+	transform: translate(0);
+	/* #endif */
+	position: relative;
+}
