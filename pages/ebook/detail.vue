@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { ref, shallowRef } from 'vue'
+import { nextTick, ref, shallowRef } from 'vue'
 import { useThemeStore } from '@/store'
 import { resMediaGet } from '@/api/ebook'
 import { replaceUrlHost } from '@/utils'
@@ -14,27 +14,161 @@ const ebookInfo = ref({
 
 const ebookMediaInfo = shallowRef<TEbookMedia>()
 const ebookMediaText = shallowRef(uni.getStorageSync('text') || '')
-const cataLog = shallowRef()
-const getCatalog = (content = ebookMediaText.value) => {
-  const reg = new RegExp(/(第?[一二两三四五六七八九十○零百千万亿0-9１２３４５６７８９０※✩★☆]{1,6}[章回卷节折篇幕集部]?[、.-\s][^\n]*)[_,-]?/g)
-  let match = ''
-  const catalog = []
-  let chapter = 0
-  console.log(content)
-  while ((match = reg.exec(content)) != null) {
-    chapter++
-    catalog.push({
-      title: match[0],
-      start: match.index,
-      chapter,
+const yingbingReadPageRef = ref()
+
+const getContent = (chapter = 1) => {
+  return `第${chapter}章
+    你们— —好啊你们好啊"你们好啊你"“们好啊你们好”啊你们好啊你们好啊。
+    你们好啊— —你们好啊你们，好啊你们好啊你们好啊你们好啊你们好啊。
+    你们— —好啊你们好啊,你们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你,们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们，好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你,们好啊你们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们好啊，你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊— —你们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们好，啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你，们好啊你们好啊你们好啊你们好啊。
+    你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊你们好啊。
+
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+    神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊神经病啊
+
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+    疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊疯子啊啊
+
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊傻子啊啊
+    `
+}
+
+const start = (content = ebookMediaText.value) => {
+  nextTick(() => {
+    yingbingReadPageRef.value.init({
+      contents: [
+        {
+          chapter: 3,
+          content: getContent(3),
+          title: '第三章',
+          isStart: false,
+          isEnd: false,
+        },
+        {
+          chapter: 4,
+          content: getContent(4),
+          title: '第四章',
+          isStart: false,
+          isEnd: false,
+        },
+        {
+          chapter: 5,
+          content: getContent(5),
+          title: '第五章',
+          isStart: false,
+          isEnd: false,
+        },
+      ],
+      start: 0,
+      currentChapter: 3,
     })
-  }
-  console.log(catalog)
-  cataLog.value = catalog
+  })
 }
 const loadEbookText = () => {
   if (ebookMediaText.value) {
-    getCatalog()
+    start()
     return
   }
 
@@ -43,28 +177,30 @@ const loadEbookText = () => {
     success: (res) => {
       ebookMediaText.value = res.data
       uni.setStorageSync('text', res.data)
-      getCatalog()
+      start()
     },
   })
 }
 
 const getMediaData = () => {
   if (ebookMediaText.value) {
-    getCatalog()
+    start()
     return
   }
   uni.showLoading({ title: '加载中', mask: true })
-  resMediaGet({ rid: ebookInfo.value.rid }).then((res) => {
-    const { dataObject } = res
-    const [row] = dataObject
-    ebookMediaInfo.value = {
-      ...row,
-      playurl: replaceUrlHost(row.playurl),
-    }
-    loadEbookText()
-  }).finally(() => {
-    uni.hideLoading()
-  })
+  resMediaGet({ rid: ebookInfo.value.rid })
+    .then((res) => {
+      const { dataObject } = res
+      const [row] = dataObject
+      ebookMediaInfo.value = {
+        ...row,
+        playurl: replaceUrlHost(row.playurl),
+      }
+      loadEbookText()
+    })
+    .finally(() => {
+      uni.hideLoading()
+    })
 }
 
 onLoad((options = {}) => {
@@ -72,17 +208,57 @@ onLoad((options = {}) => {
   uni.setNavigationBarTitle({ title: ebookInfo.value.name })
   getMediaData()
 })
+
+const loadmoreContent = (chapter: any, callback: any) => {
+  setTimeout(() => {
+    callback('success', {
+      chapter,
+      content: chapter === 4 ? '' : getContent(chapter),
+      title: `第${chapter}章`,
+      isStart: chapter === 1,
+      isEnd: chapter === 7,
+    })
+  }, 2000)
+}
+
+const preloadContent = (chapters, callback) => {
+  setTimeout(() => {
+    const contents = []
+    for (const i in chapters) {
+      contents.push({
+        chapter: chapters[i],
+        start: 0,
+        content: chapters[i] === 4 ? '' : getContent(chapters[i]),
+        title: `第${chapters[i]}章`,
+        isStart: chapters[i] === 1,
+        isEnd: chapters[i] === 7,
+      })
+    }
+    callback('success', contents)
+  }, 2000)
+}
 </script>
 
 <template>
   <page-meta>
-    <navigation-bar
-      :background-color="themeStore.primaryColor"
-    />
+    <navigation-bar :background-color="themeStore.primaryColor" />
   </page-meta>
   <view class="ebook-detail-box" :style="themeStore.themeStyles">
-    dasd
+    <yingbing-ReadPage
+      ref="yingbingReadPageRef"
+      style="height: 100%;"
+      page-type="scroll"
+      :slide="24"
+      :no-chapter="false"
+      :enable-preload="true"
+      @loadmore="loadmoreContent"
+      @preload="preloadContent"
+    />
   </view>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.ebook-detail-box {
+  height: 100%;
+}
+</style>
