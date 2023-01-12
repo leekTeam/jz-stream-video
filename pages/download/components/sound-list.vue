@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import EbookList from '@/components/ebook/ebook-list.vue'
+import { ref } from 'vue' 
+import SoundList from '@/components/sound/sound-list.vue'
 
-const listData = ref<TMovie[]>([])
+const listData = ref<TSound[]>([])
 </script>
 
 <template>
-  <view class="ebook-list">
-    <EbookList :data="listData" />
+  <view class="sound-list">
+    <SoundList :data="listData" />
   </view>
 </template>
 
 <style lang="scss" scoped>
-.ebook-list {
+.sound-list {
   margin: 24rpx;
   padding: 10rpx;
   box-sizing: border-box;

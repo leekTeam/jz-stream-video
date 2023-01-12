@@ -10,8 +10,9 @@ defineProps({
 </script>
 
 <template>
-  <view v-if="data.length" class="music-list">
+  <view v-if="data.length">
     <MusicBox
+      v-bind="$attrs"
       v-for="(musicItem, index) in data"
       :key="musicItem.rid"
       :rid="musicItem.rid"
@@ -23,9 +24,4 @@ defineProps({
   </view>
 </template>
 
-<style lang="scss" scoped>
-.music-list {
-  padding: 24rpx;
-  box-sizing: border-box;
-}
-</style>
+<style lang="scss" scoped></style>

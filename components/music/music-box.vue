@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import Histogram from '../histogram/index.vue'
 import { useMusicStore } from '@/store'
+import { DownloadTask } from '@/utils/download'
+import { resMediaGet } from '@/api/music'
 
-defineProps({
+const props = defineProps({
   rid: {
     type: String,
     required: true,
@@ -23,9 +25,29 @@ defineProps({
     type: String,
     default: '0',
   },
+  showDownload: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const { playMusic, activeMusicInfo } = useMusicStore()
+const downloadMusic = async () => {
+  const { rid, name, mainauthor, score } = props;
+  let downloadurl = activeMusicInfo.downloadurl;
+  if(!downloadurl){
+    try{
+      const { dataObject } = await resMediaGet({ rid: props.rid });
+      downloadurl = dataObject[0].downloadurl
+    }catch(e){
+      console.log("e", e);
+    }
+  }
+  const aa = new DownloadTask(name, rid, downloadurl, downloadurl, )
+  aa.start();
+  console.log("aa", aa);
+  
+}
 </script>
 
 <template>
@@ -57,7 +79,9 @@ const { playMusic, activeMusicInfo } = useMusicStore()
         class="music-box-icon-histogram"
         :paused="activeMusicInfo.paused"
       />
-      <u-icon name="download" size="40" />
+      <view v-if="showDownload" @click.stop="downloadMusic">
+        <u-icon name="download" size="40" />
+      </view>
     </view>
   </view>
 </template>

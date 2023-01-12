@@ -7,6 +7,7 @@ export const useMusicStore = defineStore('musicStore', () => {
   const activeMusicInfo = ref({
     rid: '',
     paused: true,
+    downloadurl: '',
   })
 
   const musicRidPlayUrlMap = ref<Record<string, string>>({})
@@ -54,8 +55,9 @@ export const useMusicStore = defineStore('musicStore', () => {
     uni.showLoading({})
     resMediaGet({ rid }).then((res) => {
       const { dataObject } = res
-      const playurl = dataObject[0].playurl
+      const { playurl, downloadurl } = dataObject[0]
       musicRidPlayUrlMap.value[rid] = replaceUrlHost(playurl)
+      activeMusicInfo.value.downloadurl = replaceUrlHost(playurl)
       playMusic(rid)
     }).finally(() => {
       uni.hideLoading()
