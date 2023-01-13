@@ -19,24 +19,17 @@ const readStyle = ref({
   lineHeight: undefined,
   color: undefined,
   bgColor: undefined,
+  currentChapter: 1,
 })
 const yingbingReadPageRef = ref()
 
 const initReadPage = (content = ebookMediaText.value) => {
   nextTick(() => {
     yingbingReadPageRef.value.init({
-      contents: [
-        {
-          chapter: 1,
-          content,
-          title: ebookInfo.value.name,
-          isStart: true,
-          isEnd: true,
-        },
-      ],
+      content,
       // start 阅读记录 需要存到本地下次进来打开恢复
       start: 0,
-      currentChapter: 1,
+      title: ebookInfo.value.name,
     })
   })
 }
@@ -89,8 +82,10 @@ onLoad((options = {}) => {
       :color="readStyle.color"
       :bg-color="readStyle.bgColor"
       :slide="24"
-      :no-chapter="false"
+      :no-chapter="true"
       enable-click
+      :auto-split-chapter="false"
+      :visible-page="false"
     />
   </view>
 </template>

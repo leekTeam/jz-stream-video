@@ -113,7 +113,7 @@
 									<text class="flip-item-footer-text" :style="{
 										color: options.color
 									}">{{filterDate()}}</text>
-									<text class="flip-item-footer-text" :style="{
+									<text class="flip-item-footer-text" v-if="visiblePage" :style="{
 										color: options.color
 									}">{{filterPage(item)}}</text>
 									<battery :color="options.color" style="opacity: 0.5"></battery>
@@ -213,7 +213,7 @@
 				'visibility': pageType == 'scroll' ? 'visible' : 'hidden'
 			}" v-if="options.footerShow">
 				<text class="scroll-item-footer-text">{{scrollDate}}</text>
-				<text class="scroll-item-footer-text">{{filterPage(pageInfo)}}</text>
+				<text class="scroll-item-footer-text" v-if="visiblePage">{{filterPage(pageInfo)}}</text>
 				<battery ref="scrollBattery" color="#fff"></battery>
 			</view>
 		</view>
@@ -314,7 +314,15 @@
 						top: 'auto'
 					}
 				}
-			}
+			},
+			autoSplitChapter: {
+				type: Boolean,
+				default: true
+			},
+			visiblePage: {
+				type: Boolean,
+				default: true
+			},
 		},
 		data () {
 			return {

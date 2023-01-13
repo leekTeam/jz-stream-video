@@ -52,35 +52,48 @@ export default {
 		},
 		//使用正则获取章节目录 并抛出事件
 		getCatalog (content) {
-			const reg = new RegExp(/(第?[一二两三四五六七八九十○零百千万亿0-9１２３４５６７８９０※✩★☆]{1,6}[章回卷节折篇幕集部]?[、.-\s][^\n]*)[_,-]?/g);
-			let match = '';
-			let catalog = [];
-			let chapter = 0
-			while ((match = reg.exec(content)) != null) {
-				chapter++
-				catalog.push({
-					title: match[0].replace(/[\r\n\t]/g, '').slice(0, 10),
-					start: match.index,
+			if(this.autoSplitChapter){
+				const reg = new RegExp(/(第?[一二两三四五六七八九十○零百千万亿0-9１２３４５６７８９０※✩★☆]{1,6}[章回卷节折篇幕集部]?[、.-\s][^\n]*)[_,-]?/g);
+				let match = '';
+				const catalog = [];
+				let chapter = 0
+				while ((match = reg.exec(content)) != null) {
+					chapter++
+					catalog.push({
+						title: match[0].replace(/[\r\n\t]/g, '').slice(0, 10),
+						start: match.index,
+						isStart: false,
+						isEnd: false,
+						chapter: chapter
+					})
+					if ( chapter > 1 ) {
+						catalog[chapter-2].content = content.slice(catalog[chapter-2].start, match.index)
+						catalog[chapter-2].end = match.index
+					}
+				}
+				if ( catalog.length == 1 ) {
+					catalog[0].content = content.slice(0, content.length)
+					catalog[0].end = content.length
+				}
+				if ( catalog.length > 0 ) {
+					catalog[0].isStart = true
+					catalog[catalog.length-1].isEnd = true
+					catalog[catalog.length-1].content = content.slice(catalog[catalog.length-1].start)
+					catalog[catalog.length-1].end = content.length
+				}
+
+				return catalog;
+			}
+			return [
+				{
+					content,
+					chapter: 1,
+					start: 0,
 					isStart: false,
 					isEnd: false,
-					chapter: chapter
-				})
-				if ( chapter > 1 ) {
-					catalog[chapter-2].content = content.slice(catalog[chapter-2].start, match.index)
-					catalog[chapter-2].end = match.index
+					end:  content.length
 				}
-			}
-			if ( catalog.length == 1 ) {
-				catalog[0].content = content.slice(0, content.length)
-				catalog[0].end = content.length
-			}
-			if ( catalog.length > 0 ) {
-				catalog[0].isStart = true
-				catalog[catalog.length-1].isEnd = true
-				catalog[catalog.length-1].content = content.slice(catalog[catalog.length-1].start)
-				catalog[catalog.length-1].end = content.length
-			}
-			return catalog;
+			];
 		}
 	}
 }
