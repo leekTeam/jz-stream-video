@@ -142,6 +142,8 @@ export class DownloadTask extends EventEmitter2 {
 
           case 4:
             if (status === 200) {
+              console.log("下载成功");
+              
               this.onSuccess()
               this.updateDownloadInfo({
                 urlFilename: download.filename,

@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import NavBar from './components/nav-bar.vue'
 import MovieList from './components/movie-list.vue'
 import EbookList from './components/ebook-list.vue'
+import SoundList from './components/sound-list.vue'
+import MusicList from './components/music-list.vue'
+import MediaTabs from '@/components/media-tabs/index.vue'
 import { useThemeStore } from '@/store'
 import { MEDIA_LIST } from '@/constant/media'
 const themeStore = useThemeStore()
 
-const currentValue = ref(0)
-const changeTab = (index: number) => {
-  currentValue.value = index
-}
-
-const swiperCurrent = ref(0)
+const currentIndex = ref(3)
 const changeSwiper = (event: any) => {
-  swiperCurrent.value = event.detail.current
+  currentIndex.value = event.detail.current as number
 }
 </script>
 
@@ -25,13 +22,19 @@ const changeSwiper = (event: any) => {
     />
   </page-meta>
   <view :style="themeStore.themeStyles" class="page-container">
-    <NavBar v-model="currentValue" :list="MEDIA_LIST" @change="changeTab" />
-    <swiper class="page-swiper" :current="swiperCurrent" @change="changeSwiper">
+    <MediaTabs v-model="currentIndex" :list="MEDIA_LIST" />
+    <swiper class="page-swiper" :current="currentIndex" @change="changeSwiper">
       <swiper-item>
-        <MovieList :is-active="0 === swiperCurrent" />
+        <MovieList :is-active="0 === currentIndex" />
       </swiper-item>
       <swiper-item>
-        <EbookList :is-active="1 === swiperCurrent" />
+        <EbookList :is-active="1 === currentIndex" />
+      </swiper-item>
+      <swiper-item>
+        <SoundList :is-active="2 === currentIndex" />
+      </swiper-item>
+      <swiper-item>
+        <MusicList :is-active="3 === currentIndex" />
       </swiper-item>
     </swiper>
   </view>

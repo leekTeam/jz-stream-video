@@ -1,29 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import MovieBox from '@/components/movie/movie-box.vue'
+import MovieList from '@/components/movie/movie-list.vue'
 
-defineProps({
-  isActive: Boolean,
-})
 
-const list = ref<TMovie[]>([])
+const listData = ref<TMovie[]>([])
 </script>
 
 <template>
   <view class="movie-list">
-    <MovieBox
-      v-for="item in list"
-      :key="item.rid"
-      :rid="item.rid"
-      :poster="item.poster"
-      :name="item.name"
-      :summary="item.summary"
-      :label="item.label"
-      :years="item.years"
-      :country="item.country"
-      :tolnum="item.tolnum"
-      :score="item.score"
-    />
+    <MovieList :data="listData" />
   </view>
 </template>
 
