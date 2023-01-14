@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import MusicList from '@/components/music/music-list.vue'
-import { DownloadTask } from '@/utils/download'
+import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage';
 
-const listData = DownloadTask.getDownloadList();
-console.log("listData", listData);
-
+const listData = ref(uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []);
 </script>
 
 <template>
