@@ -83,6 +83,29 @@ declare global {
     size: number
     status: number
   }
+
+  interface TSoundEpisodes {
+    rid: string
+    currentNum: number
+    downloadId: string
+    state: number
+    totalSize: number
+    currentSize: number
+    originUrl: string
+    fileName: string
+    coverOriginUrl: string
+    coverUrl: string
+  }
+
+  interface TSoundDownloadStorage {
+    rid: string
+    name: string
+    label: string
+    years: number
+    summary: string
+    type: string
+    episodesList: TSoundEpisodes[]
+  }
 }
 
 export {}

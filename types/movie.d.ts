@@ -83,6 +83,32 @@ declare global {
     size: number
     status: number
   }
+
+  interface TMovieEpisodes {
+    rid: string
+    currentNum: number
+    downloadId: string
+    state: number
+    totalSize: number
+    currentSize: number
+    originUrl: string
+    fileName: string
+    coverOriginUrl: string
+    coverUrl: string
+  }
+
+  interface TMovieDownloadStorage {
+    rid: string
+    name: string
+    mainauthor: string
+    score: string
+    label: string
+    years: number
+    country: string
+    summary: string
+    type: string
+    episodesList: TMovieEpisodes[]
+  }
 }
 
 export {}

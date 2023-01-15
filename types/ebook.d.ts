@@ -82,6 +82,20 @@ declare global {
     size: number
     status: number
   }
+
+  interface TEbookDownloadStorage {
+    rid: string
+    name: string
+    totalSize: number
+    currentSize: number
+    downloadId: string
+    originUrl: string
+    fileName: string
+    coverOriginUrl: string
+    coverUrl: string
+    state: number
+    type: string
+  }
 }
 
 export {}

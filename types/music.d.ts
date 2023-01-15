@@ -83,6 +83,20 @@ declare global {
     size: number
     status: number
   }
+
+  interface TMusicDownloadStorage {
+    rid: string
+    name: string
+    mainauthor: string
+    score: string
+    type: string
+    state: number
+    downloadId: string
+    totalSize: number
+    currentSize: number
+    originUrl: string
+    fileName: string
+  }
 }
 
 export {}
