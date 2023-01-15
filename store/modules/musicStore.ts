@@ -2,8 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/music'
 import { replaceUrlHost } from '@/utils'
+import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage';
 
 export const useMusicStore = defineStore('musicStore', () => {
+  const listData = ref(uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []);
   const activeMusicInfo = ref({
     rid: '',
     paused: true,
@@ -23,6 +25,11 @@ export const useMusicStore = defineStore('musicStore', () => {
       return
     }
     if (!musicRidPlayUrlMap.value[rid]) {
+      const filename = listData.value.find(item => item.rid === rid)?.filename
+      if(filename){
+        musicRidPlayUrlMap.value[rid] = filename
+        playMusic(rid)
+      }
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       getMusicData(rid)
       return
@@ -57,7 +64,7 @@ export const useMusicStore = defineStore('musicStore', () => {
       const { dataObject } = res
       const { playurl, downloadurl } = dataObject[0]
       musicRidPlayUrlMap.value[rid] = replaceUrlHost(playurl)
-      activeMusicInfo.value.downloadurl = replaceUrlHost(playurl)
+      activeMusicInfo.value.downloadurl = downloadurl
       playMusic(rid)
     }).finally(() => {
       uni.hideLoading()

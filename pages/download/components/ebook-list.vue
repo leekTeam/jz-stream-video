@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import EbookList from '@/components/ebook/ebook-list.vue'
+import { EBOOK_DOWNLOAD_KEY } from '@/constant/storage'
 
-const listData = ref<TMovie[]>([])
+const listData = ref(uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || [])
 </script>
 
 <template>

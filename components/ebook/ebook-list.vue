@@ -1,12 +1,18 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import EbookBox from './ebook-box.vue'
-defineProps({
+import { EBOOK_DOWNLOAD_KEY } from '@/constant/storage'
+import { useShowDownload } from '@/hooks/showDownload'
+
+const props = defineProps({
   data: {
     type: Array as PropType<TEbook[]>,
     default: () => [],
   },
 })
+
+const { getShowDownload } = useShowDownload(EBOOK_DOWNLOAD_KEY, props.data)
+
 </script>
 
 <template>
@@ -17,6 +23,7 @@ defineProps({
       :rid="ebookItem.rid"
       :poster="ebookItem.poster"
       :name="ebookItem.name"
+      :showDownload="getShowDownload(ebookItem.rid)"
     />
   </view>
 </template>

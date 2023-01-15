@@ -5,6 +5,7 @@ import { nextTick, ref, shallowRef } from 'vue'
 import { useThemeStore } from '@/store'
 import { resMediaGet } from '@/api/ebook'
 import { replaceUrlHost } from '@/utils'
+import { EBOOK_DOWNLOAD_KEY } from '@/constant/storage'
 const themeStore = useThemeStore()
 const ebookInfo = ref({
   name: '',
@@ -45,16 +46,20 @@ const loadEbookText = () => {
   })
 }
 
+const setEbookMediaInfo = (data: any) => {
+  ebookMediaInfo.value = data
+  loadEbookText()
+}
+
 const getMediaData = () => {
   uni.showLoading({ title: '加载中', mask: true })
   resMediaGet({ rid: ebookInfo.value.rid }).then((res) => {
     const { dataObject } = res
     const [row] = dataObject
-    ebookMediaInfo.value = {
+    setEbookMediaInfo({
       ...row,
       playurl: replaceUrlHost(row.playurl),
-    }
-    loadEbookText()
+    })
   }).finally(() => {
     uni.hideLoading()
   })
@@ -63,7 +68,13 @@ const getMediaData = () => {
 onLoad((options = {}) => {
   ebookInfo.value = JSON.parse(decodeURIComponent(options.ebookInfo))
   uni.setNavigationBarTitle({ title: ebookInfo.value.name })
-  getMediaData()
+  const listData = ref(uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || []);
+  const info = listData.find(item => item.rid === ebookInfo.value.rid)
+  if(info){
+    setEbookMediaInfo(info)
+  }else{
+    getMediaData()
+  }
 })
 </script>
 

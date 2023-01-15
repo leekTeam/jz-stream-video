@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import Histogram from '../histogram/index.vue'
+import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
-import { DownloadTask } from '@/utils/download'
+import { downloadFile } from '@/utils/downloadFile'
 import { resMediaGet } from '@/api/music'
+import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage'
 
 const props = defineProps({
   rid: {
@@ -32,21 +35,38 @@ const props = defineProps({
 })
 
 const { playMusic, activeMusicInfo } = useMusicStore()
+
+const percentage = ref(0);
 const downloadMusic = async () => {
   const { rid, name, mainauthor, score } = props;
   let downloadurl = activeMusicInfo.downloadurl;
   if(!downloadurl){
     try{
-      const { dataObject } = await resMediaGet({ rid: props.rid });
+      const { dataObject } = await resMediaGet({ rid });
       downloadurl = dataObject[0].downloadurl
+      const params = {
+        url: downloadurl,
+        key: MUSIC_DOWNLOAD_KEY,
+        data: {
+          rid,
+          name,
+          mainauthor,
+          score,
+        }
+      }
+      downloadFile(params, {
+        progress: (download: any) => {
+          const { downloadedSize, totalSize } = download;
+          percentage.value = (downloadedSize / totalSize) * 100;
+        }
+      });
     }catch(e){
-      console.log("e", e);
+      uni.showToast({
+        title: '获取音乐信息失败',
+        icon: 'error',
+      })
     }
   }
-  const aa = new DownloadTask(name, rid, downloadurl, downloadurl, )
-  aa.start();
-  console.log("aa", aa);
-  
 }
 </script>
 
@@ -80,7 +100,22 @@ const downloadMusic = async () => {
         :paused="activeMusicInfo.paused"
       />
       <view v-if="showDownload" @click.stop="downloadMusic">
-        <u-icon name="download" size="40" />
+        <u-icon
+          v-if="percentage === 0"
+          name="download"
+          size="40"
+        />
+        <u-icon
+          v-if="percentage === 100"
+          color="#42b935"
+          name="checkmark-circle-fill"
+          size="40"
+        />
+        <Progress
+          v-if="percentage > 0 && percentage < 100"
+          :percent="percentage"
+          placement="bottom"
+        />
       </view>
     </view>
   </view>
