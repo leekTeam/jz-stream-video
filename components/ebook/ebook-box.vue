@@ -73,9 +73,9 @@ const downloadEbook = async () => {
         totalSize: size,
       })
       downloadTask.value.on('progress', onProgress)
-    })
-    coverDownloadTask.value.on('finally', () => {
-      uni.hideLoading()
+      downloadTask.value.once('progress', () => {
+        uni.hideLoading()
+      })
     })
     coverDownloadTask.value.on('error', () => {
       uni.showToast({
