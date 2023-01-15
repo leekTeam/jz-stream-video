@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
-import { DownloadTask } from '@/utils/download'
 import { BASE_URL_KEY } from '@/constant/storage'
 
 onLaunch(() => {
@@ -8,7 +7,6 @@ onLaunch(() => {
   if (!uni.getStorageSync(BASE_URL_KEY))
     uni.setStorageSync(BASE_URL_KEY, 'https://6q7645j209.goho.co/')
 
-  DownloadTask.recoverDownloadTask()
   // TODO 开始下载任务
 })
 onShow(() => {

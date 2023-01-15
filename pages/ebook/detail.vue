@@ -1,19 +1,11 @@
 <script setup lang="ts">
-// TODO
 import { onLoad } from '@dcloudio/uni-app'
-import { nextTick, ref, shallowRef } from 'vue'
+import { nextTick, ref } from 'vue'
 import { useThemeStore } from '@/store'
-import { resMediaGet } from '@/api/ebook'
-import { replaceUrlHost } from '@/utils'
-import { EBOOK_DOWNLOAD_KEY } from '@/constant/storage'
+import { DownloadEbook } from '@/utils/testDownload'
+
 const themeStore = useThemeStore()
-const ebookInfo = ref({
-  name: '',
-  rid: '',
-  poster: '',
-})
-const ebookMediaInfo = shallowRef<TEbookMedia>()
-const ebookMediaText = shallowRef(uni.getStorageSync('text') || '')
+const ebookInfo = ref<TEbookDownloadStorage>()
 // 先全部给默认值
 const readStyle = ref({
   fontsize: undefined,
@@ -24,57 +16,14 @@ const readStyle = ref({
 })
 const yingbingReadPageRef = ref()
 
-const initReadPage = (content = ebookMediaText.value) => {
-  nextTick(() => {
-    yingbingReadPageRef.value.init({
-      content,
-      // start 阅读记录 需要存到本地下次进来打开恢复
-      start: 0,
-      title: ebookInfo.value.name,
-    })
-  })
-}
-
-const loadEbookText = () => {
-  uni.request({
-    url: ebookMediaInfo.value!.playurl,
-    success: (res) => {
-      ebookMediaText.value = res.data
-      uni.setStorageSync('text', res.data)
-      initReadPage()
-    },
-  })
-}
-
-const setEbookMediaInfo = (data: any) => {
-  ebookMediaInfo.value = data
-  loadEbookText()
-}
-
-const getMediaData = () => {
-  uni.showLoading({ title: '加载中', mask: true })
-  resMediaGet({ rid: ebookInfo.value.rid }).then((res) => {
-    const { dataObject } = res
-    const [row] = dataObject
-    setEbookMediaInfo({
-      ...row,
-      playurl: replaceUrlHost(row.playurl),
-    })
-  }).finally(() => {
-    uni.hideLoading()
-  })
+const initReadPage = () => {
+  console.log(ebookInfo.value)
 }
 
 onLoad((options = {}) => {
-  ebookInfo.value = JSON.parse(decodeURIComponent(options.ebookInfo))
+  ebookInfo.value = DownloadEbook.getStorageInfo(options.rid)!
   uni.setNavigationBarTitle({ title: ebookInfo.value.name })
-  const listData = ref(uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || [])
-  const info = listData.value.find(item => item.rid === ebookInfo.value.rid)
-  if (info)
-    setEbookMediaInfo(info)
-
-  else
-    getMediaData()
+  initReadPage()
 })
 </script>
 

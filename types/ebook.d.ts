@@ -1,3 +1,5 @@
+import type { DOWNLOAD_STATUS } from '@/constant/download'
+
 declare global {
   interface TEbook {
     // 自增ID
@@ -93,8 +95,7 @@ declare global {
     fileName: string
     coverOriginUrl: string
     coverUrl: string
-    state: number
-    type: string
+    status: DOWNLOAD_STATUS
   }
 }
 

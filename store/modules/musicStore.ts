@@ -1,20 +1,24 @@
 import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/music'
-import { replaceUrlHost } from '@/utils'
-import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage';
+import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage'
 
 export const useMusicStore = defineStore('musicStore', () => {
-  const listData = ref(uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []);
   const activeMusicInfo = ref({
     rid: '',
     paused: true,
     downloadurl: '',
   })
 
+  const musicRidMediaInfoMap = ref<Record<string, TMusicMedia>>({})
   const musicRidPlayUrlMap = ref<Record<string, string>>({})
 
   const innerAudioContext = shallowRef<UniApp.InnerAudioContext>()
+
+  const getStoragePlayUrl = (rid: string) => {
+    const storageList: TMusicDownloadStorage[] = uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []
+    return storageList.find(item => item.rid === rid)?.fileName
+  }
 
   const playMusic = (rid: string) => {
     if (!rid) {
@@ -24,9 +28,9 @@ export const useMusicStore = defineStore('musicStore', () => {
       activeMusicInfo.value.rid = ''
       return
     }
-    if (!musicRidPlayUrlMap.value[rid]) {
-      const filename = listData.value.find(item => item.rid === rid)?.filename
-      if(filename){
+    if (!musicRidMediaInfoMap.value[rid]) {
+      const filename = getStoragePlayUrl(rid)
+      if (filename) {
         musicRidPlayUrlMap.value[rid] = filename
         playMusic(rid)
       }
@@ -46,7 +50,7 @@ export const useMusicStore = defineStore('musicStore', () => {
           activeMusicInfo.value.paused = true
         })
       }
-      innerAudioContext.value.src = musicRidPlayUrlMap.value[rid]
+      innerAudioContext.value.src = musicRidMediaInfoMap.value[rid].downloadurl
       innerAudioContext.value.play()
       activeMusicInfo.value.paused = false
       activeMusicInfo.value.rid = rid
@@ -58,22 +62,36 @@ export const useMusicStore = defineStore('musicStore', () => {
     }
   }
 
-  const getMusicData = (rid: string) => {
+  const getMediaInfo = async (rid: string) => {
+    if (musicRidMediaInfoMap.value[rid])
+      return musicRidMediaInfoMap.value[rid]
+
     uni.showLoading({ title: '加载中', mask: true })
-    resMediaGet({ rid }).then((res) => {
+    try {
+      const res = await resMediaGet({ rid })
       const { dataObject } = res
-      const { playurl, downloadurl } = dataObject[0]
-      musicRidPlayUrlMap.value[rid] = replaceUrlHost(playurl)
-      activeMusicInfo.value.downloadurl = downloadurl
-      playMusic(rid)
-    }).finally(() => {
+      musicRidMediaInfoMap.value[rid] = dataObject[0]
+      return musicRidMediaInfoMap.value[rid]
+    }
+    catch (err) {
+      return Promise.reject(err)
+    }
+    finally {
       uni.hideLoading()
-    })
+    }
+  }
+
+  const getMusicData = async (rid: string) => {
+    await getMediaInfo(rid)
+    activeMusicInfo.value.downloadurl = musicRidMediaInfoMap.value[rid].downloadurl
+    playMusic(rid)
   }
 
   return {
     activeMusicInfo,
 
     playMusic,
+
+    getMediaInfo,
   }
 })

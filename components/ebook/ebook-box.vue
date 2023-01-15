@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import Progress from '../progress/index.vue'
 import { replaceUrlHost } from '@/utils'
-import { downloadFile } from '@/utils/downloadFile'
-import { EBOOK_DOWNLOAD_KEY } from '@/constant/storage'
 import { resMediaGet } from '@/api/ebook'
+import { Download, DownloadEbook } from '@/utils/testDownload'
 
 const props = defineProps({
   rid: {
@@ -38,59 +37,73 @@ const goDetail = () => {
     poster,
   }
   uni.navigateTo({
-    url: `/pages/ebook/detail?ebookInfo=${encodeURIComponent(
-      JSON.stringify(params),
-    )}`,
+    url: `/pages/ebook/detail?rid=${props.rid}`,
   })
 }
 
+const coverDownloadTask = shallowRef<Download>()
+const downloadTask = shallowRef<DownloadEbook>()
+const ebookMediaInfo = shallowRef<TEbookMedia>()
 const percentage = ref(0)
+
+const onProgress = (currentSize: number) => {
+  percentage.value = currentSize / (ebookMediaInfo.value!.size) * 100
+}
+
 const downloadEbook = async () => {
-  const { rid, name, poster } = props
   uni.showLoading({ title: '加载中', mask: true })
-  const data = {
-    rid,
+  const {
     name,
-  }
-  const postParams = {
-    url: poster,
-    key: EBOOK_DOWNLOAD_KEY,
-    data,
-    fileName: 'poster',
-  }
-  downloadFile(postParams, {
-    success: async () => {
+    rid,
+    poster,
+  } = props
+  resMediaGet({ rid: props.rid }).then((res) => {
+    const { dataObject } = res
+    const [row] = dataObject
+    const { downloadurl, size } = row
+    ebookMediaInfo.value = row
+    coverDownloadTask.value = new Download(props.poster)
+    coverDownloadTask.value.on('success', () => {
+      downloadTask.value = new DownloadEbook({
+        rid,
+        name,
+        coverOriginUrl: poster,
+        originUrl: downloadurl,
+        coverUrl: coverDownloadTask.value!.task.filename!,
+        totalSize: size,
+      })
+      downloadTask.value.on('progress', onProgress)
+    })
+    coverDownloadTask.value.on('finally', () => {
       uni.hideLoading()
-      try {
-        const { dataObject } = await resMediaGet({ rid })
-        const downloadurl = dataObject[0].downloadurl
-
-        const ebookParams = {
-          url: downloadurl,
-          key: EBOOK_DOWNLOAD_KEY,
-          data,
-          fileName: 'playurl',
-        }
-
-        downloadFile(ebookParams, {
-          progress: (download: any) => {
-            const { downloadedSize, totalSize } = download
-            percentage.value = (downloadedSize / totalSize) * 100
-          },
-        })
-      }
-      catch (e) {
-        uni.showToast({
-          title: '获取书籍信息失败',
-          icon: 'error',
-        })
-      }
-    },
-    fail: () => {
-      uni.hideLoading()
-    },
+    })
+    coverDownloadTask.value.on('error', () => {
+      uni.showToast({
+        title: '下载失败',
+        icon: 'error',
+      })
+    })
+    coverDownloadTask.value.start()
+  }).catch(() => {
+    uni.hideLoading()
   })
 }
+onMounted(() => {
+  const storageInfo = DownloadEbook.getStorageInfo(props.rid)
+  if (storageInfo) {
+    percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
+    const download = DownloadEbook.geEbookTask(props.rid)
+    if (percentage.value !== 100 && download) {
+      downloadTask.value = download
+      downloadTask.value.on('progress', onProgress)
+    }
+  }
+})
+
+onUnmounted(() => {
+  downloadTask.value?.off('progress', onProgress)
+  coverDownloadTask.value?.destory()
+})
 </script>
 
 <template>

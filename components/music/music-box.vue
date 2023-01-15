@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import Histogram from '../histogram/index.vue'
 import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
-import { downloadFile } from '@/utils/downloadFile'
-import { resMediaGet } from '@/api/music'
+import { DownloadMusic } from '@/utils/testDownload'
 import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage'
 
 const props = defineProps({
@@ -34,41 +33,48 @@ const props = defineProps({
   },
 })
 
-const { playMusic, activeMusicInfo } = useMusicStore()
+const { playMusic, activeMusicInfo, getMediaInfo } = useMusicStore()
+
+const downloadTask = shallowRef<DownloadMusic>()
 
 const percentage = ref(0)
+
+const onProgress = async (currentSize: number) => {
+  percentage.value = (currentSize / (await getMediaInfo(props.rid)).size) * 100
+}
+
 const downloadMusic = async () => {
   const { rid, name, mainauthor, score } = props
-  let downloadurl = activeMusicInfo.downloadurl
-  if (!downloadurl) {
-    try {
-      const { dataObject } = await resMediaGet({ rid })
-      downloadurl = dataObject[0].downloadurl
-      const params = {
-        url: downloadurl,
-        key: MUSIC_DOWNLOAD_KEY,
-        data: {
-          rid,
-          name,
-          mainauthor,
-          score,
-        },
-      }
-      downloadFile(params, {
-        progress: (download: any) => {
-          const { downloadedSize, totalSize } = download
-          percentage.value = (downloadedSize / totalSize) * 100
-        },
-      })
-    }
-    catch (e) {
-      uni.showToast({
-        title: '获取音乐信息失败',
-        icon: 'error',
-      })
+  getMediaInfo(rid).then((res) => {
+    const { downloadurl, size } = res
+    downloadTask.value = new DownloadMusic({
+      rid,
+      originUrl: downloadurl,
+      name,
+      score,
+      mainauthor,
+      totalSize: size,
+    })
+
+    downloadTask.value.on('progress', onProgress)
+  })
+}
+
+onMounted(() => {
+  const storageInfo = DownloadMusic.getStorageInfo(props.rid)
+  if (storageInfo) {
+    percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
+    const download = DownloadMusic.getMusicTask(props.rid)
+    if (percentage.value !== 100 && download) {
+      downloadTask.value = download
+      downloadTask.value.on('progress', onProgress)
     }
   }
-}
+})
+
+onUnmounted(() => {
+  downloadTask.value?.off('progress', onProgress)
+})
 </script>
 
 <template>

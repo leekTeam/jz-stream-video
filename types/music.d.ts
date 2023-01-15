@@ -1,3 +1,5 @@
+import type { DOWNLOAD_STATUS } from '@/constant/download'
+
 declare global {
   interface TMusic {
     // 自增ID
@@ -89,13 +91,12 @@ declare global {
     name: string
     mainauthor: string
     score: string
-    type: string
-    state: number
     downloadId: string
     totalSize: number
     currentSize: number
     originUrl: string
     fileName: string
+    status: DOWNLOAD_STATUS
   }
 }
 
