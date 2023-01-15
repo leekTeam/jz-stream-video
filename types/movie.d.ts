@@ -1,3 +1,4 @@
+import type { DOWNLOAD_STATUS } from '@/constant/download'
 declare global {
   interface TMovie {
     // 自增ID
@@ -86,27 +87,36 @@ declare global {
 
   interface TMovieEpisodes {
     rid: string
+    id: string
     currentNum: number
     downloadId: string
-    state: number
     totalSize: number
     currentSize: number
     originUrl: string
     fileName: string
-    coverOriginUrl: string
-    coverUrl: string
+    status: DOWNLOAD_STATUS
   }
 
   interface TMovieDownloadStorage {
+    rid: string
     name: string
     score: string
     label: string
-    years: number
+    years: number | string
     country: string
     summary: string
     tolnum: number
-    type: string
+    originUrl: string
+    fileName: string
+    coverOriginUrl: string
+    coverUrl: string
+    status: DOWNLOAD_STATUS
+    totalSize: number
+    currentSize: number
+    downloadId: string
+    currentNum: number
     episodesList: TMovieEpisodes[]
+    episodesId: number
   }
 }
 

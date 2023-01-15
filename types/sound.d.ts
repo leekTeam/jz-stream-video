@@ -1,3 +1,4 @@
+import type { DOWNLOAD_STATUS } from '@/constant/download'
 declare global {
   interface TSound {
     // 自增ID
@@ -86,15 +87,14 @@ declare global {
 
   interface TSoundEpisodes {
     rid: string
+    id: string
     currentNum: number
     downloadId: string
-    state: number
+    status: DOWNLOAD_STATUS
     totalSize: number
     currentSize: number
     originUrl: string
     fileName: string
-    coverOriginUrl: string
-    coverUrl: string
   }
 
   interface TSoundDownloadStorage {
@@ -103,8 +103,18 @@ declare global {
     label: string
     years: number
     summary: string
-    type: string
+    tolnum: number
+    originUrl: string
+    fileName: string
+    coverOriginUrl: string
+    coverUrl: string
     episodesList: TSoundEpisodes[]
+    currentNum: number
+    status: DOWNLOAD_STATUS
+    totalSize: number
+    currentSize: number
+    downloadId: string
+    episodesId: number
   }
 }
 
