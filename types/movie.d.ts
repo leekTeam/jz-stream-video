@@ -87,6 +87,7 @@ declare global {
 
   interface TMovieEpisodes {
     rid: string
+    id: string
     currentNum: number
     downloadId: string
     totalSize: number
@@ -115,6 +116,7 @@ declare global {
     downloadId: string
     currentNum: number
     episodesList: TMovieEpisodes[]
+    episodesId: number
   }
 }
 
