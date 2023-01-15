@@ -17,6 +17,24 @@ const readStyle = ref({
 const yingbingReadPageRef = ref()
 
 const initReadPage = () => {
+  plus.io.getFileInfo({
+    filePath: ebookInfo.value!.fileName,
+    success: (res) => {
+      console.log(res)
+    },
+    fail: (error) => {
+      console.log(error)
+    },
+  })
+  // uni.request({
+  //   url: ebookInfo.value!.fileName,
+  //   success: (res) => {
+  //     console.log(res)
+  //   },
+  //   fail: (error) => {
+  //     console.log(error)
+  //   },
+  // })
   console.log(ebookInfo.value)
 }
 
