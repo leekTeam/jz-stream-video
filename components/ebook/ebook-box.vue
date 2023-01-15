@@ -18,28 +18,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  showDownload: {
-    type: Boolean,
-    default: true,
-  },
 })
-
-const goDetail = () => {
-  const {
-    name,
-    rid,
-    poster,
-  } = props
-
-  const params = {
-    name,
-    rid,
-    poster,
-  }
-  uni.navigateTo({
-    url: `/pages/ebook/detail?rid=${props.rid}`,
-  })
-}
 
 const coverDownloadTask = shallowRef<Download>()
 const downloadTask = shallowRef<DownloadEbook>()
@@ -69,7 +48,7 @@ const downloadEbook = async () => {
         name,
         coverOriginUrl: poster,
         originUrl: downloadurl,
-        coverUrl: coverDownloadTask.value!.task.filename!,
+        coverUrl: coverDownloadTask.value!.getFilenameUrl(),
         totalSize: size,
       })
       downloadTask.value.on('progress', onProgress)
@@ -88,6 +67,19 @@ const downloadEbook = async () => {
     uni.hideLoading()
   })
 }
+
+const goDetail = () => {
+  if (percentage.value === 100) {
+    const { rid } = props
+    uni.navigateTo({
+      url: `/pages/ebook/detail?rid=${rid}`,
+    })
+  }
+  else if (percentage.value === 0) {
+    downloadEbook()
+  }
+}
+
 onMounted(() => {
   const storageInfo = DownloadEbook.getStorageInfo(props.rid)
   if (storageInfo) {
@@ -114,30 +106,28 @@ onUnmounted(() => {
         height="250rpx"
         :src="replaceUrlHost(poster)"
       />
-      <view v-if="showDownload">
-        <view @click.stop="downloadEbook">
-          <u-icon
-            v-if="percentage === 0"
-            class="ebook-box-cover-down-icon"
-            color="#ffffff"
-            name="download"
-            size="40"
-          />
-        </view>
+      <view>
         <u-icon
-          v-if="percentage === 100"
-          class="ebook-box-cover-success-icon"
-          color="#42b935"
-          name="checkmark-circle-fill"
+          v-if="percentage === 0"
+          class="ebook-box-cover-down-icon"
+          color="#ffffff"
+          name="download"
           size="40"
         />
-        <Progress
-          v-if="percentage > 0 && percentage < 100"
-          class="ebook-box-cover-progress"
-          color="#ffffff"
-          :percent="percentage"
-        />
       </view>
+      <u-icon
+        v-if="percentage === 100"
+        class="ebook-box-cover-success-icon"
+        color="#42b935"
+        name="checkmark-circle-fill"
+        size="40"
+      />
+      <Progress
+        v-if="percentage > 0 && percentage < 100"
+        class="ebook-box-cover-progress"
+        color="#ffffff"
+        :percent="percentage"
+      />
     </view>
     <view class="ebook-box-title">
       <text>{{ name }}</text>

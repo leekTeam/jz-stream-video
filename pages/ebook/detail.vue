@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onReady } from '@dcloudio/uni-app'
 import { nextTick, ref } from 'vue'
 import { useThemeStore } from '@/store'
 import { DownloadEbook } from '@/utils/testDownload'
@@ -17,30 +17,29 @@ const readStyle = ref({
 const yingbingReadPageRef = ref()
 
 const initReadPage = () => {
-  plus.io.getFileInfo({
-    filePath: ebookInfo.value!.fileName,
-    success: (res) => {
-      console.log(res)
-    },
-    fail: (error) => {
-      console.log(error)
-    },
+  plus.io.resolveLocalFileSystemURL(ebookInfo.value!.fileName, (entry: any) => {
+    entry.file((file: any) => {
+      const fileReader = new (plus.io as any).FileReader()
+      fileReader.readAsText(file, 'utf-8')
+      fileReader.onloadend = (res: any) => {
+        yingbingReadPageRef.value.init({
+          content: res.target.result,
+          // start 阅读记录 需要存到本地下次进来打开恢复
+          start: 0,
+          title: ebookInfo.value!.name,
+          currentChapter: 1,
+        })
+      }
+    })
   })
-  // uni.request({
-  //   url: ebookInfo.value!.fileName,
-  //   success: (res) => {
-  //     console.log(res)
-  //   },
-  //   fail: (error) => {
-  //     console.log(error)
-  //   },
-  // })
-  console.log(ebookInfo.value)
 }
 
 onLoad((options = {}) => {
   ebookInfo.value = DownloadEbook.getStorageInfo(options.rid)!
   uni.setNavigationBarTitle({ title: ebookInfo.value.name })
+})
+
+onReady(() => {
   initReadPage()
 })
 </script>
@@ -55,10 +54,6 @@ onLoad((options = {}) => {
     <yingbing-ReadPage
       ref="yingbingReadPageRef"
       page-type="real"
-      :font-size="readStyle.fontsize"
-      :line-height="readStyle.lineHeight"
-      :color="readStyle.color"
-      :bg-color="readStyle.bgColor"
       :slide="24"
       :no-chapter="true"
       enable-click

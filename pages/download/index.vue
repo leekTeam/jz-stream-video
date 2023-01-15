@@ -99,7 +99,7 @@ const onDeleteTask = (item: DownloadItem, index: number) => {
         <u-line-progress
           :height="20"
           :active-color="themeStore.primaryColor"
-          :percent="item.currentSize / item.totalSize * 100"
+          :percent="(item.currentSize / item.totalSize) * 100"
           striped
           striped-active
         />

@@ -78,6 +78,10 @@ export class Download extends EventEmitter2 {
       })
     })
   }
+
+  public getFilenameUrl() {
+    return `file://${plus.io.convertLocalFileSystemURL(this.task.filename!)}`
+  }
 }
 
 export class DownloadMusic extends Download {
@@ -90,7 +94,7 @@ export class DownloadMusic extends Download {
       const storage = storageList[index]
       storage.status = this.downloadStatus
       if (this.downloadStatus === DOWNLOAD_STATUS.SUCCESS) {
-        storage.fileName = this.task.filename!
+        storage.fileName = this.getFilenameUrl()
       }
       else if (this.downloadStatus === DOWNLOAD_STATUS.ERROE) {
       // 删除下载任务
@@ -145,7 +149,7 @@ export class DownloadEbook extends Download {
 
       storage.status = this.downloadStatus
       if (this.downloadStatus === DOWNLOAD_STATUS.SUCCESS) {
-        storage.fileName = this.task.filename!
+        storage.fileName = this.getFilenameUrl()
       }
       else if (this.downloadStatus === DOWNLOAD_STATUS.ERROE) {
       // 删除下载任务
