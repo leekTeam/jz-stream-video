@@ -18,7 +18,7 @@
     {
       "path": "pages/user/index",
       "style": {
-        "navigationBarTitleText": "jz-stream-video"
+        "navigationStyle": "custom"
       }
     },
     {

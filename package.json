@@ -9,14 +9,16 @@
     "eventemitter2": "^6.4.9",
     "lodash-es": "^4.17.21",
     "pinia": "^2.0.28",
+    "qs": "^6.11.0",
     "vue": "^3.2.45",
     "vue-i18n": "^9.1.9"
   },
   "devDependencies": {
-    "@dcloudio/uni-app": "3.0.0-3061520221228001",
     "@antfu/eslint-config": "^0.34.0",
     "@dcloudio/types": "^3.0.17",
+    "@dcloudio/uni-app": "3.0.0-3061520221228001",
     "@types/lodash-es": "^4.17.6",
+    "@types/qs": "^6.9.7",
     "eslint": "^8.30.0",
     "mockjs": "^1.1.0",
     "sass": "^1.57.1",
