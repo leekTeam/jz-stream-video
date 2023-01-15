@@ -47,8 +47,7 @@ export function useRequestList<
       cid: activeClassifyCid.value,
       // page  从0开始
       page: mescroll.num - 1,
-      // todo mescroll.size
-      size: 1,
+      size: mescroll.size,
     })
       .then((res) => {
         const { dataObject } = res
