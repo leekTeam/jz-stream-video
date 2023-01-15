@@ -2,7 +2,7 @@ import EventEmitter2 from 'eventemitter2'
 import { noop } from 'lodash-es'
 import { replaceUrlHost } from '.'
 import { DOWNLOAD_STATUS } from '@/constant/download'
-import { EBOOK_DOWNLOAD_KEY, MUSIC_DOWNLOAD_KEY } from '@/constant/storage'
+import { EBOOK_DOWNLOAD_KEY, MOVIE_DOWNLOAD_KEY, MUSIC_DOWNLOAD_KEY, SOUND_DOWNLOAD_KEY } from '@/constant/storage'
 
 export class Download extends EventEmitter2 {
   public static tasks: PlusDownloaderDownload[] = []
@@ -142,6 +142,7 @@ export class DownloadEbook extends Download {
       const storageList = DownloadEbook.storageList
       const index = storageList.findIndex(item => item.rid === this.options.rid)
       const storage = storageList[index]
+
       storage.status = this.downloadStatus
       if (this.downloadStatus === DOWNLOAD_STATUS.SUCCESS) {
         storage.fileName = this.task.filename!
@@ -153,7 +154,6 @@ export class DownloadEbook extends Download {
       else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
         storage.currentSize = this.task.downloadedSize || 0
       }
-
       this.updateStorage(storageList)
     }, task)
     this.options = options as TEbookDownloadStorage
@@ -184,6 +184,224 @@ export class DownloadEbook extends Download {
       if (task)
 
         return new DownloadEbook(storageInfo, task)
+    }
+  }
+}
+
+export class DownloadMovie extends Download {
+  public static storageList: TMovieDownloadStorage[] = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
+  private options: TMovieDownloadStorage
+  constructor(options: Omit<TMovieDownloadStorage, 'status' | 'downloadId' | 'fileName' | 'episodesList' | 'currentSize'>, task?: PlusDownloaderDownload) {
+    super(options.originUrl, () => {
+      const storageList = DownloadMovie.storageList
+      const index = storageList.findIndex((item) => {
+        const { episodesList = [] } = item
+        return episodesList.some(item => item.rid === this.options.rid)
+      })
+      if (index > -1) {
+        const episodesIndex = storageList[index].episodesList.findIndex((item) => {
+          return item.rid === this.options.rid
+        })
+        if (episodesIndex > -1) {
+          const episodesStorageList = storageList[index].episodesList
+          const storage = episodesStorageList[episodesIndex]
+          storage.status = this.downloadStatus
+
+          if (this.downloadStatus === DOWNLOAD_STATUS.SUCCESS) {
+            storage.fileName = this.task.filename!
+          }
+          else if (this.downloadStatus === DOWNLOAD_STATUS.ERROE) {
+          // 删除下载任务
+            if (episodesStorageList.length)
+              episodesStorageList.splice(episodesIndex, 1)
+            else
+              storageList.splice(index, 1)
+          }
+          else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
+            storage.currentSize = this.task.downloadedSize || 0
+          }
+        }
+      }
+
+      this.updateStorage(storageList)
+    }, task)
+    this.options = options as TMovieDownloadStorage
+    if (!task)
+      this.setStorage()
+
+    this.start()
+  }
+
+  private setStorage() {
+    const { options } = this
+    const {
+      rid,
+      episodesId,
+      status,
+      currentSize,
+      downloadId,
+      currentNum,
+      originUrl,
+      totalSize,
+    } = options
+    const data = {
+      rid,
+      id: episodesId,
+      currentNum,
+      downloadId,
+      totalSize,
+      currentSize,
+      originUrl,
+      fileName: this.task.filename || '',
+      status,
+    }
+    const index = DownloadMovie.storageList.findIndex((item) => {
+      const { episodesList = [] } = item
+      return episodesList.some(item => item.rid === this.options.rid)
+    })
+    if (index > -1) {
+      const episodesIndex = DownloadMovie.storageList[index].episodesList.findIndex((item) => {
+        return item.rid === this.options.rid
+      })
+      if (episodesIndex > -1)
+        DownloadMovie.storageList[index].episodesList.push(data)
+      else
+        DownloadMovie.storageList[index].episodesList[episodesIndex] = data
+    }
+    else {
+      DownloadMovie.storageList.push({
+        ...options,
+        episodesList: [data],
+      })
+    }
+    this.updateStorage(DownloadMovie.storageList)
+  }
+
+  public static getStorageInfo(rid: string) {
+    return DownloadMovie.storageList.find(item => item.rid === rid)
+  }
+
+  private updateStorage(list: TMovieDownloadStorage[]) {
+    DownloadMovie.storageList = list
+    return uni.setStorageSync(MOVIE_DOWNLOAD_KEY, list)
+  }
+
+  public static getMovieTask(rid: string) {
+    const storageInfo = DownloadMovie.getStorageInfo(rid)
+    if (storageInfo) {
+      const task = Download.getDownloadTask(storageInfo.downloadId)
+      if (task)
+        return new DownloadMovie(storageInfo, task)
+    }
+  }
+}
+
+export class DownloadSound extends Download {
+  public static storageList: TSoundDownloadStorage[] = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
+  private options: TSoundDownloadStorage
+  constructor(options: Omit<TSoundDownloadStorage, 'status' | 'downloadId' | 'fileName' | 'episodesList' | 'currentSize'>, task?: PlusDownloaderDownload) {
+    super(options.originUrl, () => {
+      const storageList = DownloadSound.storageList
+      const index = storageList.findIndex((item) => {
+        const { episodesList = [] } = item
+        return episodesList.some(item => item.rid === this.options.rid)
+      })
+      if (index > -1) {
+        const episodesIndex = storageList[index].episodesList.findIndex((item) => {
+          return item.rid === this.options.rid
+        })
+        if (episodesIndex > -1) {
+          const episodesStorageList = storageList[index].episodesList
+          const storage = episodesStorageList[episodesIndex]
+          storage.status = this.downloadStatus
+
+          if (this.downloadStatus === DOWNLOAD_STATUS.SUCCESS) {
+            storage.fileName = this.task.filename!
+          }
+          else if (this.downloadStatus === DOWNLOAD_STATUS.ERROE) {
+          // 删除下载任务
+            if (episodesStorageList.length)
+              episodesStorageList.splice(episodesIndex, 1)
+            else
+              storageList.splice(index, 1)
+          }
+          else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
+            storage.currentSize = this.task.downloadedSize || 0
+          }
+        }
+      }
+
+      this.updateStorage(storageList)
+    }, task)
+    this.options = options as TSoundDownloadStorage
+
+    if (!task)
+      this.setStorage()
+
+    this.start()
+  }
+
+  private setStorage() {
+    const { options } = this
+    const {
+      rid,
+      episodesId,
+      status,
+      currentSize,
+      downloadId,
+      currentNum,
+      originUrl,
+      totalSize,
+    } = options
+    const data = {
+      rid,
+      id: episodesId,
+      currentNum,
+      downloadId,
+      totalSize,
+      currentSize,
+      originUrl,
+      fileName: this.task.filename || '',
+      status,
+    }
+    const index = DownloadSound.storageList.findIndex((item) => {
+      const { episodesList = [] } = item
+      return episodesList.some(item => item.rid === this.options.rid)
+    })
+    if (index > -1) {
+      const episodesIndex = DownloadSound.storageList[index].episodesList.findIndex((item) => {
+        return item.rid === this.options.rid
+      })
+      if (episodesIndex > -1)
+        DownloadSound.storageList[index].episodesList.push(data)
+      else
+        DownloadSound.storageList[index].episodesList[episodesIndex] = data
+    }
+    else {
+      DownloadSound.storageList.push({
+        ...options,
+        episodesList: [data],
+      })
+    }
+    this.updateStorage(DownloadSound.storageList)
+  }
+
+  public static getStorageInfo(rid: string) {
+    return DownloadSound.storageList.find(item => item.rid === rid)
+  }
+
+  private updateStorage(list: TSoundDownloadStorage[]) {
+    DownloadSound.storageList = list
+    return uni.setStorageSync(SOUND_DOWNLOAD_KEY, list)
+  }
+
+  public static getSoundTask(rid: string) {
+    const storageInfo = DownloadSound.getStorageInfo(rid)
+    if (storageInfo) {
+      const task = Download.getDownloadTask(storageInfo.downloadId)
+      if (task)
+
+        return new DownloadSound(storageInfo, task)
     }
   }
 }

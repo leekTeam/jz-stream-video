@@ -87,7 +87,7 @@ declare global {
 
   interface TMovieEpisodes {
     rid: string
-    id: string
+    id: string | number
     currentNum: number
     downloadId: string
     totalSize: number

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, ref, shallowRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/movie'
 import { useThemeStore } from '@/store'
 import { replaceUrlHost } from '@/utils'
-import { downloadFile, updateDownloadInfo } from '@/utils/downloadFile'
+import { Download, DownloadMovie } from '@/utils/testDownload'
 import { MOVIE_DOWNLOAD_KEY } from '@/constant/storage'
 
 const themeStore = useThemeStore()
@@ -19,24 +19,13 @@ const movieInfo = ref({
   tolnum: 1,
   summary: '',
   poster: '',
+  isOnline: true,
 })
 
 const movieMediaList = shallowRef<TMovieMedia[]>([])
 const activeId = ref<TMovieMedia['id']>()
-const getMediaStorageInfo = () => {
-  const downloadList = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
-  if (downloadList.length) {
-    const downloadStorageInfo = downloadList.find((item) => {
-      const { episodesList } = item
-      return episodesList.some(episodesItem => episodesItem.rid === movieInfo.value.rid)
-    })
-    return downloadStorageInfo
-  }
-  return {} as TMovieDownloadStorage
-}
-const mediaStorageInfo = getMediaStorageInfo()
-
 const currentNum = ref(0)
+const percentage = ref(0)
 
 const activeMediaInfo = computed(() => movieMediaList.value.find(item => item.id === activeId.value) || {} as TMovieMedia)
 
@@ -50,8 +39,6 @@ const getMediaData = () => {
         playurl: replaceUrlHost(item.playurl),
       }
     })
-    console.log('movieMediaList', movieMediaList)
-
     activeId.value = dataObject[0].id
   }).finally(() => {
     uni.hideLoading()
@@ -69,102 +56,42 @@ const onNext = () => {
     onActiveChange(movieMediaList.value[index], index)
 }
 
-const getEpisodesList = (download, { originUrlKey, urlKey = 'fileName' }) => {
-  const {
-    id: downloadId,
-    filename,
-    state,
-    totalSize,
-    downloadedSize: currentSize,
-  } = download
-
-  const episodesStorageMap = mediaStorageInfo.episodesList.reduce((obj, item) => {
-    const { currentNum } = item
-    obj[currentNum] = item
-    return obj
-  }, {})
-
-  const episodesMap = {
-    ...episodesStorageMap,
-    [currentNum.value]: {
-      rid: movieInfo.value.rid,
-      currentNum: currentNum.value,
-      downloadId,
-      state,
-      totalSize,
-      currentSize,
-      [originUrlKey]: movieInfo.value.poster,
-      [urlKey]: filename,
-    },
-  }
-  return Object.values(episodesMap)
+const onProgress = (currentSize: number) => {
+  percentage.value = currentSize / (activeMediaInfo.value!.size) * 100
 }
+const coverDownloadTask = shallowRef<Download>()
+const downloadTask = shallowRef<DownloadMovie>()
 const handleDownload = () => {
-  const { poster: coverOriginUrl, rid, ...args } = movieInfo.value
-  const posterParams = {
-    url: movieInfo.value.poster,
-    key: MOVIE_DOWNLOAD_KEY,
-  }
   uni.showLoading({ title: '加载中', mask: true })
-  downloadFile(posterParams, {
-    progress: (download) => {
-      console.log('down', download)
-
-      const episodesList = getEpisodesList(download, {
-        originUrlKey: 'coverOriginUrl',
-        urlKey: 'coverUrl',
-      })
-      updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
-        ...args,
-        rid,
-        type: MOVIE_DOWNLOAD_KEY,
-        episodesList,
-      })
-    },
-    success: (download) => {
+  const { poster, rid, ...args } = movieInfo.value
+  coverDownloadTask.value = new Download(poster)
+  coverDownloadTask.value.on('success', () => {
+    downloadTask.value = new DownloadMovie({
+      ...args,
+      rid,
+      coverOriginUrl: poster,
+      originUrl: poster,
+      // originUrl: activeMediaInfo.value.downloadurl,
+      coverUrl: coverDownloadTask.value!.task.filename!,
+      totalSize: activeMediaInfo.value.size,
+      currentNum: currentNum.value,
+      episodesId: activeMediaInfo.value.id,
+    })
+    downloadTask.value.on('progress', onProgress)
+    downloadTask.value.once('progress', () => {
       uni.hideLoading()
-      const episodesList = getEpisodesList(download, {
-        originUrlKey: 'coverOriginUrl',
-        urlKey: 'coverUrl',
+      uni.navigateTo({
+        url: 'pages/download/index',
       })
-      updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
-        ...args,
-        rid,
-        type: MOVIE_DOWNLOAD_KEY,
-        episodesList,
-      })
-
-      const movieParams = {
-        url: activeMediaInfo.value.playurl,
-        key: MOVIE_DOWNLOAD_KEY,
-      }
-      downloadFile(movieParams, {
-        progress: (download) => {
-          console.log('222', download)
-
-          const episodesList = getEpisodesList(download, { originUrlKey: 'originUrl' })
-          updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
-            ...args,
-            rid,
-            type: MOVIE_DOWNLOAD_KEY,
-            episodesList,
-          })
-        },
-        success: (download) => {
-          const episodesList = getEpisodesList(download, { originUrlKey: 'originUrl' })
-          updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
-            ...args,
-            rid,
-            type: MOVIE_DOWNLOAD_KEY,
-            episodesList,
-          })
-        },
-      })
-    },
-    fail: () => {
-      uni.hideLoading()
-    },
+    })
   })
+  coverDownloadTask.value.on('error', () => {
+    uni.showToast({
+      title: '下载失败',
+      icon: 'error',
+    })
+  })
+  coverDownloadTask.value.start()
 }
 
 const showDownload = computed(() => {
@@ -177,15 +104,51 @@ const showDownload = computed(() => {
     }, [])
   }
 
-  return !ridList.includes(movieInfo.value.rid)
+  return !ridList.includes(activeMediaInfo.value.rid)
+})
+
+onMounted(() => {
+  const storageInfo = DownloadMovie.getStorageInfo(movieInfo.value.rid)
+  if (storageInfo) {
+    percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
+    const download = DownloadMovie.getMovieTask(movieInfo.value.rid)
+    if (percentage.value !== 100 && download)
+      downloadTask.value = download
+  }
 })
 
 onLoad((options = {}) => {
   movieInfo.value = JSON.parse(decodeURIComponent(options.movieInfo))
   uni.setNavigationBarTitle({ title: movieInfo.value.name })
-  console.log(333)
+  if (movieInfo.value.isOnline) {
+    getMediaData()
+  }
+  else {
+    const movieDownloadList = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
+    const index = movieDownloadList.findIndex((item) => {
+      const { episodesList } = item
+      return episodesList.some(episodesItem => episodesItem.rid === movieInfo.value.rid)
+    })
+    let episodesIndex = 0
+    movieMediaList.value = movieDownloadList[index].episodesList.reduce((list, episodesItem, index) => {
+      const { fileName: playurl, ...args } = episodesItem
+      if (episodesItem.rid === movieInfo.value.rid)
+        episodesIndex = index
 
-  getMediaData()
+      list.push({
+        ...args,
+        poster: movieDownloadList[index].coverUrl,
+        playurl,
+      })
+      return list
+    }, [])
+    activeId.value = movieDownloadList[index].episodesList[episodesIndex].id
+  }
+})
+
+onUnmounted(() => {
+  downloadTask.value?.off('progress', onProgress)
+  coverDownloadTask.value?.destory()
 })
 </script>
 
@@ -204,11 +167,11 @@ onLoad((options = {}) => {
     <view class="detail-box">
       <view class="title-box">
         <text>{{ activeMediaInfo.name }}</text>
-        <view v-if="showDownload" class="down-box" @click.stop="handleDownload">
+        <view v-if="percentage === 0 && showDownload" class="down-box" @click.stop="handleDownload">
           <u-icon name="download" size="40" />
           <text>下载</text>
         </view>
-        <view v-else class="down-box">
+        <view v-else-if="percentage > 0 && percentage < 100" class="down-box">
           <u-icon name="clock-fill" size="40" />
           <text>正在下载</text>
         </view>

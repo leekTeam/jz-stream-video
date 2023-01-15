@@ -23,6 +23,7 @@ defineProps({
       :country="item.country"
       :tolnum="item.tolnum"
       :score="item.score"
+      v-bind="$attrs"
     />
   </view>
 </template>

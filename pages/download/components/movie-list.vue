@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MovieList from '@/components/movie/movie-list.vue'
+import { MOVIE_DOWNLOAD_KEY } from '@/constant/storage'
 
-
-const listData = ref<TMovie[]>([])
+const movieDownloadList = ref(uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || [])
+const listData = movieDownloadList.value.reduce((list, item) => {
+  const { coverUrl: poster, fileName: playurl, ...args } = item
+  list.push({
+    ...args,
+    poster,
+    playurl,
+  })
+  return list
+}, [])
 </script>
 
 <template>
   <view class="movie-list">
-    <MovieList :data="listData" />
+    <MovieList :data="listData" :is-online="false" />
   </view>
 </template>
 

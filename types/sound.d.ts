@@ -87,7 +87,7 @@ declare global {
 
   interface TSoundEpisodes {
     rid: string
-    id: string
+    id: string | number
     currentNum: number
     downloadId: string
     status: DOWNLOAD_STATUS
@@ -101,7 +101,7 @@ declare global {
     rid: string
     name: string
     label: string
-    years: number
+    years: number | string
     summary: string
     tolnum: number
     originUrl: string

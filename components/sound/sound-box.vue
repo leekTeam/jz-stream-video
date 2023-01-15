@@ -29,22 +29,16 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  isOnline: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const hanldeClick = () => {
-  const {
-    name,
-    rid,
-    poster,
-  } = props
-  const params = {
-    name,
-    rid,
-    poster,
-  }
   uni.navigateTo({
     url: `/pages/sound/detail?soundInfo=${encodeURIComponent(
-      JSON.stringify(params),
+      JSON.stringify(props),
     )}`,
   })
 }

@@ -21,6 +21,7 @@ defineProps({
       :label="soundItem.label"
       :years="soundItem.years"
       :tolnum="soundItem.tolnum"
+      v-bind="$attrs"
     />
   </view>
 </template>

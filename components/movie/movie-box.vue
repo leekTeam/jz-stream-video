@@ -37,35 +37,16 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  isOnline: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const goDetail = () => {
-  const {
-    name,
-    rid,
-    label,
-    country,
-    years,
-    tolnum,
-    summary,
-    score,
-    poster,
-  } = props
-
-  const params = {
-    name,
-    rid,
-    label,
-    country,
-    years,
-    tolnum,
-    summary,
-    score,
-    poster,
-  }
   uni.navigateTo({
     url: `/pages/movie/detail?movieInfo=${encodeURIComponent(
-      JSON.stringify(params),
+      JSON.stringify(props),
     )}`,
   })
 }

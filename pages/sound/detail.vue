@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { onLoad, onUnload } from '@dcloudio/uni-app'
-import { computed, nextTick, ref, shallowRef } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/sound'
 import { useThemeStore } from '@/store'
 import { replaceUrlHost, timeUnitFormat } from '@/utils'
+import { Download, DownloadSound } from '@/utils/testDownload'
+import { SOUND_DOWNLOAD_KEY } from '@/constant/storage'
 
 const themeStore = useThemeStore()
 const soundInfo = ref({
   name: '',
   rid: '',
   poster: '',
+  summary: '',
+  label: '',
+  years: '',
+  tolnum: 0,
+  isOnline: true,
 })
 const innerAudioContext = shallowRef<UniApp.InnerAudioContext>()
 const soundMediaList = shallowRef<TSoundMedia[]>([])
@@ -22,6 +29,8 @@ const playTimeInfo = shallowRef({
   currentTime: '',
   percent: 0,
 })
+const currentNum = ref(0)
+const percentage = ref(0)
 
 const onPlay = () => {
   nextTick(() => {
@@ -42,8 +51,9 @@ const togglePlay = () => {
     onPause()
 }
 
-const onActiveChange = (item: TMovieMedia) => {
+const onActiveChange = (item: TMovieMedia, index: number) => {
   activeId.value = item.id
+  currentNum.value = index
   onPlay()
 }
 
@@ -59,7 +69,7 @@ const createAudio = () => {
   innerAudioContext.value.onEnded(() => {
     const index = soundMediaList.value.findIndex(item => item.id === activeId.value) + 1
     if (soundMediaList.value[index])
-      onActiveChange(soundMediaList.value[index])
+      onActiveChange(soundMediaList.value[index], index)
   })
   innerAudioContext.value.onPlay(() => {
     playLoading.value = false
@@ -102,14 +112,103 @@ const getMediaData = () => {
   })
 }
 
+const onProgress = (currentSize: number) => {
+  percentage.value = currentSize / (activeMediaInfo.value!.size) * 100
+}
+const coverDownloadTask = shallowRef<Download>()
+const downloadTask = shallowRef<DownloadSound>()
+const handleDownload = () => {
+  uni.showLoading({ title: '加载中', mask: true })
+  const { poster, rid, isOnline, ...args } = soundInfo.value
+  coverDownloadTask.value = new Download(poster)
+  coverDownloadTask.value.on('success', () => {
+    downloadTask.value = new DownloadSound({
+      ...args,
+      rid,
+      coverOriginUrl: poster,
+      originUrl: activeMediaInfo.value.downloadurl,
+      coverUrl: coverDownloadTask.value!.task.filename!,
+      totalSize: activeMediaInfo.value.size,
+      currentNum: currentNum.value,
+      episodesId: activeMediaInfo.value.id,
+    })
+    downloadTask.value.on('progress', onProgress)
+    downloadTask.value.once('progress', () => {
+      uni.hideLoading()
+      uni.showToast({
+        title: '开始下载',
+        position: 'bottom',
+      })
+    })
+  })
+  coverDownloadTask.value.on('error', () => {
+    uni.showToast({
+      title: '下载失败',
+      icon: 'error',
+    })
+  })
+  coverDownloadTask.value.start()
+}
+
+const showDownload = computed(() => {
+  const downloadList = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
+  let ridList: any[] = []
+  if (downloadList.length) {
+    ridList = soundMediaList.value.reduce((list, item) => {
+      list.push(item.rid)
+      return list
+    }, [])
+  }
+
+  return !ridList.includes(activeMediaInfo.value.rid)
+})
+
 onLoad((options = {}) => {
   soundInfo.value = JSON.parse(decodeURIComponent(options.soundInfo))
   uni.setNavigationBarTitle({ title: soundInfo.value.name })
-  getMediaData()
+  if (soundInfo.value.isOnline) {
+    getMediaData()
+  }
+  else {
+    const soundDownloadList = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
+    const index = soundDownloadList.findIndex((item) => {
+      const { episodesList } = item
+      return episodesList.some(episodesItem => episodesItem.rid === soundInfo.value.rid)
+    })
+    let episodesIndex = 0
+    soundMediaList.value = soundDownloadList[index].episodesList.reduce((list, episodesItem, index) => {
+      const { fileName: playurl, ...args } = episodesItem
+      if (episodesItem.rid === soundInfo.value.rid)
+        episodesIndex = index
+
+      list.push({
+        ...args,
+        poster: soundDownloadList[index].coverUrl,
+        playurl,
+      })
+      return list
+    }, [])
+    activeId.value = soundDownloadList[index].episodesList[episodesIndex].id
+    createAudio()
+  }
+})
+
+onMounted(() => {
+  const storageInfo = DownloadSound.getStorageInfo(soundInfo.value.rid)
+  if (storageInfo) {
+    percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
+    const download = DownloadSound.getSoundTask(soundInfo.value.rid)
+    if (percentage.value !== 100 && download)
+      downloadTask.value = download
+  }
 })
 
 onUnload(() => {
   innerAudioContext.value?.destroy()
+})
+
+onUnmounted(() => {
+  coverDownloadTask.value?.destory()
 })
 </script>
 
@@ -144,9 +243,13 @@ onUnload(() => {
       <view class="time">
         {{ playTimeInfo.duration }}
       </view>
-      <view class="down-box">
+      <view v-if="percentage === 0 && showDownload" class="down-box" @click.stop="handleDownload">
         <u-icon name="download" :size="40" />
         <text>下载</text>
+      </view>
+      <view v-else-if="percentage > 0 && percentage < 100" class="down-box">
+        <u-icon name="download" :size="40" />
+        <text>已缓存</text>
       </view>
     </view>
     <view class="detail-box">
@@ -157,7 +260,7 @@ onUnload(() => {
           class="anthology-btn-box-item"
           :class="{ active: item.id === activeId }"
           size="default"
-          @click="onActiveChange(item)"
+          @click="onActiveChange(item, index)"
         >
           {{ index + 1 }}
         </view>
