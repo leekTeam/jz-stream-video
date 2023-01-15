@@ -12,7 +12,6 @@ const props = defineProps({
 })
 
 const { getShowDownload } = useShowDownload(EBOOK_DOWNLOAD_KEY, props.data)
-
 </script>
 
 <template>
@@ -23,7 +22,7 @@ const { getShowDownload } = useShowDownload(EBOOK_DOWNLOAD_KEY, props.data)
       :rid="ebookItem.rid"
       :poster="ebookItem.poster"
       :name="ebookItem.name"
-      :showDownload="getShowDownload(ebookItem.rid)"
+      :show-download="getShowDownload(ebookItem.rid)"
     />
   </view>
 </template>

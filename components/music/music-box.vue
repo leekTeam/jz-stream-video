@@ -36,13 +36,13 @@ const props = defineProps({
 
 const { playMusic, activeMusicInfo } = useMusicStore()
 
-const percentage = ref(0);
+const percentage = ref(0)
 const downloadMusic = async () => {
-  const { rid, name, mainauthor, score } = props;
-  let downloadurl = activeMusicInfo.downloadurl;
-  if(!downloadurl){
-    try{
-      const { dataObject } = await resMediaGet({ rid });
+  const { rid, name, mainauthor, score } = props
+  let downloadurl = activeMusicInfo.downloadurl
+  if (!downloadurl) {
+    try {
+      const { dataObject } = await resMediaGet({ rid })
       downloadurl = dataObject[0].downloadurl
       const params = {
         url: downloadurl,
@@ -52,15 +52,16 @@ const downloadMusic = async () => {
           name,
           mainauthor,
           score,
-        }
+        },
       }
       downloadFile(params, {
         progress: (download: any) => {
-          const { downloadedSize, totalSize } = download;
-          percentage.value = (downloadedSize / totalSize) * 100;
-        }
-      });
-    }catch(e){
+          const { downloadedSize, totalSize } = download
+          percentage.value = (downloadedSize / totalSize) * 100
+        },
+      })
+    }
+    catch (e) {
       uni.showToast({
         title: '获取音乐信息失败',
         icon: 'error',

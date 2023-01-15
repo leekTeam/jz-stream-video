@@ -21,7 +21,7 @@ const props = defineProps({
   },
   showDownload: {
     type: Boolean,
-    default: true
+    default: true,
   },
 })
 
@@ -44,41 +44,42 @@ const goDetail = () => {
   })
 }
 
-const percentage = ref(0);
+const percentage = ref(0)
 const downloadEbook = async () => {
-  const { rid, name, poster } = props;
+  const { rid, name, poster } = props
   uni.showLoading({ title: '加载中', mask: true })
   const data = {
     rid,
-    name
+    name,
   }
   const postParams = {
     url: poster,
     key: EBOOK_DOWNLOAD_KEY,
     data,
-    fileName: 'poster'
+    fileName: 'poster',
   }
   downloadFile(postParams, {
     success: async () => {
       uni.hideLoading()
       try {
-        const { dataObject } = await resMediaGet({ rid });
+        const { dataObject } = await resMediaGet({ rid })
         const downloadurl = dataObject[0].downloadurl
-        
+
         const ebookParams = {
           url: downloadurl,
           key: EBOOK_DOWNLOAD_KEY,
           data,
-          fileName: 'playurl'
+          fileName: 'playurl',
         }
 
         downloadFile(ebookParams, {
           progress: (download: any) => {
-            const { downloadedSize, totalSize } = download;
-            percentage.value = (downloadedSize / totalSize) * 100;
+            const { downloadedSize, totalSize } = download
+            percentage.value = (downloadedSize / totalSize) * 100
           },
         })
-      }catch(e){
+      }
+      catch (e) {
         uni.showToast({
           title: '获取书籍信息失败',
           icon: 'error',
@@ -87,7 +88,7 @@ const downloadEbook = async () => {
     },
     fail: () => {
       uni.hideLoading()
-    }
+    },
   })
 }
 </script>

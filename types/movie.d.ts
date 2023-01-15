@@ -98,14 +98,13 @@ declare global {
   }
 
   interface TMovieDownloadStorage {
-    rid: string
     name: string
-    mainauthor: string
     score: string
     label: string
     years: number
     country: string
     summary: string
+    tolnum: number
     type: string
     episodesList: TMovieEpisodes[]
   }

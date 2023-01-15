@@ -4,6 +4,8 @@ import { computed, ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/movie'
 import { useThemeStore } from '@/store'
 import { replaceUrlHost } from '@/utils'
+import { downloadFile, updateDownloadInfo } from '@/utils/downloadFile'
+import { MOVIE_DOWNLOAD_KEY } from '@/constant/storage'
 
 const themeStore = useThemeStore()
 
@@ -21,6 +23,20 @@ const movieInfo = ref({
 
 const movieMediaList = shallowRef<TMovieMedia[]>([])
 const activeId = ref<TMovieMedia['id']>()
+const getMediaStorageInfo = () => {
+  const downloadList = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
+  if (downloadList.length) {
+    const downloadStorageInfo = downloadList.find((item) => {
+      const { episodesList } = item
+      return episodesList.some(episodesItem => episodesItem.rid === movieInfo.value.rid)
+    })
+    return downloadStorageInfo
+  }
+  return {} as TMovieDownloadStorage
+}
+const mediaStorageInfo = getMediaStorageInfo()
+
+const currentNum = ref(0)
 
 const activeMediaInfo = computed(() => movieMediaList.value.find(item => item.id === activeId.value) || {} as TMovieMedia)
 
@@ -34,25 +50,141 @@ const getMediaData = () => {
         playurl: replaceUrlHost(item.playurl),
       }
     })
+    console.log('movieMediaList', movieMediaList)
+
     activeId.value = dataObject[0].id
   }).finally(() => {
     uni.hideLoading()
   })
 }
 
-const onActiveChange = (item: TMovieMedia) => {
+const onActiveChange = (item: TMovieMedia, index: number) => {
   activeId.value = item.id
+  currentNum.value = index
 }
 
 const onNext = () => {
   const index = movieMediaList.value.findIndex(item => item.id === activeId.value) + 1
   if (movieMediaList.value[index])
-    onActiveChange(movieMediaList.value[index])
+    onActiveChange(movieMediaList.value[index], index)
 }
+
+const getEpisodesList = (download, { originUrlKey, urlKey = 'fileName' }) => {
+  const {
+    id: downloadId,
+    filename,
+    state,
+    totalSize,
+    downloadedSize: currentSize,
+  } = download
+
+  const episodesStorageMap = mediaStorageInfo.episodesList.reduce((obj, item) => {
+    const { currentNum } = item
+    obj[currentNum] = item
+    return obj
+  }, {})
+
+  const episodesMap = {
+    ...episodesStorageMap,
+    [currentNum.value]: {
+      rid: movieInfo.value.rid,
+      currentNum: currentNum.value,
+      downloadId,
+      state,
+      totalSize,
+      currentSize,
+      [originUrlKey]: movieInfo.value.poster,
+      [urlKey]: filename,
+    },
+  }
+  return Object.values(episodesMap)
+}
+const handleDownload = () => {
+  const { poster: coverOriginUrl, rid, ...args } = movieInfo.value
+  const posterParams = {
+    url: movieInfo.value.poster,
+    key: MOVIE_DOWNLOAD_KEY,
+  }
+  uni.showLoading({ title: '加载中', mask: true })
+  downloadFile(posterParams, {
+    progress: (download) => {
+      console.log('down', download)
+
+      const episodesList = getEpisodesList(download, {
+        originUrlKey: 'coverOriginUrl',
+        urlKey: 'coverUrl',
+      })
+      updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
+        ...args,
+        rid,
+        type: MOVIE_DOWNLOAD_KEY,
+        episodesList,
+      })
+    },
+    success: (download) => {
+      uni.hideLoading()
+      const episodesList = getEpisodesList(download, {
+        originUrlKey: 'coverOriginUrl',
+        urlKey: 'coverUrl',
+      })
+      updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
+        ...args,
+        rid,
+        type: MOVIE_DOWNLOAD_KEY,
+        episodesList,
+      })
+
+      const movieParams = {
+        url: activeMediaInfo.value.playurl,
+        key: MOVIE_DOWNLOAD_KEY,
+      }
+      downloadFile(movieParams, {
+        progress: (download) => {
+          console.log('222', download)
+
+          const episodesList = getEpisodesList(download, { originUrlKey: 'originUrl' })
+          updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
+            ...args,
+            rid,
+            type: MOVIE_DOWNLOAD_KEY,
+            episodesList,
+          })
+        },
+        success: (download) => {
+          const episodesList = getEpisodesList(download, { originUrlKey: 'originUrl' })
+          updateDownloadInfo(MOVIE_DOWNLOAD_KEY, {
+            ...args,
+            rid,
+            type: MOVIE_DOWNLOAD_KEY,
+            episodesList,
+          })
+        },
+      })
+    },
+    fail: () => {
+      uni.hideLoading()
+    },
+  })
+}
+
+const showDownload = computed(() => {
+  const downloadList = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
+  let ridList: any[] = []
+  if (downloadList.length) {
+    ridList = movieMediaList.value.reduce((list, item) => {
+      list.push(item.rid)
+      return list
+    }, [])
+  }
+
+  return !ridList.includes(movieInfo.value.rid)
+})
 
 onLoad((options = {}) => {
   movieInfo.value = JSON.parse(decodeURIComponent(options.movieInfo))
   uni.setNavigationBarTitle({ title: movieInfo.value.name })
+  console.log(333)
+
   getMediaData()
 })
 </script>
@@ -72,9 +204,13 @@ onLoad((options = {}) => {
     <view class="detail-box">
       <view class="title-box">
         <text>{{ activeMediaInfo.name }}</text>
-        <view class="down-box">
+        <view v-if="showDownload" class="down-box" @click.stop="handleDownload">
           <u-icon name="download" size="40" />
           <text>下载</text>
+        </view>
+        <view v-else class="down-box">
+          <u-icon name="clock-fill" size="40" />
+          <text>正在下载</text>
         </view>
       </view>
       <view class="sub-title-box">
@@ -100,7 +236,7 @@ onLoad((options = {}) => {
           v-for="(item, index) in movieMediaList"
           :key="item.id" size="default"
           :type="item.id === activeId ? 'primary' : 'default'"
-          @click="onActiveChange(item)"
+          @click="onActiveChange(item, index)"
         >
           {{ index + 1 }}
         </u-button>

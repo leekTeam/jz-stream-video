@@ -68,13 +68,13 @@ const getMediaData = () => {
 onLoad((options = {}) => {
   ebookInfo.value = JSON.parse(decodeURIComponent(options.ebookInfo))
   uni.setNavigationBarTitle({ title: ebookInfo.value.name })
-  const listData = ref(uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || []);
-  const info = listData.find(item => item.rid === ebookInfo.value.rid)
-  if(info){
+  const listData = ref(uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || [])
+  const info = listData.value.find(item => item.rid === ebookInfo.value.rid)
+  if (info)
     setEbookMediaInfo(info)
-  }else{
+
+  else
     getMediaData()
-  }
 })
 </script>
 

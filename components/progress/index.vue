@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useThemeStore } from '@/store'
-const themeStore = useThemeStore()
 defineProps({
   placement: {
     type: String,
@@ -8,9 +7,10 @@ defineProps({
   },
   color: {
     type: String,
-    default: 'inherit'
-  }
+    default: 'inherit',
+  },
 })
+const themeStore = useThemeStore()
 </script>
 
 <template>

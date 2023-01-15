@@ -12,21 +12,20 @@ const props = defineProps({
 })
 
 const { getShowDownload } = useShowDownload(MUSIC_DOWNLOAD_KEY, props.data)
-
 </script>
 
 <template>
   <view v-if="data.length">
     <MusicBox
-      v-bind="$attrs"
       v-for="(musicItem, index) in data"
+      v-bind="$attrs"
       :key="musicItem.rid"
       :rid="musicItem.rid"
       :name="musicItem.name"
       :index="index + 1"
       :mainauthor="musicItem.mainauthor"
       :score="musicItem.score"
-      :showDownload="getShowDownload(musicItem.rid)"
+      :show-download="getShowDownload(musicItem.rid)"
     />
   </view>
 </template>
