@@ -3,7 +3,7 @@ import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import Progress from '../progress/index.vue'
 import { replaceUrlHost } from '@/utils'
 import { resMediaGet } from '@/api/ebook'
-import { Download, DownloadEbook } from '@/utils/testDownload'
+import { Download, DownloadEbook } from '@/utils/download'
 
 const props = defineProps({
   rid: {

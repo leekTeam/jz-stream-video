@@ -3,8 +3,7 @@ import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import Histogram from '../histogram/index.vue'
 import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
-import { DownloadMusic } from '@/utils/testDownload'
-import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage'
+import { DownloadMusic } from '@/utils/download'
 
 const props = defineProps({
   rid: {

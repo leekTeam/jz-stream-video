@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/movie'
 import { useThemeStore } from '@/store'
 import { replaceUrlHost } from '@/utils'
-import { Download, DownloadMovie } from '@/utils/testDownload'
+import { Download, DownloadMovie } from '@/utils/download'
 import { MOVIE_DOWNLOAD_KEY } from '@/constant/storage'
 
 const themeStore = useThemeStore()

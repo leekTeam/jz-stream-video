@@ -4,7 +4,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue
 import { resMediaGet } from '@/api/sound'
 import { useThemeStore } from '@/store'
 import { replaceUrlHost, timeUnitFormat } from '@/utils'
-import { Download, DownloadSound } from '@/utils/testDownload'
+import { Download, DownloadSound } from '@/utils/download'
 import { SOUND_DOWNLOAD_KEY } from '@/constant/storage'
 
 const themeStore = useThemeStore()
