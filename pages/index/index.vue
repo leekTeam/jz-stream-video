@@ -10,7 +10,7 @@ import { MEDIA_LIST } from '@/constant/media'
 import { DownloadMusic } from '@/utils/download'
 const themeStore = useThemeStore()
 
-const currentIndex = ref(0)
+const currentIndex = ref(1)
 const changeSwiper = (event: any) => {
   currentIndex.value = event.detail.current as number
 }

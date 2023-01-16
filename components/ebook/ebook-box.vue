@@ -69,15 +69,19 @@ const downloadEbook = async () => {
 }
 
 const goDetail = () => {
-  if (percentage.value === 100) {
-    const { rid } = props
-    uni.navigateTo({
-      url: `/pages/ebook/detail?rid=${rid}`,
-    })
-  }
-  else if (percentage.value === 0) {
-    downloadEbook()
-  }
+  const { rid } = props
+  uni.navigateTo({
+    url: `/pages/ebook/detail?rid=${rid}`,
+  })
+  // if (percentage.value === 100) {
+  //   const { rid } = props
+  //   uni.navigateTo({
+  //     url: `/pages/ebook/detail?rid=${rid}`,
+  //   })
+  // }
+  // else if (percentage.value === 0) {
+  //   downloadEbook()
+  // }
 }
 
 onMounted(() => {
