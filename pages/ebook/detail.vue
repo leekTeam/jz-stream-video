@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onLoad, onReady } from '@dcloudio/uni-app'
-import { nextTick, ref } from 'vue'
+import { ref } from 'vue'
 import { useThemeStore } from '@/store'
 import { DownloadEbook } from '@/utils/testDownload'
+import ReadBox from '@/components/ebook/read-box.vue'
 
 const themeStore = useThemeStore()
 const ebookInfo = ref<TEbookDownloadStorage>()
@@ -14,7 +15,7 @@ const readStyle = ref({
   bgColor: undefined,
   currentChapter: 1,
 })
-const yingbingReadPageRef = ref()
+const readBoxRef = ref()
 
 const initReadPage = () => {
   plus.io.resolveLocalFileSystemURL(ebookInfo.value!.fileName, (entry: any) => {
@@ -22,12 +23,10 @@ const initReadPage = () => {
       const fileReader = new (plus.io as any).FileReader()
       fileReader.readAsText(file, 'utf-8')
       fileReader.onloadend = (res: any) => {
-        yingbingReadPageRef.value.init({
+        readBoxRef.value.initViews({
           content: res.target.result,
           // start 阅读记录 需要存到本地下次进来打开恢复
           start: 0,
-          title: ebookInfo.value!.name,
-          currentChapter: 1,
         })
       }
     })
@@ -51,15 +50,7 @@ onReady(() => {
     />
   </page-meta>
   <view class="page-container" :style="themeStore.themeStyles">
-    <yingbing-ReadPage
-      ref="yingbingReadPageRef"
-      page-type="real"
-      :slide="24"
-      :no-chapter="true"
-      enable-click
-      :auto-split-chapter="false"
-      :visible-page="false"
-    />
+    <ReadBox ref="readBoxRef" />
   </view>
 </template>
 
