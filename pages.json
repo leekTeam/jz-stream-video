@@ -80,14 +80,14 @@
       {
         "pagePath": "pages/index/index",
         "text": "娱乐",
-        "iconPath": "/assests/tabbar/recreation.png",
-        "selectedIconPath": "/assests/tabbar/recreation-red.png"
+        "iconPath": "static/tabbar/recreation.png",
+        "selectedIconPath": "static/tabbar/recreation-red.png"
       },
       {
         "pagePath": "pages/user/index",
         "text": "我的",
-        "iconPath": "/assests/tabbar/user.png",
-        "selectedIconPath": "/assests/tabbar/user-red.png"
+        "iconPath": "static/tabbar/user.png",
+        "selectedIconPath": "static/tabbar/user-red.png"
       }
     ]
   },
