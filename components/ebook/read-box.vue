@@ -38,7 +38,7 @@ export default {
     // 左右两侧可以触发的区间 px
     touchWidth: {
       type: Number,
-      default: 40,
+      default: 100,
     },
     paddingX: {
       type: Number,

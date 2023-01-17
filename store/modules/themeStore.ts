@@ -29,6 +29,15 @@ export const useThemeStore = defineStore('themeStore', () => {
       uni.setTabBarStyle({
         selectedColor: primaryColor.value,
       })
+
+      uni.setTabBarItem({
+        index: 0,
+        selectedIconPath: `/assests/tabbar/recreation-${themeType.value}.png`,
+      })
+      uni.setTabBarItem({
+        index: 1,
+        selectedIconPath: `/assests/tabbar/user-${themeType.value}.png`,
+      })
     })
   }
 

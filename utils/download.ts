@@ -86,7 +86,6 @@ export class Download extends EventEmitter2 {
 
 export class DownloadMusic extends Download {
   private static instanceMap: { [rid: string]: DownloadMusic } = {}
-  public static storageList: TMusicDownloadStorage[] = uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []
   private options: TMusicDownloadStorage
   constructor(options: Omit<TMusicDownloadStorage, 'status' | 'downloadId' | 'currentSize' | 'fileName'>, task?: PlusDownloaderDownload) {
     super(options.originUrl, () => {
@@ -115,6 +114,10 @@ export class DownloadMusic extends Download {
     this.start()
   }
 
+  public static get storageList(): TMusicDownloadStorage[] {
+    return uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []
+  }
+
   private setStorage() {
     DownloadMusic.storageList.push({ ...this.options, downloadId: this.task.id! })
     this.updateStorage(DownloadMusic.storageList)
@@ -125,7 +128,6 @@ export class DownloadMusic extends Download {
   }
 
   private updateStorage(list: TMusicDownloadStorage[]) {
-    DownloadMusic.storageList = list
     return uni.setStorageSync(MUSIC_DOWNLOAD_KEY, list)
   }
 
@@ -146,7 +148,6 @@ export class DownloadMusic extends Download {
 
 export class DownloadEbook extends Download {
   private static instanceMap: { [rid: string]: DownloadEbook } = {}
-  public static storageList: TEbookDownloadStorage[] = uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || []
   private options: TEbookDownloadStorage
   constructor(options: Omit<TEbookDownloadStorage, 'status' | 'downloadId' | 'currentSize' | 'fileName'>, task?: PlusDownloaderDownload) {
     super(options.originUrl, () => {
@@ -175,6 +176,10 @@ export class DownloadEbook extends Download {
     this.start()
   }
 
+  public static get storageList(): TEbookDownloadStorage[] {
+    return uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || []
+  }
+
   private setStorage() {
     DownloadEbook.storageList.push({ ...this.options, downloadId: this.task.id! })
     this.updateStorage(DownloadEbook.storageList)
@@ -185,7 +190,6 @@ export class DownloadEbook extends Download {
   }
 
   private updateStorage(list: TEbookDownloadStorage[]) {
-    DownloadEbook.storageList = list
     return uni.setStorageSync(EBOOK_DOWNLOAD_KEY, list)
   }
 
@@ -205,7 +209,6 @@ export class DownloadEbook extends Download {
 
 export class DownloadMovie extends Download {
   private static instanceMap: { [rid: string]: DownloadMovie } = {}
-  public static storageList: TMovieDownloadStorage[] = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
   private options: TMovieDownloadStorage
   constructor(options: Omit<TMovieDownloadStorage, 'status' | 'downloadId' | 'fileName' | 'episodesList' | 'currentSize'>, task?: PlusDownloaderDownload) {
     super(options.originUrl, () => {
@@ -249,6 +252,10 @@ export class DownloadMovie extends Download {
       this.setStorage()
 
     this.start()
+  }
+
+  public static get storageList(): TMovieDownloadStorage[] {
+    return uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
   }
 
   private setStorage() {
@@ -301,7 +308,6 @@ export class DownloadMovie extends Download {
   }
 
   private updateStorage(list: TMovieDownloadStorage[]) {
-    DownloadMovie.storageList = list
     return uni.setStorageSync(MOVIE_DOWNLOAD_KEY, list)
   }
 
@@ -322,7 +328,6 @@ export class DownloadMovie extends Download {
 
 export class DownloadSound extends Download {
   private static instanceMap: { [rid: string]: DownloadSound } = {}
-  public static storageList: TSoundDownloadStorage[] = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
   private options: TSoundDownloadStorage
   constructor(options: Omit<TSoundDownloadStorage, 'status' | 'downloadId' | 'fileName' | 'episodesList' | 'currentSize'>, task?: PlusDownloaderDownload) {
     super(options.originUrl, () => {
@@ -367,6 +372,10 @@ export class DownloadSound extends Download {
       this.setStorage()
 
     this.start()
+  }
+
+  public static get storageList(): TSoundDownloadStorage[] {
+    return uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
   }
 
   private setStorage() {
@@ -419,7 +428,6 @@ export class DownloadSound extends Download {
   }
 
   private updateStorage(list: TSoundDownloadStorage[]) {
-    DownloadSound.storageList = list
     return uni.setStorageSync(SOUND_DOWNLOAD_KEY, list)
   }
 
@@ -448,8 +456,6 @@ function getStorageList<T extends Record<string, any>, K extends keyof T>(downlo
 export const getDownloadingList = async () => {
   const res = await Download.getDownloadTasks()
   const storageMapList = [getStorageList(DownloadEbook, 'getEbookTask'), getStorageList(DownloadMovie, 'getMovieTask'), getStorageList(DownloadMusic, 'getMusicTask'), getStorageList(DownloadSound, 'getSoundTask')]
-  console.log(storageMapList)
-  console.log(res)
   return res.reduce((list, item) => {
     const storag = storageMapList.find(storageItem => !!storageItem.storageMap[item.id!])
     if (storag) {
@@ -463,7 +469,6 @@ export const getDownloadingList = async () => {
         download: storag.getTask(rid),
       })
     }
-
     return list
   }, [] as { name: string; rid: string; totalSize: number;status: DOWNLOAD_STATUS; currentSize: number; download: DownloadEbook | DownloadMovie | DownloadMusic | DownloadSound }[])
 }
