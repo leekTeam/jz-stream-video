@@ -4,6 +4,7 @@ import Progress from '../progress/index.vue'
 import { replaceUrlHost } from '@/utils'
 import { resMediaGet } from '@/api/ebook'
 import { Download, DownloadEbook } from '@/utils/download'
+import { CLEAR_STORAGE } from '@/constant/event'
 
 const props = defineProps({
   rid: {
@@ -93,6 +94,7 @@ const onDelete = () => {
   DownloadEbook.storageList = storageList
   nextTick(() => {
     emit('close')
+    uni.$emit(CLEAR_STORAGE)
   })
 }
 

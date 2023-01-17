@@ -4,31 +4,46 @@ import { ref } from 'vue'
 import { bytesUnitFormat } from '@/utils'
 import { LIMIT_CLEAR_KEYS } from '@/constant/storage'
 import { useThemeStore } from '@/store'
+import { DownloadEbook, DownloadMovie, DownloadMusic, DownloadSound, getDownloadingList } from '@/utils/download'
+import { CLEAR_STORAGE } from '@/constant/event'
 
-// TODO
 const themeStore = useThemeStore()
 const storageTotal = ref('')
-const allStateTotal = ref('')
 
 onLoad(() => {
   const storageInfo = uni.getStorageInfoSync()
-  storageTotal.value = bytesUnitFormat(storageInfo.currentSize)
+  const value = [DownloadEbook, DownloadMovie, DownloadMusic, DownloadSound].reduce((total, item) => {
+    item.storageList.forEach((item) => {
+      total += item.currentSize
+    })
+    return total
+  }, storageInfo.currentSize)
+  storageTotal.value = bytesUnitFormat(value)
 })
 
 const clearStorage = () => {
+  uni.showLoading({ title: '清除缓存中', mask: true })
   uni.getStorageInfo({
-    success: (res) => {
-      res.keys.forEach((key) => {
-        if (!LIMIT_CLEAR_KEYS.includes(key))
-          uni.removeStorageSync(key)
+    success: (storageInfo) => {
+      getDownloadingList().then((res) => {
+        res.forEach((item) => {
+          item.download.destory()
+        })
+
+        storageInfo.keys.forEach((key) => {
+          if (!LIMIT_CLEAR_KEYS.includes(key))
+            uni.removeStorageSync(key)
+        })
+
+        storageTotal.value = bytesUnitFormat(0)
+
+        uni.$emit(CLEAR_STORAGE)
       })
-      storageTotal.value = bytesUnitFormat(0)
+    },
+    fail() {
+      uni.hideLoading()
     },
   })
-}
-
-const clearAllState = () => {
-  console.log('clearAllState')
 }
 </script>
 
@@ -41,7 +56,6 @@ const clearAllState = () => {
   <view :style="themeStore.themeStyles">
     <u-cell-group>
       <u-cell-item title="清除缓存" :value="storageTotal" @click="clearStorage" />
-      <u-cell-item title="清楚全部数据" :value="allStateTotal" @click="clearAllState" />
     </u-cell-group>
   </view>
 </template>

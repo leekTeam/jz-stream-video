@@ -1,4 +1,5 @@
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { CLEAR_STORAGE } from '@/constant/event'
 
 export function useRequestList<
   Props extends { isActive: boolean }, FetchClassifyApi extends () => Promise<any>, FetchListApi extends (...args: any) => Promise<any>,
@@ -61,6 +62,22 @@ export function useRequestList<
         mescroll.endErr()
       })
   }
+
+  const refreshStorage = () => {
+    if (listData.value.length)
+      listData.value = []
+
+    if (props.isActive)
+      scrollRef.value.triggerDownScroll()
+  }
+
+  onMounted(() => {
+    uni.$on(CLEAR_STORAGE, refreshStorage)
+  })
+
+  onUnmounted(() => {
+    uni.$off(CLEAR_STORAGE, refreshStorage)
+  })
 
   return {
     scrollRef,

@@ -1,1 +1,1 @@
-export const THEME_CHANGE = 'theme_change'
+export const CLEAR_STORAGE = 'clear_storage'

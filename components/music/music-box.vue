@@ -4,6 +4,7 @@ import Loading from '../Loading/index.vue'
 import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
 import { DownloadMusic } from '@/utils/download'
+import { CLEAR_STORAGE } from '@/constant/event'
 
 const props = defineProps({
   rid: {
@@ -50,6 +51,7 @@ const onDelete = () => {
   DownloadMusic.storageList = storageList
   nextTick(() => {
     emit('close')
+    uni.$emit(CLEAR_STORAGE)
   })
 }
 
