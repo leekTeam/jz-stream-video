@@ -103,8 +103,7 @@ export class DownloadMusic extends Download {
       else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
         storage.currentSize = this.task.downloadedSize || 0
       }
-
-      this.updateStorage(storageList)
+      DownloadMusic.storageList = storageList
     }, task)
     DownloadMusic.instanceMap[options.rid] = this
     this.options = options as TMusicDownloadStorage
@@ -118,17 +117,16 @@ export class DownloadMusic extends Download {
     return uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []
   }
 
+  public static set storageList(list: TMusicDownloadStorage[]) {
+    uni.setStorageSync(MUSIC_DOWNLOAD_KEY, list)
+  }
+
   private setStorage() {
-    DownloadMusic.storageList.push({ ...this.options, downloadId: this.task.id! })
-    this.updateStorage(DownloadMusic.storageList)
+    DownloadMusic.storageList = [...DownloadMusic.storageList, { ...this.options, downloadId: this.task.id! }]
   }
 
   public static getStorageInfo(rid: string) {
     return DownloadMusic.storageList.find(item => item.rid === rid)
-  }
-
-  private updateStorage(list: TMusicDownloadStorage[]) {
-    return uni.setStorageSync(MUSIC_DOWNLOAD_KEY, list)
   }
 
   public static getMusicTask(rid: string) {
@@ -166,7 +164,7 @@ export class DownloadEbook extends Download {
       else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
         storage.currentSize = this.task.downloadedSize || 0
       }
-      this.updateStorage(storageList)
+      DownloadEbook.storageList = storageList
     }, task)
     DownloadEbook.instanceMap[options.rid] = this
     this.options = options as TEbookDownloadStorage
@@ -180,17 +178,16 @@ export class DownloadEbook extends Download {
     return uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || []
   }
 
+  public static set storageList(list: TEbookDownloadStorage[]) {
+    uni.setStorageSync(EBOOK_DOWNLOAD_KEY, list)
+  }
+
   private setStorage() {
-    DownloadEbook.storageList.push({ ...this.options, downloadId: this.task.id! })
-    this.updateStorage(DownloadEbook.storageList)
+    DownloadEbook.storageList = [...DownloadEbook.storageList, { ...this.options, downloadId: this.task.id! }]
   }
 
   public static getStorageInfo(rid: string) {
     return DownloadEbook.storageList.find(item => item.rid === rid)
-  }
-
-  private updateStorage(list: TEbookDownloadStorage[]) {
-    return uni.setStorageSync(EBOOK_DOWNLOAD_KEY, list)
   }
 
   public static getEbookTask(rid: string) {
@@ -243,7 +240,7 @@ export class DownloadMovie extends Download {
         }
       }
 
-      this.updateStorage(storageList)
+      DownloadMovie.storageList = storageList
     }, task)
 
     DownloadMovie.instanceMap[options.rid] = this
@@ -256,6 +253,10 @@ export class DownloadMovie extends Download {
 
   public static get storageList(): TMovieDownloadStorage[] {
     return uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
+  }
+
+  public static set storageList(list: TMovieDownloadStorage[]) {
+    uni.setStorageSync(MOVIE_DOWNLOAD_KEY, list)
   }
 
   private setStorage() {
@@ -281,34 +282,31 @@ export class DownloadMovie extends Download {
       fileName: this.task.filename || '',
       status,
     }
-    const index = DownloadMovie.storageList.findIndex((item) => {
+    const storageList = DownloadMovie.storageList
+    const index = storageList.findIndex((item) => {
       const { episodesList = [] } = item
       return episodesList.some(item => item.rid === this.options.rid)
     })
     if (index > -1) {
-      const episodesIndex = DownloadMovie.storageList[index].episodesList.findIndex((item) => {
+      const episodesIndex = storageList[index].episodesList.findIndex((item) => {
         return item.rid === this.options.rid
       })
       if (episodesIndex > -1)
-        DownloadMovie.storageList[index].episodesList.push(data)
+        storageList[index].episodesList.push(data)
       else
-        DownloadMovie.storageList[index].episodesList[episodesIndex] = data
+        storageList[index].episodesList[episodesIndex] = data
     }
     else {
-      DownloadMovie.storageList.push({
+      storageList.push({
         ...options,
         episodesList: [data],
       })
     }
-    this.updateStorage(DownloadMovie.storageList)
+    DownloadMovie.storageList = storageList
   }
 
   public static getStorageInfo(rid: string) {
     return DownloadMovie.storageList.find(item => item.rid === rid)
-  }
-
-  private updateStorage(list: TMovieDownloadStorage[]) {
-    return uni.setStorageSync(MOVIE_DOWNLOAD_KEY, list)
   }
 
   public static getMovieTask(rid: string) {
@@ -361,8 +359,7 @@ export class DownloadSound extends Download {
           }
         }
       }
-
-      this.updateStorage(storageList)
+      DownloadSound.storageList = storageList
     }, task)
 
     DownloadSound.instanceMap[options.rid] = this
@@ -376,6 +373,10 @@ export class DownloadSound extends Download {
 
   public static get storageList(): TSoundDownloadStorage[] {
     return uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
+  }
+
+  public static set storageList(list: TSoundDownloadStorage[]) {
+    uni.setStorageSync(SOUND_DOWNLOAD_KEY, list)
   }
 
   private setStorage() {
@@ -401,34 +402,31 @@ export class DownloadSound extends Download {
       fileName: this.task.filename || '',
       status,
     }
-    const index = DownloadSound.storageList.findIndex((item) => {
+    const storageList = DownloadSound.storageList
+    const index = storageList.findIndex((item) => {
       const { episodesList = [] } = item
       return episodesList.some(item => item.rid === this.options.rid)
     })
     if (index > -1) {
-      const episodesIndex = DownloadSound.storageList[index].episodesList.findIndex((item) => {
+      const episodesIndex = storageList[index].episodesList.findIndex((item) => {
         return item.rid === this.options.rid
       })
       if (episodesIndex > -1)
-        DownloadSound.storageList[index].episodesList.push(data)
+        storageList[index].episodesList.push(data)
       else
-        DownloadSound.storageList[index].episodesList[episodesIndex] = data
+        storageList[index].episodesList[episodesIndex] = data
     }
     else {
-      DownloadSound.storageList.push({
+      storageList.push({
         ...options,
         episodesList: [data],
       })
     }
-    this.updateStorage(DownloadSound.storageList)
+    DownloadSound.storageList = storageList
   }
 
   public static getStorageInfo(rid: string) {
     return DownloadSound.storageList.find(item => item.rid === rid)
-  }
-
-  private updateStorage(list: TSoundDownloadStorage[]) {
-    return uni.setStorageSync(SOUND_DOWNLOAD_KEY, list)
   }
 
   public static getSoundTask(rid: string) {

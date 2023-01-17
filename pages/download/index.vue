@@ -72,6 +72,7 @@ const updateDownloadProgress = (rid: string) => (currentSize: number) => {
 const getDownloadList = () => {
   uni.showLoading({ title: '加载中', mask: true })
   getDownloadingList().then((res) => {
+    console.log(res)
     const downloadMap: ProgressMap = {}
     const result: DownloadItem[] = []
     res.forEach((item) => {

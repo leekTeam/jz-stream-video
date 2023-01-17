@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import EbookList from '@/components/ebook/ebook-list.vue'
-import { EBOOK_DOWNLOAD_KEY } from '@/constant/storage'
+import { DownloadEbook } from '@/utils/download'
+import { DOWNLOAD_STATUS } from '@/constant/download'
 
-const listData = ref(uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || [])
+const getListData = () => {
+  return DownloadEbook.storageList.filter(item => item.status === DOWNLOAD_STATUS.SUCCESS).map((item) => {
+    const { rid, name, coverUrl } = item
+    return {
+      rid,
+      name,
+      poster: coverUrl,
+    }
+  })
+}
+const listData = ref(getListData())
 </script>
 
 <template>

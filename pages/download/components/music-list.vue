@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MusicList from '@/components/music/music-list.vue'
-import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage';
-
-const listData = ref(uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []);
+import { DownloadMusic } from '@/utils/download'
+import { DOWNLOAD_STATUS } from '@/constant/download'
+const getListData = () => {
+  return DownloadMusic.storageList.filter(item => item.status === DOWNLOAD_STATUS.SUCCESS).map((item) => {
+    const { rid, name, mainauthor, score } = item
+    return {
+      rid,
+      name,
+      mainauthor,
+      score,
+    }
+  })
+}
+const listData = ref(getListData())
 </script>
 
 <template>
   <view class="music-list">
-    <MusicList :data="listData" :show-download="false" />
+    <MusicList :data="listData" />
   </view>
 </template>
 

@@ -26,10 +26,6 @@ const props = defineProps({
     type: String,
     default: '0',
   },
-  showDownload: {
-    type: Boolean,
-    default: true,
-  },
 })
 
 const { playMusic, activeMusicInfo, getMediaInfo } = useMusicStore()
@@ -43,24 +39,28 @@ const onProgress = async (currentSize: number) => {
 }
 
 const downloadMusic = async () => {
-  const { rid, name, mainauthor, score } = props
-  getMediaInfo(rid).then((res) => {
-    const { downloadurl, size } = res
-    downloadTask.value = new DownloadMusic({
-      rid,
-      originUrl: downloadurl,
-      name,
-      score,
-      mainauthor,
-      totalSize: size,
-    })
+  if (!downloadTask.value) {
+    const { rid, name, mainauthor, score } = props
+    getMediaInfo(rid).then((res) => {
+      const { downloadurl, size } = res
+      downloadTask.value = new DownloadMusic({
+        rid,
+        originUrl: downloadurl,
+        name,
+        score,
+        mainauthor,
+        totalSize: size,
+      })
 
-    downloadTask.value.on('progress', onProgress)
-  })
+      downloadTask.value.on('progress', onProgress)
+      console.log(downloadTask.value)
+    })
+  }
 }
 
 onMounted(() => {
   const storageInfo = DownloadMusic.getStorageInfo(props.rid)
+  console.log('onMounted', storageInfo)
   if (storageInfo) {
     percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
     const download = DownloadMusic.getMusicTask(props.rid)
@@ -105,20 +105,20 @@ onUnmounted(() => {
         class="music-box-icon-Loading"
         :paused="activeMusicInfo.paused"
       />
-      <view v-if="showDownload" @click.stop="downloadMusic">
+      <view @click.stop="downloadMusic">
         <u-icon
-          v-if="percentage === 0"
+          v-if="percentage === 0 && !downloadTask"
           name="download"
           size="40"
         />
         <u-icon
-          v-if="percentage === 100"
+          v-else-if="percentage === 100"
           color="#42b935"
           name="checkmark-circle-fill"
           size="40"
         />
         <Progress
-          v-if="percentage > 0 && percentage < 100"
+          v-else-if="percentage > 0 && percentage < 100"
           :percent="percentage"
           placement="bottom"
         />

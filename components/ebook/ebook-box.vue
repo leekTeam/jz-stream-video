@@ -69,14 +69,14 @@ const downloadEbook = async () => {
 }
 
 const goDetail = () => {
-  if (percentage.value === 100) {
+  if (!downloadTask.value) {
+    downloadEbook()
+  }
+  else if (percentage.value === 100) {
     const { rid } = props
     uni.navigateTo({
       url: `/pages/ebook/detail?rid=${rid}`,
     })
-  }
-  else if (percentage.value === 0) {
-    downloadEbook()
   }
 }
 
@@ -106,9 +106,8 @@ onUnmounted(() => {
         height="250rpx"
         :src="replaceUrlHost(poster)"
       />
-      <view>
+      <view v-if="!downloadTask && percentage === 0">
         <u-icon
-          v-if="percentage === 0"
           class="ebook-box-cover-down-icon"
           color="#ffffff"
           name="download"
@@ -116,14 +115,14 @@ onUnmounted(() => {
         />
       </view>
       <u-icon
-        v-if="percentage === 100"
+        v-else-if="percentage === 100"
         class="ebook-box-cover-success-icon"
         color="#42b935"
         name="checkmark-circle-fill"
         size="40"
       />
       <Progress
-        v-if="percentage > 0 && percentage < 100"
+        v-else-if="percentage > 0 && percentage < 100"
         class="ebook-box-cover-progress"
         color="#ffffff"
         :percent="percentage"

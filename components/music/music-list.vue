@@ -4,7 +4,7 @@ import MusicBox from './music-box.vue'
 
 defineProps({
   data: {
-    type: Array as PropType<TMusic[]>,
+    type: Array as PropType<{ rid: string; name: string; mainauthor: string; score: string }[]>,
     default: () => [],
   },
 })
