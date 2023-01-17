@@ -11,13 +11,25 @@ export const login = () => {
             success(data) {
               resolve(data.authResult)
             },
+            fail(err) {
+              uni.showToast({
+                title: JSON.stringify(err),
+              })
+              reject(err)
+            },
           })
         }
         else {
+          uni.showToast({
+            title: '请先安装微信',
+          })
           reject(new Error('请先安装微信'))
         }
       },
       fail() {
+        uni.showToast({
+          title: '登陆失败',
+        })
         reject(new Error('登陆失败'))
       },
     })
