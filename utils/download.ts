@@ -95,6 +95,7 @@ export class DownloadMusic extends Download {
       storage.status = this.downloadStatus
       if (this.downloadStatus === DOWNLOAD_STATUS.SUCCESS) {
         storage.fileName = this.getFilenameUrl()
+        storage.totalSize = this.task.downloadedSize || 0
       }
       else if (this.downloadStatus === DOWNLOAD_STATUS.ERROE) {
       // 删除下载任务
@@ -122,7 +123,7 @@ export class DownloadMusic extends Download {
   }
 
   private setStorage() {
-    DownloadMusic.storageList = [...DownloadMusic.storageList, { ...this.options, downloadId: this.task.id! }]
+    DownloadMusic.storageList = [...DownloadMusic.storageList, { ...this.options, downloadId: this.task.id!, currentSize: 0 }]
   }
 
   public static getStorageInfo(rid: string) {
@@ -156,6 +157,7 @@ export class DownloadEbook extends Download {
       storage.status = this.downloadStatus
       if (this.downloadStatus === DOWNLOAD_STATUS.SUCCESS) {
         storage.fileName = this.getFilenameUrl()
+        storage.totalSize = this.task.downloadedSize || 0
       }
       else if (this.downloadStatus === DOWNLOAD_STATUS.ERROE) {
       // 删除下载任务
@@ -183,7 +185,7 @@ export class DownloadEbook extends Download {
   }
 
   private setStorage() {
-    DownloadEbook.storageList = [...DownloadEbook.storageList, { ...this.options, downloadId: this.task.id! }]
+    DownloadEbook.storageList = [...DownloadEbook.storageList, { ...this.options, downloadId: this.task.id!, currentSize: 0 }]
   }
 
   public static getStorageInfo(rid: string) {

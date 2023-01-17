@@ -19,7 +19,7 @@ const listData = ref(getListData())
 
 <template>
   <view class="music-list">
-    <MusicList :data="listData" />
+    <MusicList :data="listData" closable @close="getListData" />
   </view>
 </template>
 

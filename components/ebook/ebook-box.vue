@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import Progress from '../progress/index.vue'
 import { replaceUrlHost } from '@/utils'
 import { resMediaGet } from '@/api/ebook'
@@ -18,15 +18,20 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  closable: {
+    type: Boolean,
+    default: false,
+  },
 })
-
+const emit = defineEmits(['close'])
 const coverDownloadTask = shallowRef<Download>()
 const downloadTask = shallowRef<DownloadEbook>()
 const ebookMediaInfo = shallowRef<TEbookMedia>()
 const percentage = ref(0)
+const totalSize = ref(0)
 
 const onProgress = (currentSize: number) => {
-  percentage.value = currentSize / (ebookMediaInfo.value!.size) * 100
+  percentage.value = currentSize / (totalSize.value) * 100
 }
 
 const downloadEbook = async () => {
@@ -43,6 +48,7 @@ const downloadEbook = async () => {
     ebookMediaInfo.value = row
     coverDownloadTask.value = new Download(props.poster)
     coverDownloadTask.value.on('success', () => {
+      totalSize.value = size
       downloadTask.value = new DownloadEbook({
         rid,
         name,
@@ -80,10 +86,21 @@ const goDetail = () => {
   }
 }
 
+const onDelete = () => {
+  const storageList = DownloadEbook.storageList
+  const index = storageList.findIndex(item => item.rid === props.rid)
+  storageList.splice(index, 1)
+  DownloadEbook.storageList = storageList
+  nextTick(() => {
+    emit('close')
+  })
+}
+
 onMounted(() => {
   const storageInfo = DownloadEbook.getStorageInfo(props.rid)
   if (storageInfo) {
-    percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
+    totalSize.value = storageInfo.totalSize
+    onProgress(storageInfo.currentSize)
     const download = DownloadEbook.getEbookTask(props.rid)
     if (percentage.value !== 100 && download) {
       downloadTask.value = download
@@ -106,7 +123,15 @@ onUnmounted(() => {
         height="250rpx"
         :src="replaceUrlHost(poster)"
       />
-      <view v-if="!downloadTask && percentage === 0">
+      <view v-if="closable" @click.stop="onDelete">
+        <u-icon
+          class="ebook-box-cover-down-icon"
+          color="#ffffff"
+          name="download"
+          size="40"
+        />
+      </view>
+      <view v-else-if="!downloadTask && percentage === 0">
         <u-icon
           class="ebook-box-cover-down-icon"
           color="#ffffff"
@@ -122,7 +147,7 @@ onUnmounted(() => {
         size="40"
       />
       <Progress
-        v-else-if="percentage > 0 && percentage < 100"
+        v-else
         class="ebook-box-cover-progress"
         color="#ffffff"
         :percent="percentage"

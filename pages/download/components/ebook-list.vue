@@ -19,7 +19,7 @@ const listData = ref(getListData())
 
 <template>
   <view class="ebook-list-box">
-    <EbookList :data="listData" />
+    <EbookList :data="listData" closable @close="getListData" />
   </view>
 </template>
 

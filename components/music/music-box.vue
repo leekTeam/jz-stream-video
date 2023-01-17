@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import Loading from '../Loading/index.vue'
 import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
@@ -26,16 +26,31 @@ const props = defineProps({
     type: String,
     default: '0',
   },
+  closable: {
+    type: Boolean,
+    default: false,
+  },
 })
 
+const emit = defineEmits(['close'])
 const { playMusic, activeMusicInfo, getMediaInfo } = useMusicStore()
 
 const downloadTask = shallowRef<DownloadMusic>()
-
 const percentage = ref(0)
+const totalSize = ref(0)
 
 const onProgress = async (currentSize: number) => {
-  percentage.value = (currentSize / (await getMediaInfo(props.rid)).size) * 100
+  percentage.value = currentSize / (totalSize.value) * 100
+}
+
+const onDelete = () => {
+  const storageList = DownloadMusic.storageList
+  const index = storageList.findIndex(item => item.rid === props.rid)
+  storageList.splice(index, 1)
+  DownloadMusic.storageList = storageList
+  nextTick(() => {
+    emit('close')
+  })
 }
 
 const downloadMusic = async () => {
@@ -43,6 +58,7 @@ const downloadMusic = async () => {
     const { rid, name, mainauthor, score } = props
     getMediaInfo(rid).then((res) => {
       const { downloadurl, size } = res
+      totalSize.value = size
       downloadTask.value = new DownloadMusic({
         rid,
         originUrl: downloadurl,
@@ -53,17 +69,17 @@ const downloadMusic = async () => {
       })
 
       downloadTask.value.on('progress', onProgress)
-      console.log(downloadTask.value)
     })
   }
 }
 
 onMounted(() => {
   const storageInfo = DownloadMusic.getStorageInfo(props.rid)
-  console.log('onMounted', storageInfo)
   if (storageInfo) {
-    percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
+    totalSize.value = storageInfo.totalSize
+    onProgress(storageInfo.currentSize || 0)
     const download = DownloadMusic.getMusicTask(props.rid)
+
     if (percentage.value !== 100 && download) {
       downloadTask.value = download
       downloadTask.value.on('progress', onProgress)
@@ -105,12 +121,20 @@ onUnmounted(() => {
         class="music-box-icon-Loading"
         :paused="activeMusicInfo.paused"
       />
-      <view @click.stop="downloadMusic">
-        <u-icon
-          v-if="percentage === 0 && !downloadTask"
-          name="download"
-          size="40"
-        />
+      <view>
+        <view v-if="closable" @click.stop="onDelete">
+          <u-icon
+            color="red"
+            name="close-circle-fill"
+            size="40"
+          />
+        </view>
+        <view v-else-if="percentage === 0 && !downloadTask" @click.stop="downloadMusic">
+          <u-icon
+            name="download"
+            size="40"
+          />
+        </view>
         <u-icon
           v-else-if="percentage === 100"
           color="#42b935"
@@ -118,7 +142,7 @@ onUnmounted(() => {
           size="40"
         />
         <Progress
-          v-else-if="percentage > 0 && percentage < 100"
+          v-else
           :percent="percentage"
           placement="bottom"
         />

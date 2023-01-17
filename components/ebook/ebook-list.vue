@@ -18,6 +18,7 @@ defineProps({
       :rid="ebookItem.rid"
       :poster="ebookItem.poster"
       :name="ebookItem.name"
+      v-bind="$attrs"
     />
   </view>
 </template>
