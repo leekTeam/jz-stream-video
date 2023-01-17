@@ -214,11 +214,11 @@ export class DownloadMovie extends Download {
       const storageList = DownloadMovie.storageList
       const index = storageList.findIndex((item) => {
         const { episodesList = [] } = item
-        return episodesList.some(item => item.rid === this.options.rid)
+        return episodesList.some(item => item.id === this.options.episodesId)
       })
       if (index > -1) {
         const episodesIndex = storageList[index].episodesList.findIndex((item) => {
-          return item.rid === this.options.rid
+          return item.id === this.options.episodesId
         })
         if (episodesIndex > -1) {
           const episodesStorageList = storageList[index].episodesList
@@ -281,17 +281,17 @@ export class DownloadMovie extends Download {
       totalSize,
       currentSize,
       originUrl,
-      fileName: this.task.filename || '',
+      fileName: this.getFilenameUrl(),
       status,
     }
     const storageList = DownloadMovie.storageList
     const index = storageList.findIndex((item) => {
       const { episodesList = [] } = item
-      return episodesList.some(item => item.rid === this.options.rid)
+      return episodesList.some(item => item.id === this.options.episodesId)
     })
     if (index > -1) {
       const episodesIndex = storageList[index].episodesList.findIndex((item) => {
-        return item.rid === this.options.rid
+        return item.id === this.options.episodesId
       })
       if (episodesIndex > -1)
         storageList[index].episodesList.push(data)
@@ -334,11 +334,11 @@ export class DownloadSound extends Download {
       const storageList = DownloadSound.storageList
       const index = storageList.findIndex((item) => {
         const { episodesList = [] } = item
-        return episodesList.some(item => item.rid === this.options.rid)
+        return episodesList.some(item => item.id === this.options.episodesId)
       })
       if (index > -1) {
         const episodesIndex = storageList[index].episodesList.findIndex((item) => {
-          return item.rid === this.options.rid
+          return item.id === this.options.episodesId
         })
         if (episodesIndex > -1) {
           const episodesStorageList = storageList[index].episodesList
@@ -401,17 +401,17 @@ export class DownloadSound extends Download {
       totalSize,
       currentSize,
       originUrl,
-      fileName: this.task.filename || '',
+      fileName: this.getFilenameUrl(),
       status,
     }
     const storageList = DownloadSound.storageList
     const index = storageList.findIndex((item) => {
       const { episodesList = [] } = item
-      return episodesList.some(item => item.rid === this.options.rid)
+      return episodesList.some(item => item.id === this.options.episodesId)
     })
     if (index > -1) {
       const episodesIndex = storageList[index].episodesList.findIndex((item) => {
-        return item.rid === this.options.rid
+        return item.id === this.options.episodesId
       })
       if (episodesIndex > -1)
         storageList[index].episodesList.push(data)

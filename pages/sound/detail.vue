@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onLoad, onUnload } from '@dcloudio/uni-app'
-import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { onLoad, onReady, onUnload } from '@dcloudio/uni-app'
+import { computed, nextTick, ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/sound'
 import { useThemeStore } from '@/store'
 import { replaceUrlHost, timeUnitFormat } from '@/utils'
@@ -51,10 +51,28 @@ const togglePlay = () => {
     onPause()
 }
 
+const downloadTask = shallowRef<DownloadSound>()
+const judgeDownloadTask = (rid: string) => {
+  const storageInfo = DownloadSound.getStorageInfo(rid)
+  if (storageInfo?.episodesList.length) {
+    const episodesStorageInfo = storageInfo?.episodesList.find(item => item.id === activeMediaInfo.value.id)
+    percentage.value = ((episodesStorageInfo?.currentSize || 0) / (activeMediaInfo.value.size || 0)) * 100
+    const download = DownloadSound.getSoundTask(rid)
+    if (percentage.value !== 100 && download)
+      downloadTask.value = download
+    else
+      downloadTask.value = undefined
+  }
+  else {
+    downloadTask.value = undefined
+  }
+}
 const onActiveChange = (item: TMovieMedia, index: number) => {
-  activeId.value = item.id
+  const { id, rid } = item
+  activeId.value = id
   currentNum.value = index
   onPlay()
+  judgeDownloadTask(rid)
 }
 
 const createAudio = () => {
@@ -106,6 +124,7 @@ const getMediaData = () => {
       }
     })
     activeId.value = dataObject[0].id
+    judgeDownloadTask(soundInfo.value.rid)
     createAudio()
   }).finally(() => {
     uni.hideLoading()
@@ -116,7 +135,6 @@ const onProgress = (currentSize: number) => {
   percentage.value = currentSize / (activeMediaInfo.value!.size) * 100
 }
 const coverDownloadTask = shallowRef<Download>()
-const downloadTask = shallowRef<DownloadSound>()
 const handleDownload = () => {
   uni.showLoading({ title: '加载中', mask: true })
   const { poster, rid, isOnline, ...args } = soundInfo.value
@@ -150,22 +168,7 @@ const handleDownload = () => {
   coverDownloadTask.value.start()
 }
 
-const showDownload = computed(() => {
-  const downloadList = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
-  let ridList: any[] = []
-  if (downloadList.length) {
-    ridList = soundMediaList.value.reduce((list, item) => {
-      list.push(item.rid)
-      return list
-    }, [])
-  }
-
-  return !ridList.includes(activeMediaInfo.value.rid)
-})
-
-onLoad((options = {}) => {
-  soundInfo.value = JSON.parse(decodeURIComponent(options.soundInfo))
-  uni.setNavigationBarTitle({ title: soundInfo.value.name })
+onReady(() => {
   if (soundInfo.value.isOnline) {
     getMediaData()
   }
@@ -173,12 +176,12 @@ onLoad((options = {}) => {
     const soundDownloadList = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
     const index = soundDownloadList.findIndex((item) => {
       const { episodesList } = item
-      return episodesList.some(episodesItem => episodesItem.rid === soundInfo.value.rid)
+      return episodesList.some(episodesItem => episodesItem.id === activeMediaInfo.value.id)
     })
     let episodesIndex = 0
     soundMediaList.value = soundDownloadList[index].episodesList.reduce((list, episodesItem, index) => {
       const { fileName: playurl, ...args } = episodesItem
-      if (episodesItem.rid === soundInfo.value.rid)
+      if (episodesItem.id === activeMediaInfo.value.id)
         episodesIndex = index
 
       list.push({
@@ -193,21 +196,14 @@ onLoad((options = {}) => {
   }
 })
 
-onMounted(() => {
-  const storageInfo = DownloadSound.getStorageInfo(soundInfo.value.rid)
-  if (storageInfo) {
-    percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
-    const download = DownloadSound.getSoundTask(soundInfo.value.rid)
-    if (percentage.value !== 100 && download)
-      downloadTask.value = download
-  }
+onLoad((options = {}) => {
+  soundInfo.value = JSON.parse(decodeURIComponent(options.soundInfo))
+  uni.setNavigationBarTitle({ title: soundInfo.value.name })
 })
 
 onUnload(() => {
   innerAudioContext.value?.destroy()
-})
-
-onUnmounted(() => {
+  downloadTask.value?.off('progress', onProgress)
   coverDownloadTask.value?.destory()
 })
 </script>
@@ -243,7 +239,11 @@ onUnmounted(() => {
       <view class="time">
         {{ playTimeInfo.duration }}
       </view>
-      <view v-if="percentage === 0 && showDownload" class="down-box" @click.stop="handleDownload">
+      <view
+        v-if="percentage === 0 && !downloadTask"
+        class="down-box"
+        @click.stop="handleDownload"
+      >
         <u-icon name="download" :size="40" />
         <text>下载</text>
       </view>
@@ -299,7 +299,7 @@ onUnmounted(() => {
 .down-box {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   text {
     font-size: 24rpx;
