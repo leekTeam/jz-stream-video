@@ -12,7 +12,9 @@ export const login = () => {
               resolve(data.authResult)
             },
             fail(err) {
-              uni.showToast({
+              uni.showModal({
+                confirmText: '知道了',
+                showCancel: false,
                 title: JSON.stringify(err),
               })
               reject(err)
@@ -20,14 +22,18 @@ export const login = () => {
           })
         }
         else {
-          uni.showToast({
+          uni.showModal({
+            confirmText: '知道了',
+            showCancel: false,
             title: '请先安装微信',
           })
           reject(new Error('请先安装微信'))
         }
       },
       fail() {
-        uni.showToast({
+        uni.showModal({
+          confirmText: '知道了',
+          showCancel: false,
           title: '登陆失败',
         })
         reject(new Error('登陆失败'))
