@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
 import { BASE_URL_KEY } from '@/constant/storage'
-
+import { getDownloadingList } from '@/utils/download'
 onLaunch(() => {
-  console.log('App Launch')
   if (!uni.getStorageSync(BASE_URL_KEY))
-    uni.setStorageSync(BASE_URL_KEY, 'https://6q7645j209.goho.co/')
+    uni.setStorageSync(BASE_URL_KEY, 'https://w64477163a.yicp.fun/')
 
-  // TODO 开始下载任务
+  getDownloadingList()
 })
 onShow(() => {
   console.log('App Show')

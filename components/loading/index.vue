@@ -5,16 +5,16 @@ defineProps({
 </script>
 
 <template>
-  <view class="histogram-box">
-    <view class="histogram-box-one" :class="{ paused }" />
-    <view class="histogram-box-two" :class="{ paused }" />
-    <view class="histogram-box-three" :class="{ paused }" />
-    <view class="histogram-box-one" :class="{ paused }" />
+  <view class="loading-box">
+    <view class="loading-box-one" :class="{ paused }" />
+    <view class="loading-box-two" :class="{ paused }" />
+    <view class="loading-box-three" :class="{ paused }" />
+    <view class="loading-box-one" :class="{ paused }" />
   </view>
 </template>
 
 <style lang="scss" scoped>
-.histogram-box {
+.loading-box {
   display: flex;
   justify-content: space-between;
   width: 40rpx;

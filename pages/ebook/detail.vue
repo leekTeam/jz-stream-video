@@ -2,7 +2,7 @@
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { useThemeStore } from '@/store'
-import { DownloadEbook } from '@/utils/testDownload'
+import { DownloadEbook } from '@/utils/download'
 import ReadBox from '@/components/ebook/read-box.vue'
 
 const themeStore = useThemeStore()

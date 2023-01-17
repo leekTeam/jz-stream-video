@@ -77,7 +77,7 @@ export default {
     },
     getOnePageContents(index = 0, inverted = false) {
       const { clientHeight, clientWidth } = this
-      const { fontSize, lineHeight, textContent } = this.viewProps
+      const { fontSize, lineHeight, textContent, paddingX, paddingY } = this.viewProps
 
       const ctx = this.canvesContent
       ctx.font = `${fontSize}px`
@@ -88,9 +88,9 @@ export default {
       let start = index
       const end = inverted ? 0 : textContent.length
       while (inverted ? start > end : start <= end) {
-        if (((contents.length + 1) * lineHeight < clientHeight)) {
+        if (((contents.length + 1) * lineHeight < (clientHeight - paddingY))) {
           const text = textContent[start]
-          if (currentWidth + fontSize < clientWidth && text !== '\n' && start !== end) {
+          if ((currentWidth + fontSize) < (clientWidth - paddingX) && text !== '\n' && start !== end) {
             currentWidth += ctx.measureText(text).width
             currentText = inverted
               ? `${text}${currentText}`

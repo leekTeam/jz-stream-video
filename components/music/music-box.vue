@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
-import Histogram from '../histogram/index.vue'
+import Loading from '../Loading/index.vue'
 import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
 import { DownloadMusic } from '@/utils/download'
@@ -100,9 +100,9 @@ onUnmounted(() => {
       </view>
     </view>
     <view class="music-box-icon">
-      <Histogram
+      <Loading
         v-if="activeMusicInfo.rid === rid"
-        class="music-box-icon-histogram"
+        class="music-box-icon-Loading"
         :paused="activeMusicInfo.paused"
       />
       <view v-if="showDownload" @click.stop="downloadMusic">
@@ -165,7 +165,7 @@ onUnmounted(() => {
 
   &-icon {
     display: flex;
-    &-histogram {
+    &-Loading {
       margin-right: 10rpx;
     }
   }

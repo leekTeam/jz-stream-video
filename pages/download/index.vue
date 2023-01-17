@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { onLoad, onNavigationBarButtonTap, onUnload } from '@dcloudio/uni-app'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useThemeStore } from '@/store'
 import { bytesUnitFormat } from '@/utils'
-import { Download, DownloadEbook, DownloadMovie, DownloadMusic, DownloadSound } from '@/utils/download'
+import type { DownloadEbook, DownloadMovie, DownloadMusic, DownloadSound } from '@/utils/download'
+import { getDownloadingList } from '@/utils/download'
 import { DOWNLOAD_STATUS, DOWNLOAD_STATUS_TEXT } from '@/constant/download'
-import { EBOOK_DOWNLOAD_KEY, MOVIE_DOWNLOAD_KEY, MUSIC_DOWNLOAD_KEY, SOUND_DOWNLOAD_KEY } from '@/constant/storage'
 
 const themeStore = useThemeStore()
 
@@ -13,112 +13,115 @@ interface DownloadItem {
   rid: string
   name: string
   totalSize: number
-  currentSize: number
-  status: DOWNLOAD_STATUS
 }
-const downloadTasks = ref<PlusDownloaderDownload[]>([])
 
-const getStatusText = (status: DOWNLOAD_STATUS) => {
+interface ProgressMap {
+  [rid: string]: {
+    download: DownloadEbook | DownloadMovie | DownloadMusic | DownloadSound
+    onProgress: (currentSize: number) => void
+    currentSize: number
+    status: DOWNLOAD_STATUS
+  }
+}
+
+const downloadList = ref<DownloadItem[]>([])
+const downloadProgressMap = ref<ProgressMap>({})
+
+const getStatus = (rid: string) => {
+  return downloadProgressMap.value[rid].status
+}
+
+const getStatusText = (rid: string) => {
+  const status = getStatus(rid)
   return DOWNLOAD_STATUS_TEXT[status]
 }
 
-const updateDownloadProgress = (currentSize: number) => {
-  console.log('inde')
-
-  // const index = downloadTaskIndexMap.value[task.rid]
-  // downloadTasks.value[index].currentSize = size
-  // downloadTasks.value[index].totalSize = task.totalSize
+const getCurrentSize = (rid: string) => {
+  return downloadProgressMap.value[rid].currentSize || 0
 }
 
-const downloadKeyMap = {
-  EBOOK_DOWNLOAD_KEY: {
-    getTask: DownloadEbook.getEbookTask,
-  },
-  MOVIE_DOWNLOAD_KEY: {
-    getTask: DownloadMovie.getMovieTask,
-  },
-  MUSIC_DOWNLOAD_KEY: {
-    getTask: DownloadMusic.getMusicTask,
-  },
-  SOUND_DOWNLOAD_KEY: {
-    getTask: DownloadSound.getSoundTask,
-  },
-
+const getPercent = (item: DownloadItem) => {
+  return Number((getCurrentSize(item.rid) / item.totalSize).toFixed(2)) * 100
 }
-const getDownloadDataMap = () => {
-  return Object.keys(downloadKeyMap).reduce((obj, downloadKey) => {
-    const downloadList = uni.getStorageSync(downloadKey) || []
-    downloadList.forEach((item) => {
-      const { downloadId } = item
-      obj[downloadId] = {
-        ...item,
-        type: downloadKey,
+
+const onPause = (item: DownloadItem) => {
+  const row = downloadProgressMap.value[item.rid]
+  if (row.status === DOWNLOAD_STATUS.PAUSE)
+    row.download.task.resume()
+
+  else
+    row.download.task.pause()
+}
+
+const onDeleteTask = (item: DownloadItem, index: number) => {
+  const { rid } = item
+  const { download, onProgress } = downloadProgressMap.value[rid]
+  download.off(DOWNLOAD_STATUS.PROGRESS, onProgress)
+  download.destory()
+  downloadList.value.splice(
+    index,
+    1,
+  )
+  delete downloadProgressMap.value[rid]
+}
+
+const updateDownloadProgress = (rid: string) => (currentSize: number) => {
+  downloadProgressMap.value[rid].currentSize = currentSize
+}
+
+const getDownloadList = () => {
+  uni.showLoading({ title: '加载中', mask: true })
+  getDownloadingList().then((res) => {
+    const downloadMap: ProgressMap = {}
+    const result: DownloadItem[] = []
+    res.forEach((item) => {
+      const { name, rid, totalSize, currentSize, status, download } = item
+
+      result.push({
+        name,
+        rid,
+        totalSize,
+      })
+
+      const onProgress = updateDownloadProgress(rid)
+      downloadMap[rid] = {
+        download,
+        onProgress,
+        currentSize,
+        status,
       }
+      download.on(DOWNLOAD_STATUS.PROGRESS, onProgress)
     })
-    return obj
-  }, {})
-}
-const downloadDataMap = ref()
-const getDownloadTaskList = (res) => {
-  return res.map((item) => {
-    const { id } = item
-    return {
-      ...downloadDataMap.value[id],
-      ...item,
-    }
-  })
-}
-const getDownloadTasks = () => {
-  Download.getDownloadTasks().then((res) => {
-    downloadDataMap.value = getDownloadDataMap()
-    downloadTasks.value = getDownloadTaskList(res)
-
-    downloadTasks.value.forEach((item) => {
-      const { type, rid } = item
-      downloadKeyMap[type].getTask(rid).on(DOWNLOAD_STATUS.PROGRESS, updateDownloadProgress)
-    })
+    downloadProgressMap.value = downloadMap
+    downloadList.value = result
+  }).finally(() => {
+    uni.hideLoading()
   })
 }
 
 onLoad(() => {
-  getDownloadTasks()
+  getDownloadList()
 })
-
-onUnload(() => {
-  downloadTasks.value.forEach((item) => {
-    const { type, rid } = item
-    downloadKeyMap[type].getTask.off(DOWNLOAD_STATUS.PROGRESS, updateDownloadProgress)
-  })
-})
-
-const onPause = (item: DownloadItem) => {
-  const { type, rid } = item
-  const task = downloadKeyMap[type].getTask(rid)
-  if (task.status === DOWNLOAD_STATUS.WAIT)
-    task.resume()
-  else
-    task.pause()
-}
 
 onNavigationBarButtonTap((options) => {
-  if (options.index === 0 && downloadTasks.value.length) {
-    downloadTasks.value.forEach((item) => {
-      const { type, rid } = item
-      downloadKeyMap[type].getTask(rid)!.pause()
+  if (options.index === 0) {
+    downloadList.value.forEach((item) => {
+      const row = downloadProgressMap.value[item.rid]
+      const { download } = row
+      download.task.pause()
     })
   }
 })
 
-const onDeleteTask = (item: DownloadItem, index: number) => {
-  const { type, rid } = item
-  const task = downloadKeyMap[type].getTask(item.rid)!
-  task.off(DOWNLOAD_STATUS.PROGRESS, updateDownloadProgress)
-  task.destory()
-  downloadTasks.value.splice(
-    index,
-    1,
-  )
-}
+onUnload(() => {
+  downloadList.value.forEach((item) => {
+    const row = downloadProgressMap.value[item.rid]
+    if (row) {
+      const { download, onProgress } = row
+      download.off(DOWNLOAD_STATUS.PROGRESS, onProgress)
+    }
+  })
+})
 </script>
 
 <template>
@@ -128,7 +131,7 @@ const onDeleteTask = (item: DownloadItem, index: number) => {
     />
   </page-meta>
   <view :style="themeStore.themeStyles" class="page-container">
-    <view v-for="(item, index) in downloadTasks" :key="item.rid" class="download-task">
+    <view v-for="(item, index) in downloadList" :key="item.rid" class="download-task">
       <view class="download-task-container">
         <view class="download-task-name">
           {{ item.name }}
@@ -136,18 +139,18 @@ const onDeleteTask = (item: DownloadItem, index: number) => {
         <u-line-progress
           :height="20"
           :active-color="themeStore.primaryColor"
-          :percent="(item.currentSize / item.totalSize) * 100"
+          :percent="getPercent(item)"
           striped
           striped-active
         />
         <view class="download-task-info">
-          <view>{{ bytesUnitFormat(item.currentSize) }}</view>
-          <view>{{ getStatusText(item.status) }}</view>
+          <view>{{ bytesUnitFormat(getCurrentSize(item.rid)) }}</view>
+          <view>{{ getStatusText(item.rid) }}</view>
           <view>{{ bytesUnitFormat(item.totalSize) }}</view>
         </view>
       </view>
       <u-icon
-        :name="item.status === DOWNLOAD_STATUS.PAUSE ? 'pause' : 'play-right'" :size="48"
+        :name="getStatus(item.rid) === DOWNLOAD_STATUS.PAUSE ? 'pause' : 'play-right'" :size="48"
         @click="onPause(item)"
       />
       <u-icon name="close-circle-fill" :size="48" @click="onDeleteTask(item, index)" />

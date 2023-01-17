@@ -8,7 +8,7 @@ import { WECHAT_ACCESS_TOKEN, WECHAT_OPENID, WECHAT_USERINFO } from '@/constant/
 
 const userInfo = shallowRef<TWechatUserInfo>({} as TWechatUserInfo)
 
-const showSex = computed(() => !userInfo.value.sex)
+const showSex = computed(() => !!userInfo.value.sex)
 
 const sexIcon = computed(() => userInfo.value.sex === 1 ? 'man' : 'woman')
 

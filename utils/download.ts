@@ -1,8 +1,8 @@
 import EventEmitter2 from 'eventemitter2'
-import { noop } from 'lodash-es'
-// import { replaceUrlHost } from '.'
+import { keyBy, noop } from 'lodash-es'
 import { DOWNLOAD_STATUS } from '@/constant/download'
 import { EBOOK_DOWNLOAD_KEY, MOVIE_DOWNLOAD_KEY, MUSIC_DOWNLOAD_KEY, SOUND_DOWNLOAD_KEY } from '@/constant/storage'
+import { replaceUrlHost } from '@/utils'
 
 export class Download extends EventEmitter2 {
   public static tasks: PlusDownloaderDownload[] = []
@@ -12,7 +12,7 @@ export class Download extends EventEmitter2 {
   constructor(url: string, updateStorageInfo: () => void = noop, downloadTask?: PlusDownloaderDownload) {
     super()
     this.updateStorageInfo = updateStorageInfo
-    this.task = downloadTask || plus.downloader.createDownload((url))
+    this.task = downloadTask || plus.downloader.createDownload(replaceUrlHost(url))
 
     this.task.addEventListener('statechanged', (download, status) => {
       switch (download.state) {
@@ -85,6 +85,7 @@ export class Download extends EventEmitter2 {
 }
 
 export class DownloadMusic extends Download {
+  private static instanceMap: { [rid: string]: DownloadMusic } = {}
   public static storageList: TMusicDownloadStorage[] = uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []
   private options: TMusicDownloadStorage
   constructor(options: Omit<TMusicDownloadStorage, 'status' | 'downloadId' | 'currentSize' | 'fileName'>, task?: PlusDownloaderDownload) {
@@ -102,12 +103,11 @@ export class DownloadMusic extends Download {
       }
       else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
         storage.currentSize = this.task.downloadedSize || 0
-        storage.downloadId = this.task.id || ''
       }
 
       this.updateStorage(storageList)
     }, task)
-
+    DownloadMusic.instanceMap[options.rid] = this
     this.options = options as TMusicDownloadStorage
     if (!task)
       this.setStorage()
@@ -116,7 +116,7 @@ export class DownloadMusic extends Download {
   }
 
   private setStorage() {
-    DownloadMusic.storageList.push(this.options)
+    DownloadMusic.storageList.push({ ...this.options, downloadId: this.task.id! })
     this.updateStorage(DownloadMusic.storageList)
   }
 
@@ -130,16 +130,22 @@ export class DownloadMusic extends Download {
   }
 
   public static getMusicTask(rid: string) {
-    const storageInfo = DownloadMusic.getStorageInfo(rid)
-    if (storageInfo) {
-      const task = Download.getDownloadTask(storageInfo.downloadId)
-      if (task)
-        return new DownloadMusic(storageInfo, task)
+    if (!DownloadMusic.instanceMap[rid]) {
+      const storageInfo = DownloadMusic.getStorageInfo(rid)
+      if (storageInfo) {
+        const task = Download.getDownloadTask(storageInfo.downloadId)
+        if (task)
+          // eslint-disable-next-line no-new
+          new DownloadMusic(storageInfo, task)
+      }
     }
+
+    return DownloadMusic.instanceMap[rid]
   }
 }
 
 export class DownloadEbook extends Download {
+  private static instanceMap: { [rid: string]: DownloadEbook } = {}
   public static storageList: TEbookDownloadStorage[] = uni.getStorageSync(EBOOK_DOWNLOAD_KEY) || []
   private options: TEbookDownloadStorage
   constructor(options: Omit<TEbookDownloadStorage, 'status' | 'downloadId' | 'currentSize' | 'fileName'>, task?: PlusDownloaderDownload) {
@@ -158,10 +164,10 @@ export class DownloadEbook extends Download {
       }
       else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
         storage.currentSize = this.task.downloadedSize || 0
-        storage.downloadId = this.task.id || ''
       }
       this.updateStorage(storageList)
     }, task)
+    DownloadEbook.instanceMap[options.rid] = this
     this.options = options as TEbookDownloadStorage
     if (!task)
       this.setStorage()
@@ -170,7 +176,7 @@ export class DownloadEbook extends Download {
   }
 
   private setStorage() {
-    DownloadEbook.storageList.push(this.options)
+    DownloadEbook.storageList.push({ ...this.options, downloadId: this.task.id! })
     this.updateStorage(DownloadEbook.storageList)
   }
 
@@ -184,17 +190,21 @@ export class DownloadEbook extends Download {
   }
 
   public static getEbookTask(rid: string) {
-    const storageInfo = DownloadEbook.getStorageInfo(rid)
-    if (storageInfo) {
-      const task = Download.getDownloadTask(storageInfo.downloadId)
-      if (task)
-
-        return new DownloadEbook(storageInfo, task)
+    if (!DownloadEbook.instanceMap[rid]) {
+      const storageInfo = DownloadEbook.getStorageInfo(rid)
+      if (storageInfo) {
+        const task = Download.getDownloadTask(storageInfo.downloadId)
+        if (task)
+          // eslint-disable-next-line no-new
+          new DownloadEbook(storageInfo, task)
+      }
     }
+    return DownloadEbook.instanceMap[rid]
   }
 }
 
 export class DownloadMovie extends Download {
+  private static instanceMap: { [rid: string]: DownloadMovie } = {}
   public static storageList: TMovieDownloadStorage[] = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
   private options: TMovieDownloadStorage
   constructor(options: Omit<TMovieDownloadStorage, 'status' | 'downloadId' | 'fileName' | 'episodesList' | 'currentSize'>, task?: PlusDownloaderDownload) {
@@ -232,6 +242,8 @@ export class DownloadMovie extends Download {
 
       this.updateStorage(storageList)
     }, task)
+
+    DownloadMovie.instanceMap[options.rid] = this
     this.options = options as TMovieDownloadStorage
     if (!task)
       this.setStorage()
@@ -294,16 +306,22 @@ export class DownloadMovie extends Download {
   }
 
   public static getMovieTask(rid: string) {
-    const storageInfo = DownloadMovie.getStorageInfo(rid)
-    if (storageInfo) {
-      const task = Download.getDownloadTask(storageInfo.downloadId)
-      if (task)
-        return new DownloadMovie(storageInfo, task)
+    if (!DownloadMovie.instanceMap[rid]) {
+      const storageInfo = DownloadMovie.getStorageInfo(rid)
+      if (storageInfo) {
+        const task = Download.getDownloadTask(storageInfo.downloadId)
+        if (task)
+          // eslint-disable-next-line no-new
+          new DownloadMovie(storageInfo, task)
+      }
     }
+
+    return DownloadMovie.instanceMap[rid]
   }
 }
 
 export class DownloadSound extends Download {
+  private static instanceMap: { [rid: string]: DownloadSound } = {}
   public static storageList: TSoundDownloadStorage[] = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
   private options: TSoundDownloadStorage
   constructor(options: Omit<TSoundDownloadStorage, 'status' | 'downloadId' | 'fileName' | 'episodesList' | 'currentSize'>, task?: PlusDownloaderDownload) {
@@ -341,6 +359,8 @@ export class DownloadSound extends Download {
 
       this.updateStorage(storageList)
     }, task)
+
+    DownloadSound.instanceMap[options.rid] = this
     this.options = options as TSoundDownloadStorage
 
     if (!task)
@@ -404,12 +424,46 @@ export class DownloadSound extends Download {
   }
 
   public static getSoundTask(rid: string) {
-    const storageInfo = DownloadSound.getStorageInfo(rid)
-    if (storageInfo) {
-      const task = Download.getDownloadTask(storageInfo.downloadId)
-      if (task)
-
-        return new DownloadSound(storageInfo, task)
+    if (!DownloadSound.instanceMap[rid]) {
+      const storageInfo = DownloadSound.getStorageInfo(rid)
+      if (storageInfo) {
+        const task = Download.getDownloadTask(storageInfo.downloadId)
+        if (task)
+          // eslint-disable-next-line no-new
+          new DownloadSound(storageInfo, task)
+      }
     }
+
+    return DownloadSound.instanceMap[rid]
   }
+}
+
+function getStorageList<T extends Record<string, any>, K extends keyof T>(download: T, getTaskField: K) {
+  return {
+    storageMap: keyBy<T['storageList'][0]>(download.storageList, 'downloadId'),
+    getTask: download[getTaskField],
+  }
+}
+
+export const getDownloadingList = async () => {
+  const res = await Download.getDownloadTasks()
+  const storageMapList = [getStorageList(DownloadEbook, 'getEbookTask'), getStorageList(DownloadMovie, 'getMovieTask'), getStorageList(DownloadMusic, 'getMusicTask'), getStorageList(DownloadSound, 'getSoundTask')]
+  console.log(storageMapList)
+  console.log(res)
+  return res.reduce((list, item) => {
+    const storag = storageMapList.find(storageItem => !!storageItem.storageMap[item.id!])
+    if (storag) {
+      const { name, currentSize, rid, totalSize, status } = storag.storageMap[item.id!]
+      list.push({
+        status,
+        name,
+        rid,
+        totalSize,
+        currentSize,
+        download: storag.getTask(rid),
+      })
+    }
+
+    return list
+  }, [] as { name: string; rid: string; totalSize: number;status: DOWNLOAD_STATUS; currentSize: number; download: DownloadEbook | DownloadMovie | DownloadMusic | DownloadSound }[])
 }

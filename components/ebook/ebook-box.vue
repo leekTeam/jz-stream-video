@@ -69,26 +69,22 @@ const downloadEbook = async () => {
 }
 
 const goDetail = () => {
-  const { rid } = props
-  uni.navigateTo({
-    url: `/pages/ebook/detail?rid=${rid}`,
-  })
-  // if (percentage.value === 100) {
-  //   const { rid } = props
-  //   uni.navigateTo({
-  //     url: `/pages/ebook/detail?rid=${rid}`,
-  //   })
-  // }
-  // else if (percentage.value === 0) {
-  //   downloadEbook()
-  // }
+  if (percentage.value === 100) {
+    const { rid } = props
+    uni.navigateTo({
+      url: `/pages/ebook/detail?rid=${rid}`,
+    })
+  }
+  else if (percentage.value === 0) {
+    downloadEbook()
+  }
 }
 
 onMounted(() => {
   const storageInfo = DownloadEbook.getStorageInfo(props.rid)
   if (storageInfo) {
     percentage.value = ((storageInfo.currentSize || 0) / (storageInfo.totalSize || 0)) * 100
-    const download = DownloadEbook.geEbookTask(props.rid)
+    const download = DownloadEbook.getEbookTask(props.rid)
     if (percentage.value !== 100 && download) {
       downloadTask.value = download
       downloadTask.value.on('progress', onProgress)

@@ -1,6 +1,6 @@
 <script lang="ts">
-import { computed, nextTick, ref } from 'vue'
-
+import { PropType, computed, nextTick, ref } from 'vue'
+import Loading from '../Loading/index.vue'
 interface TDataContent {
   id: number
   text: string
@@ -16,6 +16,9 @@ interface TData {
 }
 
 export default {
+  components: {
+    Loading,
+  },
   props: {
     // 字体大小 px
     fontSize: {
@@ -37,25 +40,37 @@ export default {
       type: Number,
       default: 40,
     },
+    paddingX: {
+      type: Number,
+      default: 12,
+    },
+    paddingY: {
+      type: Number,
+      default: 12,
+    },
   },
   emit: ['change'],
   setup(props) {
     const startReadIndex = ref(0)
     const textContent = ref('')
+    const isLoading = ref(true)
     const initViews = (data: { start: number; content: string }) => {
+      isLoading.value = true
       const { content, start } = data
       startReadIndex.value = start
       textContent.value = content
     }
 
     const componentProps = computed(() => {
-      const { fontSize, lineHeight, touchWidth } = props
+      const { fontSize, lineHeight, touchWidth, paddingX, paddingY } = props
       return {
         startReadIndex: startReadIndex.value,
         textContent: textContent.value,
         fontSize,
         lineHeight,
         touchWidth,
+        paddingX,
+        paddingY,
       }
     })
 
@@ -64,6 +79,7 @@ export default {
     const isStart = ref(false)
 
     const setListData = (val: TData[]) => {
+      isLoading.value = false
       list.value = val
       nextTick(() => {
         updated.value = true
@@ -106,10 +122,16 @@ export default {
       <view
         v-for="textItem in item.contents"
         :key="textItem.id"
-        :style="{ 'height': `${lineHeight}px`, 'line-height': `${lineHeight}px` }"
+        :style="{ 'height': `${lineHeight}px`, 'line-height': `${lineHeight}px`, 'padding': `${paddingX}px ${paddingY}px` }"
         class="read-box-text"
       >
         {{ textItem.text }}
+      </view>
+    </view>
+    <view v-if="!list.length" class="read-box-loading">
+      <Loading />
+      <view class="read-box-loading-text">
+        正在加载内容
       </view>
     </view>
     <view
@@ -135,6 +157,10 @@ export default {
   height: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   &-content {
     position: absolute;
     top: 0;
@@ -176,6 +202,17 @@ export default {
     bottom: 0;
     right: 0;
     z-index: 10;
+  }
+
+  &-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &-text {
+      margin-top: 24rpx;
+    }
   }
 }
 </style>
