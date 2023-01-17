@@ -15,11 +15,15 @@ const getListData = () => {
   })
 }
 const listData = ref(getListData())
+
+const refreshList = () => {
+  listData.value = getListData()
+}
 </script>
 
 <template>
   <view class="music-list">
-    <MusicList :data="listData" closable @close="getListData" />
+    <MusicList :data="listData" closable @close="refreshList" />
   </view>
 </template>
 
