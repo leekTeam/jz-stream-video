@@ -14,7 +14,7 @@ const soundInfo = ref({
   poster: '',
   summary: '',
   label: '',
-  years: '',
+  years: 0,
   tolnum: 0,
   closable: false,
 })
@@ -54,6 +54,7 @@ const togglePlay = () => {
 const downloadTask = shallowRef<DownloadSound>()
 const judgeDownloadTask = (rid: string) => {
   const storageInfo = DownloadSound.getStorageInfo(rid)
+
   if (storageInfo?.episodesList.length) {
     const episodesStorageInfo = storageInfo?.episodesList.find(item => item.id === activeMediaInfo.value.id)
     percentage.value = ((episodesStorageInfo?.currentSize || 0) / (activeMediaInfo.value.size || 0)) * 100
@@ -138,6 +139,7 @@ const coverDownloadTask = shallowRef<Download>()
 const handleDownload = () => {
   uni.showLoading({ title: '加载中', mask: true })
   const { poster, rid, closable, ...args } = soundInfo.value
+
   coverDownloadTask.value = new Download(poster)
   coverDownloadTask.value.on('success', () => {
     downloadTask.value = new DownloadSound({
@@ -145,7 +147,7 @@ const handleDownload = () => {
       rid,
       coverOriginUrl: poster,
       originUrl: activeMediaInfo.value.downloadurl,
-      coverUrl: coverDownloadTask.value!.task.filename!,
+      coverUrl: coverDownloadTask.value!.getFilenameUrl(),
       totalSize: activeMediaInfo.value.size,
       currentNum: currentNum.value,
       episodesId: activeMediaInfo.value.id,
@@ -176,14 +178,10 @@ onReady(() => {
     const soundDownloadList = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
     const index = soundDownloadList.findIndex((item) => {
       const { episodesList } = item
-      return episodesList.some(episodesItem => episodesItem.id === activeMediaInfo.value.id)
+      return episodesList.some(episodesItem => episodesItem.rid === soundInfo.value.rid)
     })
-    let episodesIndex = 0
     soundMediaList.value = soundDownloadList[index].episodesList.reduce((list, episodesItem, index) => {
       const { fileName: playurl, ...args } = episodesItem
-      if (episodesItem.id === activeMediaInfo.value.id)
-        episodesIndex = index
-
       list.push({
         ...args,
         poster: soundDownloadList[index].coverUrl,
@@ -191,7 +189,7 @@ onReady(() => {
       })
       return list
     }, [])
-    activeId.value = soundDownloadList[index].episodesList[episodesIndex].id
+    activeId.value = soundDownloadList[index].episodesList[0].id
     createAudio()
   }
 })

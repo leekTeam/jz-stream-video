@@ -128,6 +128,7 @@ const hanldeClick = () => {
       font-weight: 700;
     }
     &-summary {
+      @include text-multi-ellipsis(3);
       color: $uni-text-color-placeholder;
     }
   }

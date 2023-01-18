@@ -43,6 +43,11 @@ const clearStorage = () => {
         storageTotal.value = bytesUnitFormat(0)
 
         uni.$emit(CLEAR_STORAGE)
+        uni.hideLoading()
+        uni.showToast({
+          title: '清除缓存成功',
+          icon: 'success',
+        })
       })
     },
     fail() {

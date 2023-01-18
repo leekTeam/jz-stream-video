@@ -31,8 +31,13 @@ onReady(() => {
 
 const onSubmit = () => {
   formRef.value.validate((valid: boolean) => {
-    if (valid)
+    if (valid) {
       uni.setStorageSync(BASE_URL_KEY, formData.value.baseUrl)
+      uni.showToast({
+        title: '保存成功',
+        icon: 'success',
+      })
+    }
   })
 }
 </script>

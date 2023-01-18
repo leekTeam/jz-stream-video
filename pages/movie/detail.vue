@@ -14,7 +14,7 @@ const movieInfo = ref({
   rid: '',
   label: '',
   country: '',
-  years: '',
+  years: 0,
   score: '',
   tolnum: 1,
   summary: '',
@@ -25,12 +25,13 @@ const movieInfo = ref({
 const movieMediaList = shallowRef<TMovieMedia[]>([])
 const activeId = ref<TMovieMedia['id']>()
 const currentNum = ref(0)
-const percentage = ref(20)
+const percentage = ref(0)
 
 const activeMediaInfo = computed(() => movieMediaList.value.find(item => item.id === activeId.value) || {} as TMovieMedia)
 const downloadTask = shallowRef<DownloadMovie>()
 const judgeDownloadTask = (rid: string) => {
   const storageInfo = DownloadMovie.getStorageInfo(rid)
+
   if (storageInfo?.episodesList.length) {
     const episodesStorageInfo = storageInfo?.episodesList.find(item => item.id === activeMediaInfo.value.id)
     percentage.value = ((episodesStorageInfo?.currentSize || 0) / (activeMediaInfo.value.size || 0)) * 100
@@ -89,7 +90,7 @@ const handleDownload = () => {
       rid,
       coverOriginUrl: poster,
       originUrl: activeMediaInfo.value.downloadurl,
-      coverUrl: coverDownloadTask.value!.task.filename!,
+      coverUrl: coverDownloadTask.value!.getFilenameUrl(),
       totalSize: activeMediaInfo.value.size,
       currentNum: currentNum.value,
       episodesId: activeMediaInfo.value.id,
@@ -119,14 +120,10 @@ onReady(() => {
     const movieDownloadList = uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || []
     const index = movieDownloadList.findIndex((item) => {
       const { episodesList } = item
-      return episodesList.some(episodesItem => episodesItem.id === activeMediaInfo.value.id)
+      return episodesList.some(episodesItem => episodesItem.rid === movieInfo.value.rid)
     })
-    let episodesIndex = 0
     movieMediaList.value = movieDownloadList[index].episodesList.reduce((list, episodesItem, index) => {
       const { fileName: playurl, ...args } = episodesItem
-      if (episodesItem.id === activeMediaInfo.value.id)
-        episodesIndex = index
-
       list.push({
         ...args,
         poster: movieDownloadList[index].coverUrl,
@@ -134,7 +131,7 @@ onReady(() => {
       })
       return list
     }, [])
-    activeId.value = movieDownloadList[index].episodesList[episodesIndex].id
+    activeId.value = movieDownloadList[index].episodesList[0].id
   }
 })
 

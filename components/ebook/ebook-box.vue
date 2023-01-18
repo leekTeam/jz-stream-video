@@ -164,6 +164,7 @@ onUnmounted(() => {
   display: inline-block;
   width: calc(100% / 3);
   padding: 0 10rpx;
+  vertical-align: top;
 
   &-cover {
     position: relative;

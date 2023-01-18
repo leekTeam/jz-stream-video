@@ -5,14 +5,20 @@ import { DownloadMovie } from '@/utils/download'
 import { DOWNLOAD_STATUS } from '@/constant/download'
 
 const getListData = () => {
-  return DownloadMovie.storageList.filter(item => item.status === DOWNLOAD_STATUS.SUCCESS).map((item) => {
-    const { coverUrl: poster, fileName: playurl, ...args } = item
-    return {
-      poster,
-      playurl,
-      ...args,
-    }
-  })
+  return DownloadMovie.storageList.reduce((list, item) => {
+    const { episodesList, coverUrl: poster, ...args } = item
+
+    episodesList.forEach((episodesItem) => {
+      const { status } = episodesItem
+      if (status === DOWNLOAD_STATUS.SUCCESS) {
+        list.push({
+          ...args,
+          poster,
+        })
+      }
+    })
+    return list
+  }, [])
 }
 
 const listData = ref(getListData())
