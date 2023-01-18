@@ -1,23 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MovieList from '@/components/movie/movie-list.vue'
-import { MOVIE_DOWNLOAD_KEY } from '@/constant/storage'
+import { DownloadMovie } from '@/utils/download'
+import { DOWNLOAD_STATUS } from '@/constant/download'
 
-const movieDownloadList = ref(uni.getStorageSync(MOVIE_DOWNLOAD_KEY) || [])
-const listData = movieDownloadList.value.reduce((list, item) => {
-  const { coverUrl: poster, fileName: playurl, ...args } = item
-  list.push({
-    ...args,
-    poster,
-    playurl,
+const getListData = () => {
+  return DownloadMovie.storageList.filter(item => item.status === DOWNLOAD_STATUS.SUCCESS).map((item) => {
+    const { coverUrl: poster, fileName: playurl, ...args } = item
+    return {
+      poster,
+      playurl,
+      ...args,
+    }
   })
-  return list
-}, [])
+}
+
+const listData = ref(getListData())
+
+const refreshList = () => {
+  listData.value = getListData()
+}
 </script>
 
 <template>
   <view class="movie-list">
-    <MovieList :data="listData" :is-online="false" />
+    <MovieList :data="listData" closable @close="refreshList" />
   </view>
 </template>
 

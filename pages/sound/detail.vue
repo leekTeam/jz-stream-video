@@ -16,7 +16,7 @@ const soundInfo = ref({
   label: '',
   years: '',
   tolnum: 0,
-  isOnline: true,
+  closable: false,
 })
 const innerAudioContext = shallowRef<UniApp.InnerAudioContext>()
 const soundMediaList = shallowRef<TSoundMedia[]>([])
@@ -137,7 +137,7 @@ const onProgress = (currentSize: number) => {
 const coverDownloadTask = shallowRef<Download>()
 const handleDownload = () => {
   uni.showLoading({ title: '加载中', mask: true })
-  const { poster, rid, isOnline, ...args } = soundInfo.value
+  const { poster, rid, closable, ...args } = soundInfo.value
   coverDownloadTask.value = new Download(poster)
   coverDownloadTask.value.on('success', () => {
     downloadTask.value = new DownloadSound({
@@ -169,7 +169,7 @@ const handleDownload = () => {
 }
 
 onReady(() => {
-  if (soundInfo.value.isOnline) {
+  if (!soundInfo.value.closable) {
     getMediaData()
   }
   else {

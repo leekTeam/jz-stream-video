@@ -101,7 +101,7 @@ declare global {
     rid: string
     name: string
     label: string
-    years: number | string
+    years: number
     summary: string
     tolnum: number
     originUrl: string

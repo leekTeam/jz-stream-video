@@ -1,9 +1,23 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import MovieBox from './movie-box.vue'
+
+interface TData {
+  rid: string
+  poster: string
+  name: string
+  summary: string
+  label: string
+  years: number
+  country: string
+  tolnum: number
+  score: string
+  [key: string]: any
+}
+
 defineProps({
   data: {
-    type: Array as PropType<TMovie[]>,
+    type: Array as PropType<TData[]>,
     default: () => [],
   },
 })

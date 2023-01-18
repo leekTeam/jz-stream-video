@@ -82,6 +82,20 @@ export class Download extends EventEmitter2 {
   public getFilenameUrl() {
     return `file://${plus.io.convertLocalFileSystemURL(this.task.filename!)}`
   }
+
+  public static removeFile(fileName: string) {
+    return new Promise<void>((resolve, reject) => {
+      plus.io.requestFileSystem(plus.io.PUBLIC_DOWNLOADS, (fs) => {
+        fs.root!.getFile(fileName, { create: false }, (entry) => {
+          entry.remove(() => {
+            resolve()
+          }, (err) => {
+            reject(err)
+          })
+        })
+      })
+    })
+  }
 }
 
 export class DownloadMusic extends Download {
@@ -120,6 +134,24 @@ export class DownloadMusic extends Download {
 
   public static set storageList(list: TMusicDownloadStorage[]) {
     uni.setStorageSync(MUSIC_DOWNLOAD_KEY, list)
+  }
+
+  public static async clearStorage(rid?: string) {
+    const storageList = DownloadMusic.storageList
+    if (rid) {
+      const index = storageList.findIndex(item => item.rid === rid)
+      const storage = storageList[index]
+      await Download.removeFile(storage.fileName)
+      storageList.splice(index, 1)
+    }
+    else {
+      for (const item of storageList)
+        await Download.removeFile(item.fileName)
+
+      storageList.length = 0
+    }
+
+    DownloadMusic.storageList = storageList
   }
 
   private setStorage() {
@@ -182,6 +214,25 @@ export class DownloadEbook extends Download {
 
   public static set storageList(list: TEbookDownloadStorage[]) {
     uni.setStorageSync(EBOOK_DOWNLOAD_KEY, list)
+  }
+
+  public static async clearStorage(rid?: string) {
+    const storageList = DownloadEbook.storageList
+
+    if (rid) {
+      const index = storageList.findIndex(item => item.rid === rid)
+      const storage = storageList[index]
+      await Download.removeFile(storage.fileName)
+      storageList.splice(index, 1)
+    }
+    else {
+      for (const item of storageList)
+        await Download.removeFile(item.fileName)
+
+      storageList.length = 0
+    }
+
+    DownloadEbook.storageList = storageList
   }
 
   private setStorage() {
@@ -259,6 +310,30 @@ export class DownloadMovie extends Download {
 
   public static set storageList(list: TMovieDownloadStorage[]) {
     uni.setStorageSync(MOVIE_DOWNLOAD_KEY, list)
+  }
+
+  public static async clearStorage(rid?: string) {
+    const storageList = DownloadMovie.storageList
+    if (rid) {
+      const index = storageList.findIndex(item => item.rid === rid)
+      const storage = storageList[index]
+      await Download.removeFile(storage.coverUrl)
+      for (const item of storage.episodesList)
+        await Download.removeFile(item.fileName)
+
+      storageList.splice(index, 1)
+    }
+    else {
+      for (const item of storageList) {
+        await Download.removeFile(item.coverUrl)
+        for (const episodesItem of item.episodesList)
+          await Download.removeFile(episodesItem.fileName)
+      }
+
+      storageList.length = 0
+    }
+
+    DownloadMovie.storageList = storageList
   }
 
   private setStorage() {
@@ -379,6 +454,28 @@ export class DownloadSound extends Download {
 
   public static set storageList(list: TSoundDownloadStorage[]) {
     uni.setStorageSync(SOUND_DOWNLOAD_KEY, list)
+  }
+
+  public static async clearStorage(rid?: string) {
+    const storageList = DownloadSound.storageList
+    if (rid) {
+      const index = storageList.findIndex(item => item.rid === rid)
+      const storage = storageList[index]
+      await Download.removeFile(storage.coverUrl)
+      for (const item of storage.episodesList)
+        await Download.removeFile(item.fileName)
+
+      storageList.splice(index, 1)
+    }
+    else {
+      for (const item of storageList) {
+        await Download.removeFile(item.coverUrl)
+        for (const episodesItem of item.episodesList)
+          await Download.removeFile(episodesItem.fileName)
+      }
+    }
+
+    DownloadSound.storageList = storageList
   }
 
   private setStorage() {

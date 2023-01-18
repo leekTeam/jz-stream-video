@@ -1,23 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SoundList from '@/components/sound/sound-list.vue'
-import { SOUND_DOWNLOAD_KEY } from '@/constant/storage'
+import { DownloadSound } from '@/utils/download'
+import { DOWNLOAD_STATUS } from '@/constant/download'
 
-const soundDownloadList = ref(uni.getStorageSync(SOUND_DOWNLOAD_KEY) || [])
-const listData = soundDownloadList.value.reduce((list, item) => {
-  const { coverUrl: poster, fileName: playurl, ...args } = item
-  list.push({
-    ...args,
-    poster,
-    playurl,
+const getListData = () => {
+  return DownloadSound.storageList.filter(item => item.status === DOWNLOAD_STATUS.SUCCESS).map((item) => {
+    const { coverUrl: poster, fileName: playurl, ...args } = item
+    return {
+      poster,
+      playurl,
+      ...args,
+    }
   })
-  return list
-}, [])
+}
+
+const listData = ref(getListData())
+
+const refreshList = () => {
+  listData.value = getListData()
+}
 </script>
 
 <template>
   <view class="sound-list-box">
-    <SoundList :data="listData" :is-online="false" />
+    <SoundList :data="listData" closable @close="refreshList" />
   </view>
 </template>
 

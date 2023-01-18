@@ -88,13 +88,11 @@ const goDetail = () => {
 }
 
 const onDelete = () => {
-  const storageList = DownloadEbook.storageList
-  const index = storageList.findIndex(item => item.rid === props.rid)
-  storageList.splice(index, 1)
-  DownloadEbook.storageList = storageList
-  nextTick(() => {
+  uni.showLoading({ title: '删除中', mask: true })
+  DownloadEbook.clearStorage(props.rid).finally(() => {
     emit('close')
     uni.$emit(CLEAR_STORAGE)
+    uni.hideLoading()
   })
 }
 

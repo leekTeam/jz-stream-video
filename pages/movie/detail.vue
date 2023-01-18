@@ -19,7 +19,7 @@ const movieInfo = ref({
   tolnum: 1,
   summary: '',
   poster: '',
-  isOnline: true,
+  closable: false,
 })
 
 const movieMediaList = shallowRef<TMovieMedia[]>([])
@@ -112,7 +112,7 @@ const handleDownload = () => {
 }
 
 onReady(() => {
-  if (movieInfo.value.isOnline) {
+  if (!movieInfo.value.closable) {
     getMediaData()
   }
   else {

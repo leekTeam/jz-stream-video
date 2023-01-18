@@ -45,13 +45,11 @@ const onProgress = async (currentSize: number) => {
 }
 
 const onDelete = () => {
-  const storageList = DownloadMusic.storageList
-  const index = storageList.findIndex(item => item.rid === props.rid)
-  storageList.splice(index, 1)
-  DownloadMusic.storageList = storageList
-  nextTick(() => {
+  uni.showLoading({ title: '删除中', mask: true })
+  DownloadMusic.clearStorage(props.rid).finally(() => {
     emit('close')
     uni.$emit(CLEAR_STORAGE)
+    uni.hideLoading()
   })
 }
 

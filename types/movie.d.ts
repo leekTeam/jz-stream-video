@@ -102,7 +102,7 @@ declare global {
     name: string
     score: string
     label: string
-    years: number | string
+    years: number
     country: string
     summary: string
     tolnum: number

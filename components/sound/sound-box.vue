@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { nextTick } from 'vue'
+import { CLEAR_STORAGE } from '@/constant/event'
 import { replaceUrlHost } from '@/utils'
+import { DownloadSound } from '@/utils/download'
 const props = defineProps({
   rid: {
     type: String,
@@ -22,18 +25,29 @@ const props = defineProps({
     default: '',
   },
   years: {
-    type: String,
-    default: '',
+    type: Number,
+    required: true,
   },
   tolnum: {
     type: Number,
     required: true,
   },
-  isOnline: {
+  closable: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 })
+
+const emit = defineEmits(['close'])
+
+const onDelete = () => {
+  uni.showLoading({ title: '删除中', mask: true })
+  DownloadSound.clearStorage(props.rid).finally(() => {
+    emit('close')
+    uni.$emit(CLEAR_STORAGE)
+    uni.hideLoading()
+  })
+}
 
 const hanldeClick = () => {
   uni.navigateTo({
@@ -52,6 +66,14 @@ const hanldeClick = () => {
       class="sound-box-poster"
       :src="replaceUrlHost(poster)"
     />
+    <view v-if="closable" class="sound-box-close" @click.stop="onDelete">
+      <u-icon
+        class="ebook-box-cover-down-icon"
+        color="#ffffff"
+        name="download"
+        size="40"
+      />
+    </view>
     <view class="sound-box-content">
       <view class="sound-box-top">
         <view class="sound-box-top-title">
@@ -78,6 +100,14 @@ const hanldeClick = () => {
   justify-content: space-between;
   border: 1px solid $uni-border-color;
   border-radius: 12rpx;
+  position: relative;
+
+  &-close {
+    position: absolute;
+    top: 24rpx;
+    right: 24rpx;
+    width: 40rpx;
+  }
 
   &-poster {
     margin-right: 24rpx;

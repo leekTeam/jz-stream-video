@@ -30,6 +30,11 @@ const clearStorage = () => {
           item.download.destory()
         })
 
+        DownloadEbook.clearStorage()
+        DownloadMovie.clearStorage()
+        DownloadMusic.clearStorage()
+        DownloadSound.clearStorage()
+
         storageInfo.keys.forEach((key) => {
           if (!LIMIT_CLEAR_KEYS.includes(key))
             uni.removeStorageSync(key)

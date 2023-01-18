@@ -1,9 +1,21 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import SoundBox from './sound-box.vue'
+
+interface TData {
+  rid: string
+  poster: string
+  name: string
+  summary: string
+  label: string
+  years: number
+  tolnum: number
+  [key: string]: any
+}
+
 defineProps({
   data: {
-    type: Array as PropType<TSound[]>,
+    type: Array as PropType<TData[]>,
     default: () => [],
   },
 })

@@ -9,7 +9,7 @@ import { useThemeStore } from '@/store'
 import { MEDIA_LIST } from '@/constant/media'
 const themeStore = useThemeStore()
 
-const currentIndex = ref(1)
+const currentIndex = ref(0)
 const changeSwiper = (event: any) => {
   currentIndex.value = event.detail.current as number
 }
