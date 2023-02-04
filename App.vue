@@ -4,7 +4,7 @@ import { BASE_URL_KEY } from '@/constant/storage'
 import { getDownloadingList } from '@/utils/download'
 onLaunch(() => {
   if (!uni.getStorageSync(BASE_URL_KEY))
-    uni.setStorageSync(BASE_URL_KEY, 'https://w64477163a.yicp.fun/')
+    uni.setStorageSync(BASE_URL_KEY, 'https://6q7645j209.goho.co/')
 
   getDownloadingList()
 })

@@ -76,7 +76,7 @@ const downloadEbook = async () => {
 }
 
 const goDetail = () => {
-  if (!downloadTask.value) {
+  if (!downloadTask.value && percentage.value !== 100) {
     downloadEbook()
   }
   else if (percentage.value === 100) {

@@ -34,7 +34,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-const { playMusic, activeMusicInfo, getMediaInfo } = useMusicStore()
+const { playMusic, activeMusicInfo, getMediaInfo, pauseLoading } = useMusicStore()
 
 const downloadTask = shallowRef<DownloadMusic>()
 const percentage = ref(0)
@@ -74,6 +74,7 @@ const downloadMusic = async () => {
 }
 
 onMounted(() => {
+  pauseLoading()
   const storageInfo = DownloadMusic.getStorageInfo(props.rid)
   if (storageInfo) {
     totalSize.value = storageInfo.totalSize

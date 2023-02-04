@@ -87,11 +87,17 @@ export const useMusicStore = defineStore('musicStore', () => {
     playMusic(rid)
   }
 
+  const pauseLoading = () => {
+    activeMusicInfo.value.paused = true
+  }
+
   return {
     activeMusicInfo,
 
     playMusic,
 
     getMediaInfo,
+
+    pauseLoading,
   }
 })
