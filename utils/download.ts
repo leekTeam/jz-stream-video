@@ -434,6 +434,7 @@ export class DownloadSound extends Download {
           else if (this.downloadStatus === DOWNLOAD_STATUS.PROGRESS) {
             storage.currentSize = this.task.downloadedSize || 0
             storage.downloadId = this.task.id || ''
+            storageList[index].downloadId = this.task.id || ''
           }
         }
       }
