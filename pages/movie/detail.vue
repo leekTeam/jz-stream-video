@@ -156,6 +156,7 @@ onUnload(() => {
       enable-play-gesture
       :poster="replaceUrlHost(movieInfo.poster)"
       :src="activeMediaInfo.playurl"
+      :title="movieInfo.name"
       @ended="onNext"
     />
     <view class="detail-box">
