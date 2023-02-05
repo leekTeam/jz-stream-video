@@ -13,9 +13,7 @@ const storageTotal = ref('')
 onLoad(() => {
   const storageInfo = uni.getStorageInfoSync()
   const value = [DownloadEbook, DownloadMovie, DownloadMusic, DownloadSound].reduce((total, item) => {
-    item.storageList.forEach((item) => {
-      total += item.currentSize
-    })
+    total += item.getStorageSize()
     return total
   }, storageInfo.currentSize)
   storageTotal.value = bytesUnitFormat(value)

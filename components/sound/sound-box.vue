@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { nextTick } from 'vue'
 import { CLEAR_STORAGE } from '@/constant/event'
 import { replaceUrlHost } from '@/utils'
 import { DownloadSound } from '@/utils/download'
@@ -25,7 +24,7 @@ const props = defineProps({
     default: '',
   },
   years: {
-    type: Number,
+    type: [Number, String],
     required: true,
   },
   tolnum: {

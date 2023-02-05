@@ -63,7 +63,8 @@ export class Download extends EventEmitter2 {
     // 移除事件的订阅
     this.removeAllListeners()
     // 取消下载
-    this.task.abort()
+    if (!this.task?.filename)
+      this.task.abort()
   }
 
   public static getDownloadTask(downloadId: string) {
@@ -80,6 +81,9 @@ export class Download extends EventEmitter2 {
   }
 
   public getFilenameUrl() {
+    if (!this.task.filename)
+      return ''
+
     return `file://${plus.io.convertLocalFileSystemURL(this.task.filename!)}`
   }
 
@@ -134,6 +138,13 @@ export class DownloadMusic extends Download {
 
   public static set storageList(list: TMusicDownloadStorage[]) {
     uni.setStorageSync(MUSIC_DOWNLOAD_KEY, list)
+  }
+
+  public static getStorageSize() {
+    return DownloadMusic.storageList.reduce((total, item) => {
+      total += item.currentSize
+      return total
+    }, 0)
   }
 
   public static async clearStorage(rid?: string) {
@@ -214,6 +225,13 @@ export class DownloadEbook extends Download {
 
   public static set storageList(list: TEbookDownloadStorage[]) {
     uni.setStorageSync(EBOOK_DOWNLOAD_KEY, list)
+  }
+
+  public static getStorageSize() {
+    return DownloadEbook.storageList.reduce((total, item) => {
+      total += item.currentSize
+      return total
+    }, 0)
   }
 
   public static async clearStorage(rid?: string) {
@@ -335,6 +353,15 @@ export class DownloadMovie extends Download {
     }
 
     DownloadMovie.storageList = storageList
+  }
+
+  public static getStorageSize() {
+    return DownloadMovie.storageList.reduce((total, item) => {
+      item.episodesList.forEach((episodeItem) => {
+        total += episodeItem.currentSize
+      })
+      return total
+    }, 0)
   }
 
   private setStorage() {
@@ -474,9 +501,20 @@ export class DownloadSound extends Download {
         for (const episodesItem of item.episodesList)
           await Download.removeFile(episodesItem.fileName)
       }
+
+      storageList.length = 0
     }
 
     DownloadSound.storageList = storageList
+  }
+
+  public static getStorageSize() {
+    return DownloadSound.storageList.reduce((total, item) => {
+      item.episodesList.forEach((episodeItem) => {
+        total += episodeItem.currentSize
+      })
+      return total
+    }, 0)
   }
 
   private setStorage() {
