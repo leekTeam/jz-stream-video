@@ -63,7 +63,7 @@ export class Download extends EventEmitter2 {
     // 移除事件的订阅
     this.removeAllListeners()
     // 取消下载
-    if (!this.task?.filename)
+    if (this.downloadStatus !== DOWNLOAD_STATUS.SUCCESS)
       this.task.abort()
   }
 
