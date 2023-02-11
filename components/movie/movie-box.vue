@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { nextTick } from 'vue'
 import { replaceUrlHost } from '@/utils'
 import { DownloadMovie } from '@/utils/download'
 import { CLEAR_STORAGE } from '@/constant/event'
@@ -72,7 +71,7 @@ const goDetail = () => {
       <u-icon
         class="ebook-box-cover-down-icon"
         color="#ffffff"
-        name="download"
+        name="close"
         size="40"
       />
     </view>

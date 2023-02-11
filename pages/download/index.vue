@@ -21,6 +21,7 @@ interface ProgressMap {
     onProgress: (currentSize: number) => void
     currentSize: number
     status: DOWNLOAD_STATUS
+    currentDownload: any
   }
 }
 
@@ -46,18 +47,23 @@ const getPercent = (item: DownloadItem) => {
 
 const onPause = (item: DownloadItem) => {
   const row = downloadProgressMap.value[item.rid]
-  if (row.status === DOWNLOAD_STATUS.PAUSE)
-    row.download.task.resume()
 
-  else
+  if (row.status === DOWNLOAD_STATUS.PROGRESS) {
+    row.status = DOWNLOAD_STATUS.PAUSE
     row.download.task.pause()
+  }
+  else {
+    row.status = DOWNLOAD_STATUS.PROGRESS
+    row.download.task.resume()
+  }
 }
 
 const onDeleteTask = (item: DownloadItem, index: number) => {
   const { rid } = item
-  const { download, onProgress } = downloadProgressMap.value[rid]
+  const { download, onProgress, currentDownload } = downloadProgressMap.value[rid]
   download.off(DOWNLOAD_STATUS.PROGRESS, onProgress)
   download.destory()
+  currentDownload.clearStorage(rid)
   downloadList.value.splice(
     index,
     1,
@@ -75,7 +81,7 @@ const getDownloadList = () => {
     const downloadMap: ProgressMap = {}
     const result: DownloadItem[] = []
     res.forEach((item) => {
-      const { name, rid, totalSize, currentSize, status, download } = item
+      const { name, rid, totalSize, currentSize, status, download, currentDownload } = item
 
       result.push({
         name,
@@ -89,6 +95,7 @@ const getDownloadList = () => {
         onProgress,
         currentSize,
         status,
+        currentDownload,
       }
       download.on(DOWNLOAD_STATUS.PROGRESS, onProgress)
     })
@@ -107,6 +114,7 @@ onNavigationBarButtonTap((options) => {
   if (options.index === 0) {
     downloadList.value.forEach((item) => {
       const row = downloadProgressMap.value[item.rid]
+      row.status = DOWNLOAD_STATUS.PAUSE
       const { download } = row
       download.task.pause()
     })
@@ -150,7 +158,7 @@ onUnload(() => {
         </view>
       </view>
       <u-icon
-        :name="getStatus(item.rid) === DOWNLOAD_STATUS.PAUSE ? 'pause' : 'play-right'" :size="48"
+        :name="getStatus(item.rid) === DOWNLOAD_STATUS.PAUSE ? 'play-right' : 'pause'" :size="48"
         @click="onPause(item)"
       />
       <u-icon name="close-circle-fill" :size="48" @click="onDeleteTask(item, index)" />

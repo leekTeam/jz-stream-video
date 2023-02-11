@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { onHide } from '@dcloudio/uni-app'
 import Loading from '../Loading/index.vue'
 import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
@@ -88,8 +89,13 @@ onMounted(() => {
   }
 })
 
+onHide(() => {
+  pauseLoading()
+})
+
 onUnmounted(() => {
   downloadTask.value?.off('progress', onProgress)
+  pauseLoading()
 })
 </script>
 

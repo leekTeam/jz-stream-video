@@ -69,7 +69,7 @@ const hanldeClick = () => {
       <u-icon
         class="ebook-box-cover-down-icon"
         color="#ffffff"
-        name="download"
+        name="close"
         size="40"
       />
     </view>

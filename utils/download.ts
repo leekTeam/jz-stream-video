@@ -27,6 +27,9 @@ export class Download extends EventEmitter2 {
             this.onError()
 
           break
+        case 5:
+          this.onPause()
+          break
       }
     })
   }
@@ -56,6 +59,12 @@ export class Download extends EventEmitter2 {
 
   private onFinally() {
     this.emit('finally')
+    this.updateStorageInfo()
+  }
+
+  private onPause() {
+    this.downloadStatus = DOWNLOAD_STATUS.PAUSE
+    this.emit('pause')
     this.updateStorageInfo()
   }
 
@@ -90,13 +99,18 @@ export class Download extends EventEmitter2 {
   public static removeFile(fileName: string) {
     return new Promise<void>((resolve, reject) => {
       plus.io.requestFileSystem(plus.io.PUBLIC_DOWNLOADS, (fs) => {
-        fs.root!.getFile(fileName, { create: false }, (entry) => {
-          entry.remove(() => {
-            resolve()
-          }, (err) => {
-            reject(err)
+        if (fileName) {
+          fs.root!.getFile(fileName, { create: false }, (entry) => {
+            entry.remove(() => {
+              resolve()
+            }, (err) => {
+              reject(err)
+            })
           })
-        })
+        }
+        else {
+          reject('文件不存在')
+        }
       })
     })
   }
@@ -152,12 +166,23 @@ export class DownloadMusic extends Download {
     if (rid) {
       const index = storageList.findIndex(item => item.rid === rid)
       const storage = storageList[index]
-      await Download.removeFile(storage.fileName)
+      try {
+        await Download.removeFile(storage.fileName)
+      }
+      catch (e) {
+
+      }
       storageList.splice(index, 1)
     }
     else {
-      for (const item of storageList)
-        await Download.removeFile(item.fileName)
+      for (const item of storageList) {
+        try {
+          await Download.removeFile(item.fileName)
+        }
+        catch (e) {
+
+        }
+      }
 
       storageList.length = 0
     }
@@ -240,12 +265,23 @@ export class DownloadEbook extends Download {
     if (rid) {
       const index = storageList.findIndex(item => item.rid === rid)
       const storage = storageList[index]
-      await Download.removeFile(storage.fileName)
+      try {
+        await Download.removeFile(storage.fileName)
+      }
+      catch (e) {
+
+      }
       storageList.splice(index, 1)
     }
     else {
-      for (const item of storageList)
-        await Download.removeFile(item.fileName)
+      for (const item of storageList) {
+        try {
+          await Download.removeFile(item.fileName)
+        }
+        catch (e) {
+
+        }
+      }
 
       storageList.length = 0
     }
@@ -333,20 +369,38 @@ export class DownloadMovie extends Download {
 
   public static async clearStorage(rid?: string) {
     const storageList = DownloadMovie.storageList
+
     if (rid) {
       const index = storageList.findIndex(item => item.rid === rid)
       const storage = storageList[index]
-      await Download.removeFile(storage.coverUrl)
-      for (const item of storage.episodesList)
-        await Download.removeFile(item.fileName)
+      try {
+        await Download.removeFile(storage.coverUrl)
+      }
+      catch (e) {
 
+      }
+
+      for (const item of storage.episodesList) {
+        try {
+          await Download.removeFile(item.fileName)
+        }
+        catch (e) {
+
+        }
+      }
       storageList.splice(index, 1)
     }
     else {
       for (const item of storageList) {
         await Download.removeFile(item.coverUrl)
-        for (const episodesItem of item.episodesList)
-          await Download.removeFile(episodesItem.fileName)
+        for (const episodesItem of item.episodesList) {
+          try {
+            await Download.removeFile(episodesItem.fileName)
+          }
+          catch (e) {
+
+          }
+        }
       }
 
       storageList.length = 0
@@ -490,17 +544,39 @@ export class DownloadSound extends Download {
     if (rid) {
       const index = storageList.findIndex(item => item.rid === rid)
       const storage = storageList[index]
-      await Download.removeFile(storage.coverUrl)
-      for (const item of storage.episodesList)
-        await Download.removeFile(item.fileName)
+      try {
+        await Download.removeFile(storage.coverUrl)
+      }
+      catch (e) {
+
+      }
+      for (const item of storage.episodesList) {
+        try {
+          await Download.removeFile(item.fileName)
+        }
+        catch (e) {
+
+        }
+      }
 
       storageList.splice(index, 1)
     }
     else {
       for (const item of storageList) {
-        await Download.removeFile(item.coverUrl)
-        for (const episodesItem of item.episodesList)
-          await Download.removeFile(episodesItem.fileName)
+        try {
+          await Download.removeFile(item.coverUrl)
+        }
+        catch (e) {
+
+        }
+        for (const episodesItem of item.episodesList) {
+          try {
+            await Download.removeFile(episodesItem.fileName)
+          }
+          catch (e) {
+
+          }
+        }
       }
 
       storageList.length = 0
@@ -587,6 +663,7 @@ function getStorageList<T extends Record<string, any>, K extends keyof T>(downlo
   return {
     storageMap: keyBy<T['storageList'][0]>(download.storageList, 'downloadId'),
     getTask: download[getTaskField],
+    currentDownload: download,
   }
 }
 
@@ -596,16 +673,27 @@ export const getDownloadingList = async () => {
   return res.reduce((list, item) => {
     const storag = storageMapList.find(storageItem => !!storageItem.storageMap[item.id!])
     if (storag) {
-      const { name, currentSize, rid, totalSize, status } = storag.storageMap[item.id!]
+      const { name, currentSize, rid, totalSize, status, episodesList = [] } = storag.storageMap[item.id!]
+      let newStatus = status
+      let newCurrentSize = currentSize
+      let newTotalSize = totalSize
+      if (episodesList.length) {
+        const { status, currentSize, totalSize } = episodesList.find((episodesItem: any) => episodesItem.rid === rid)
+        newStatus = status
+        newCurrentSize = currentSize
+        newTotalSize = totalSize
+      }
+
       list.push({
-        status,
+        status: newStatus,
         name,
         rid,
-        totalSize,
-        currentSize,
+        totalSize: newTotalSize,
+        currentSize: newCurrentSize,
         download: storag.getTask(rid),
+        currentDownload: storag.currentDownload,
       })
     }
     return list
-  }, [] as { name: string; rid: string; totalSize: number;status: DOWNLOAD_STATUS; currentSize: number; download: DownloadEbook | DownloadMovie | DownloadMusic | DownloadSound }[])
+  }, [] as { name: string; rid: string; totalSize: number;status: DOWNLOAD_STATUS; currentSize: number; download: DownloadEbook | DownloadMovie | DownloadMusic | DownloadSound; currentDownload: any }[])
 }

@@ -6,6 +6,7 @@ import { useThemeStore } from '@/store'
 import { replaceUrlHost } from '@/utils'
 import { Download, DownloadMovie } from '@/utils/download'
 import { MOVIE_DOWNLOAD_KEY } from '@/constant/storage'
+import { DOWNLOAD_STATUS } from '@/constant/download'
 
 const themeStore = useThemeStore()
 
@@ -26,8 +27,10 @@ const movieMediaList = shallowRef<TMovieMedia[]>([])
 const activeId = ref<TMovieMedia['id']>()
 const currentNum = ref(0)
 const percentage = ref(0)
+const status = ref(DOWNLOAD_STATUS.PROGRESS)
 
 const activeMediaInfo = computed(() => movieMediaList.value.find(item => item.id === activeId.value) || {} as TMovieMedia)
+
 const downloadTask = shallowRef<DownloadMovie>()
 const judgeDownloadTask = (rid: string) => {
   const storageInfo = DownloadMovie.getStorageInfo(rid)
@@ -35,6 +38,7 @@ const judgeDownloadTask = (rid: string) => {
   if (storageInfo?.episodesList.length) {
     const episodesStorageInfo = storageInfo?.episodesList.find(item => item.id === activeMediaInfo.value.id)
     percentage.value = ((episodesStorageInfo?.currentSize || 0) / (activeMediaInfo.value.size || 0)) * 100
+    status.value = episodesStorageInfo?.status || DOWNLOAD_STATUS.PROGRESS
     const download = DownloadMovie.getMovieTask(rid)
     if (percentage.value !== 100 && download)
       downloadTask.value = download
@@ -45,6 +49,7 @@ const judgeDownloadTask = (rid: string) => {
     downloadTask.value = undefined
   }
 }
+
 const getMediaData = () => {
   uni.showLoading({ title: '加载中', mask: true })
   resMediaGet({ rid: movieInfo.value.rid }).then((res) => {
@@ -98,7 +103,7 @@ const handleDownload = () => {
     downloadTask.value.on('progress', onProgress)
     downloadTask.value.once('progress', () => {
       uni.hideLoading()
-      uni.navigateTo({
+      uni.redirectTo({
         url: '/pages/download/index',
       })
     })
@@ -163,7 +168,7 @@ onUnload(() => {
       <view class="title-box">
         <text>{{ activeMediaInfo.name }}</text>
         <view
-          v-if="percentage === 0 && !downloadTask"
+          v-if="percentage === 0 && !downloadTask && !movieInfo.closable"
           class="down-box"
           @click.stop="handleDownload"
         >
@@ -172,7 +177,7 @@ onUnload(() => {
         </view>
         <view v-else-if="percentage > 0 && percentage < 100" class="down-box">
           <u-icon name="clock-fill" size="40" />
-          <text>正在下载</text>
+          <text>{{ status === DOWNLOAD_STATUS.PROGRESS ? '正在下载' : '暂停中' }}</text>
         </view>
       </view>
       <view class="sub-title-box">

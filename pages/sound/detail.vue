@@ -238,7 +238,7 @@ onUnload(() => {
         {{ playTimeInfo.duration }}
       </view>
       <view
-        v-if="percentage === 0 && !downloadTask"
+        v-if="percentage === 0 && !downloadTask && !soundInfo.closable"
         class="down-box"
         @click.stop="handleDownload"
       >

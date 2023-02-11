@@ -89,6 +89,7 @@ export const useMusicStore = defineStore('musicStore', () => {
 
   const pauseLoading = () => {
     activeMusicInfo.value.paused = true
+    innerAudioContext.value?.destroy()
   }
 
   return {

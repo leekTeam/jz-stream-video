@@ -5,13 +5,18 @@ import EbookList from './components/ebook-list.vue'
 import SoundList from './components/sound-list.vue'
 import MusicList from './components/music-list.vue'
 import MediaTabs from '@/components/media-tabs/index.vue'
-import { useThemeStore } from '@/store'
+import { useMusicStore, useThemeStore } from '@/store'
 import { MEDIA_LIST } from '@/constant/media'
 const themeStore = useThemeStore()
 
 const currentIndex = ref(0)
 const changeSwiper = (event: any) => {
   currentIndex.value = event.detail.current as number
+
+  if (currentIndex.value !== 3) {
+    const { pauseLoading } = useMusicStore()
+    pauseLoading()
+  }
 }
 </script>
 

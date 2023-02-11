@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import Progress from '../progress/index.vue'
 import { replaceUrlHost } from '@/utils'
 import { resMediaGet } from '@/api/ebook'
@@ -127,7 +127,7 @@ onUnmounted(() => {
         <u-icon
           class="ebook-box-cover-down-icon"
           color="#ffffff"
-          name="download"
+          name="close"
           size="40"
         />
       </view>
