@@ -53,7 +53,7 @@ export class Download extends EventEmitter2 {
 
   private onSuccess() {
     this.downloadStatus = DOWNLOAD_STATUS.SUCCESS
-    this.emit('success')
+    this.emit('success', this.downloadStatus)
     this.onFinally()
   }
 

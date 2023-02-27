@@ -97,7 +97,12 @@ const getDownloadList = () => {
         status,
         currentDownload,
       }
-      download.on(DOWNLOAD_STATUS.PROGRESS, onProgress)
+      if (status !== DOWNLOAD_STATUS.PAUSE) {
+        download.on(DOWNLOAD_STATUS.PROGRESS, onProgress)
+        download.on(DOWNLOAD_STATUS.SUCCESS, (currentStatus) => {
+          downloadProgressMap.value[rid].status = currentStatus
+        })
+      }
     })
     downloadProgressMap.value = downloadMap
     downloadList.value = result
