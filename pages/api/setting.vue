@@ -3,6 +3,7 @@ import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { BASE_URL_KEY } from '@/constant/storage'
 import { useThemeStore } from '@/store'
+import { BASE_URL_CHANGE } from '@/constant/event'
 
 const themeStore = useThemeStore()
 
@@ -37,6 +38,7 @@ const onSubmit = () => {
         title: '保存成功',
         icon: 'success',
       })
+      uni.$emit(BASE_URL_CHANGE)
     }
   })
 }

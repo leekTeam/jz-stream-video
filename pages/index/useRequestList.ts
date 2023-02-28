@@ -1,5 +1,5 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { CLEAR_STORAGE } from '@/constant/event'
+import { BASE_URL_CHANGE, CLEAR_STORAGE } from '@/constant/event'
 
 export function useRequestList<
   Props extends { isActive: boolean }, FetchClassifyApi extends () => Promise<any>, FetchListApi extends (...args: any) => Promise<any>,
@@ -63,7 +63,7 @@ export function useRequestList<
       })
   }
 
-  const refreshStorage = () => {
+  const refreshList = () => {
     if (listData.value.length)
       listData.value = []
 
@@ -72,11 +72,13 @@ export function useRequestList<
   }
 
   onMounted(() => {
-    uni.$on(CLEAR_STORAGE, refreshStorage)
+    uni.$on(CLEAR_STORAGE, refreshList)
+    uni.$on(BASE_URL_CHANGE, refreshList)
   })
 
   onUnmounted(() => {
-    uni.$off(CLEAR_STORAGE, refreshStorage)
+    uni.$off(CLEAR_STORAGE, refreshList)
+    uni.$off(BASE_URL_CHANGE, refreshList)
   })
 
   return {

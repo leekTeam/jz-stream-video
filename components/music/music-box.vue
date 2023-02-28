@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
-import { onHide } from '@dcloudio/uni-app'
 import Loading from '../Loading/index.vue'
 import Progress from '../progress/index.vue'
 import { useMusicStore } from '@/store'
@@ -75,7 +74,6 @@ const downloadMusic = async () => {
 }
 
 onMounted(() => {
-  pauseLoading()
   const storageInfo = DownloadMusic.getStorageInfo(props.rid)
   if (storageInfo) {
     totalSize.value = storageInfo.totalSize
