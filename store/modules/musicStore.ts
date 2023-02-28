@@ -13,7 +13,7 @@ export const useMusicStore = defineStore('musicStore', () => {
   const musicRidMediaInfoMap = ref<Record<string, TMusicMedia>>({})
   const musicRidPlayUrlMap = ref<Record<string, string>>({})
 
-  const innerAudioContext = shallowRef<UniApp.InnerAudioContext>()
+  const backgroundAudioManager = shallowRef<UniApp.BackgroundAudioManager>()
 
   const getStoragePlayUrl = (rid: string) => {
     const storageList: TMusicDownloadStorage[] = uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []
@@ -22,8 +22,8 @@ export const useMusicStore = defineStore('musicStore', () => {
 
   const playMusic = (rid: string) => {
     if (!rid) {
-      innerAudioContext.value?.destroy()
-      innerAudioContext.value = undefined
+      backgroundAudioManager.value?.pause()
+      backgroundAudioManager.value = undefined
       activeMusicInfo.value.paused = true
       activeMusicInfo.value.rid = ''
       return
@@ -39,10 +39,9 @@ export const useMusicStore = defineStore('musicStore', () => {
       return
     }
     if (activeMusicInfo.value.rid !== rid || activeMusicInfo.value.paused) {
-      if (!innerAudioContext.value) {
-        innerAudioContext.value = uni.createInnerAudioContext()
-        innerAudioContext.value.autoplay = true
-        innerAudioContext.value.onError((res) => {
+      if (!backgroundAudioManager.value) {
+        backgroundAudioManager.value = uni.getBackgroundAudioManager()
+        backgroundAudioManager.value.onError((res) => {
           uni.showToast({
             title: res?.errMsg || '音乐资源错误',
             icon: 'error',
@@ -50,13 +49,14 @@ export const useMusicStore = defineStore('musicStore', () => {
           activeMusicInfo.value.paused = true
         })
       }
-      innerAudioContext.value.src = musicRidMediaInfoMap.value[rid].downloadurl
-      innerAudioContext.value.play()
+      backgroundAudioManager.value.src = musicRidMediaInfoMap.value[rid].downloadurl
+      backgroundAudioManager.value.title = musicRidMediaInfoMap.value[rid].details
+      backgroundAudioManager.value.play()
       activeMusicInfo.value.paused = false
       activeMusicInfo.value.rid = rid
     }
     else {
-      innerAudioContext.value!.pause()
+      backgroundAudioManager.value!.pause()
       activeMusicInfo.value.paused = true
       activeMusicInfo.value.rid = rid
     }
@@ -88,13 +88,11 @@ export const useMusicStore = defineStore('musicStore', () => {
   }
 
   const pauseLoading = () => {
-    activeMusicInfo.value = {
-      rid: '',
-      paused: true,
-      downloadurl: '',
-    }
-    innerAudioContext.value?.destroy()
-    innerAudioContext.value = undefined
+    activeMusicInfo.value.rid = ''
+    activeMusicInfo.value.paused = true
+    activeMusicInfo.value.downloadurl = ''
+    backgroundAudioManager.value?.pause()
+    backgroundAudioManager.value = undefined
   }
 
   return {

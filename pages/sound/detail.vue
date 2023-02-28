@@ -2,7 +2,7 @@
 import { onLoad, onReady, onUnload } from '@dcloudio/uni-app'
 import { computed, nextTick, ref, shallowRef } from 'vue'
 import { resMediaGet } from '@/api/sound'
-import { useThemeStore } from '@/store'
+import { useMusicStore, useThemeStore } from '@/store'
 import { replaceUrlHost, timeUnitFormat } from '@/utils'
 import { Download, DownloadSound } from '@/utils/download'
 import { SOUND_DOWNLOAD_KEY } from '@/constant/storage'
@@ -31,6 +31,7 @@ const playTimeInfo = shallowRef({
 })
 const currentNum = ref(0)
 const percentage = ref(0)
+const { pauseLoading } = useMusicStore()
 
 const onPlay = () => {
   nextTick(() => {
@@ -171,6 +172,7 @@ const handleDownload = () => {
 }
 
 onReady(() => {
+  pauseLoading()
   if (!soundInfo.value.closable) {
     getMediaData()
   }
