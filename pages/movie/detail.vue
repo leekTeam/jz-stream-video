@@ -166,7 +166,7 @@ onUnload(() => {
     />
     <view class="detail-box">
       <view class="title-box">
-        <text>{{ activeMediaInfo.name }}</text>
+        <text>{{ movieInfo.name }}</text>
         <view
           v-if="percentage === 0 && !downloadTask && !movieInfo.closable"
           class="down-box"
