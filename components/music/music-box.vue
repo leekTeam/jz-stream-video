@@ -89,7 +89,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   downloadTask.value?.off('progress', onProgress)
-  pauseLoading()
 })
 </script>
 

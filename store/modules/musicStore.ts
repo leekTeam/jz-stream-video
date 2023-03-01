@@ -20,6 +20,14 @@ export const useMusicStore = defineStore('musicStore', () => {
     return storageList.find(item => item.rid === rid)?.fileName
   }
 
+  const pauseLoading = () => {
+    activeMusicInfo.value.rid = ''
+    activeMusicInfo.value.paused = true
+    activeMusicInfo.value.downloadurl = ''
+    if (backgroundAudioManager.value)
+      backgroundAudioManager.value.src = ''
+  }
+
   const playMusic = (rid: string) => {
     if (!rid) {
       backgroundAudioManager.value?.pause()
@@ -47,6 +55,13 @@ export const useMusicStore = defineStore('musicStore', () => {
             icon: 'error',
           })
           activeMusicInfo.value.paused = true
+        })
+        backgroundAudioManager.value.onPause(() => {
+          activeMusicInfo.value.paused = true
+        })
+        // TODO 目前无法确定由系统关闭音乐的事件是不是onStop
+        backgroundAudioManager.value.onStop(() => {
+          pauseLoading()
         })
       }
       backgroundAudioManager.value.src = musicRidMediaInfoMap.value[rid].downloadurl
@@ -85,14 +100,6 @@ export const useMusicStore = defineStore('musicStore', () => {
     await getMediaInfo(rid)
     activeMusicInfo.value.downloadurl = musicRidMediaInfoMap.value[rid].downloadurl
     playMusic(rid)
-  }
-
-  const pauseLoading = () => {
-    activeMusicInfo.value.rid = ''
-    activeMusicInfo.value.paused = true
-    activeMusicInfo.value.downloadurl = ''
-    backgroundAudioManager.value?.pause()
-    backgroundAudioManager.value = undefined
   }
 
   return {
