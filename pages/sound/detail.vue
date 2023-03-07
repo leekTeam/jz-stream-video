@@ -177,7 +177,7 @@ onReady(() => {
     getMediaData()
   }
   else {
-    const soundDownloadList = uni.getStorageSync(SOUND_DOWNLOAD_KEY) || []
+    const soundDownloadList = DownloadSound.storageList
     const index = soundDownloadList.findIndex((item) => {
       const { episodesList } = item
       return episodesList.some(episodesItem => episodesItem.rid === soundInfo.value.rid)
@@ -190,7 +190,7 @@ onReady(() => {
         playurl,
       })
       return list
-    }, [])
+    }, [] as TSoundMedia[])
     activeId.value = soundDownloadList[index].episodesList[0].id
     createAudio()
   }

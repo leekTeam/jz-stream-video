@@ -87,7 +87,7 @@ declare global {
 
   interface TSoundEpisodes {
     rid: string
-    id: string | number
+    id: TSoundMedia['id']
     currentNum: number
     downloadId: string
     status: DOWNLOAD_STATUS
