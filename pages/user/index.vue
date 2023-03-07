@@ -57,8 +57,19 @@ onReady(() => {
 })
 
 const handleLogin = async () => {
-  if (userInfo.value.nickname)
+  if (userInfo.value.nickname) {
+    uni.showModal({
+      title: '提示',
+      content: '是否退出登录？',
+      success: (res) => {
+        if (res.confirm) {
+          uni.removeStorageSync(WECHAT_USERINFO)
+          userInfo.value = {} as TWechatUserInfo
+        }
+      },
+    })
     return
+  }
 
   uni.showLoading({ title: '登陆中', mask: true })
   try {
