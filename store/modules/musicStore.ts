@@ -46,7 +46,14 @@ export const useMusicStore = defineStore('musicStore', () => {
       getMusicData(rid)
       return
     }
-    if (activeMusicInfo.value.rid !== rid || activeMusicInfo.value.paused) {
+
+    // 暂停之后开始播放
+    if (activeMusicInfo.value.paused && activeMusicInfo.value.rid && backgroundAudioManager.value) {
+      activeMusicInfo.value.paused = false
+      backgroundAudioManager.value.play()
+    }
+    else if (activeMusicInfo.value.rid !== rid) {
+      // 第一次播放
       if (!backgroundAudioManager.value) {
         backgroundAudioManager.value = uni.getBackgroundAudioManager()
         backgroundAudioManager.value.onError((res) => {
@@ -63,7 +70,19 @@ export const useMusicStore = defineStore('musicStore', () => {
         backgroundAudioManager.value.onStop(() => {
           pauseLoading()
         })
+
+        backgroundAudioManager.value.onPrev(() => {
+          // TODO 用户点击上一首
+        })
+
+        backgroundAudioManager.value.onNext(() => {
+          // TODO 用户点击下一首
+        })
+        backgroundAudioManager.value.onEnded(() => {
+          // TODO 当前音乐播放到结束
+        })
       }
+
       backgroundAudioManager.value.src = musicRidMediaInfoMap.value[rid].downloadurl
       backgroundAudioManager.value.title = musicRidMediaInfoMap.value[rid].details
       backgroundAudioManager.value.play()
@@ -71,9 +90,9 @@ export const useMusicStore = defineStore('musicStore', () => {
       activeMusicInfo.value.rid = rid
     }
     else {
+      // 播放中之后暂停
       backgroundAudioManager.value!.pause()
       activeMusicInfo.value.paused = true
-      activeMusicInfo.value.rid = rid
     }
   }
 
