@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
-import { resMediaGet } from '@/api/music'
+import { classTopLayerGet, resGet, resMediaGet } from '@/api/music'
 import { MUSIC_DOWNLOAD_KEY } from '@/constant/storage'
 
 export const useMusicStore = defineStore('musicStore', () => {
+  const scrollRef = ref()
+
   const activeMusicInfo = ref({
     rid: '',
     paused: true,
@@ -14,6 +16,69 @@ export const useMusicStore = defineStore('musicStore', () => {
   const musicRidPlayUrlMap = ref<Record<string, string>>({})
 
   const backgroundAudioManager = shallowRef<UniApp.BackgroundAudioManager>()
+
+  const classifyList = ref<TMusicTopClass[]>([])
+  const activeClassifyCid = ref('')
+  const listData = ref<TMusic[]>([])
+  const needPlayNext = ref(false)
+
+  const getClassifyList = () => {
+    uni.showLoading({ title: '加载中', mask: true })
+    classTopLayerGet().then((res) => {
+      const { dataObject } = res
+      classifyList.value = dataObject
+      activeClassifyCid.value = dataObject[0].cid
+    }).finally(() => {
+      uni.hideLoading()
+    })
+  }
+
+  const onNext = () => {
+    const index = listData.value.findIndex(item => item.rid === activeMusicInfo.value.rid) + 1
+    const item = listData.value[index]
+    if (item) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      playMusic(item.rid)
+    }
+    else {
+      needPlayNext.value = true
+      scrollRef.value.triggerUpScroll()
+    }
+  }
+
+  const onPrev = () => {
+    const index = listData.value.findIndex(item => item.rid === activeMusicInfo.value.rid) - 1
+    const item = listData.value[index]
+    if (item) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      playMusic(item.rid)
+    }
+  }
+
+  const upCallback = (mescroll: any) => {
+    resGet({
+      cid: activeClassifyCid.value,
+      // page  从0开始
+      page: mescroll.num - 1,
+      size: mescroll.size,
+    })
+      .then((res) => {
+        const { dataObject } = res
+        const { content, last } = dataObject
+        mescroll.endSuccess(content.length, !last)
+        if (mescroll.num === 1)
+          listData.value = content
+        else listData.value = [...listData.value, ...content]
+
+        if (needPlayNext.value)
+          onNext()
+
+        needPlayNext.value = false
+      })
+      .catch(() => {
+        mescroll.endErr()
+      })
+  }
 
   const getStoragePlayUrl = (rid: string) => {
     const storageList: TMusicDownloadStorage[] = uni.getStorageSync(MUSIC_DOWNLOAD_KEY) || []
@@ -66,20 +131,20 @@ export const useMusicStore = defineStore('musicStore', () => {
         backgroundAudioManager.value.onPause(() => {
           activeMusicInfo.value.paused = true
         })
-        // TODO 目前无法确定由系统关闭音乐的事件是不是onStop
+
         backgroundAudioManager.value.onStop(() => {
           pauseLoading()
         })
 
         backgroundAudioManager.value.onPrev(() => {
-          // TODO 用户点击上一首
+          onPrev()
         })
 
         backgroundAudioManager.value.onNext(() => {
-          // TODO 用户点击下一首
+          onNext()
         })
         backgroundAudioManager.value.onEnded(() => {
-          // TODO 当前音乐播放到结束
+          onNext()
         })
       }
 
@@ -122,12 +187,20 @@ export const useMusicStore = defineStore('musicStore', () => {
   }
 
   return {
+    listData,
+    scrollRef,
+    classifyList,
     activeMusicInfo,
+    activeClassifyCid,
 
     playMusic,
 
     getMediaInfo,
 
     pauseLoading,
+
+    getClassifyList,
+
+    upCallback,
   }
 })

@@ -34,7 +34,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-const { playMusic, activeMusicInfo, getMediaInfo, pauseLoading } = useMusicStore()
+const { playMusic, activeMusicInfo, getMediaInfo } = useMusicStore()
 
 const downloadTask = shallowRef<DownloadMusic>()
 const percentage = ref(0)

@@ -1,23 +1,57 @@
 <script setup lang="ts">
-import { useRequestList } from '../useRequestList'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import ClassTopList from './class-top-list.vue'
 import ScrollList from './scroll-list.vue'
 import MusicList from '@/components/music/music-list.vue'
-import { classTopLayerGet, resGet } from '@/api/music'
+import { useMusicStore } from '@/store'
+import { BASE_URL_CHANGE, CLEAR_STORAGE } from '@/constant/event'
 
 const props = defineProps({
   isActive: Boolean,
 })
 
-const {
-  scrollRef,
-  activeClassifyCid,
-  classifyList,
-  isActiveScroll,
-  listData,
-  upCallback,
-  onClassifyChange,
-} = useRequestList(props, classTopLayerGet, resGet)
+const musicStore = useMusicStore()
+const { getClassifyList, upCallback } = musicStore
+const { scrollRef, activeClassifyCid, listData, classifyList } = storeToRefs(musicStore)
+
+const isActiveScroll = computed(() => props.isActive && !!activeClassifyCid.value)
+
+const onClassifyChange = () => {
+  scrollRef.value.triggerDownScroll()
+}
+
+watch(
+  () => props.isActive,
+  (val) => {
+    if (val && !classifyList.value.length) {
+      nextTick(() => {
+        getClassifyList()
+      })
+    }
+  },
+  {
+    immediate: true,
+  },
+)
+
+const refreshList = () => {
+  if (listData.value.length)
+    listData.value = []
+
+  if (props.isActive)
+    scrollRef.value.triggerDownScroll()
+}
+
+onMounted(() => {
+  uni.$on(CLEAR_STORAGE, refreshList)
+  uni.$on(BASE_URL_CHANGE, refreshList)
+})
+
+onUnmounted(() => {
+  uni.$off(CLEAR_STORAGE, refreshList)
+  uni.$off(BASE_URL_CHANGE, refreshList)
+})
 </script>
 
 <template>

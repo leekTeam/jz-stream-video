@@ -31,9 +31,16 @@ const triggerDownScroll = () => {
   mescroll.value.triggerDownScroll()
 }
 
+const triggerUpScroll = () => {
+  mescroll.value.triggerUpScroll()
+}
+
 defineExpose({
+  mescroll,
+
   resetUpScroll,
   triggerDownScroll,
+  triggerUpScroll,
 })
 </script>
 
